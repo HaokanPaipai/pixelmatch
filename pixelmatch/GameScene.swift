@@ -19,6 +19,7 @@ final class GameScene: SKScene {
     private var board: Board!
     private var boardNode: BoardNode!
     private var hud: GameHUD!
+    private var safeAreaInsets: UIEdgeInsets = .zero
 
     // State
     private var state: GameState = .idle
@@ -49,6 +50,7 @@ final class GameScene: SKScene {
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
+        safeAreaInsets = view.safeAreaInsets
         guard level != nil else { return }
 
         HapticsManager.shared.prepare()
@@ -81,7 +83,7 @@ final class GameScene: SKScene {
         worldLbl.fontSize = 12
         worldLbl.fontColor = UIColor(hex: world.themeColorHex).withAlphaComponent(0.5)
         worldLbl.verticalAlignmentMode = .center
-        worldLbl.position = CGPoint(x: 0, y: size.height/2 - 20)
+        worldLbl.position = CGPoint(x: 0, y: size.height/2 - safeAreaInsets.top - 20)
         worldLbl.zPosition = 5
         addChild(worldLbl)
     }
@@ -116,14 +118,14 @@ final class GameScene: SKScene {
 
         boardNode = BoardNode(board: board)
 
-        // Position board in center, below HUD
-        let hudHeight: CGFloat = 155
-        let boosterHeight: CGFloat = 90
-        let availH = size.height - hudHeight - boosterHeight
-        let boardH = boardNode.boardSize.height
-        let boardY = -hudHeight/2 + boosterHeight/2 + max(0, availH - boardH)/2 - boardH/2 + boardH/2
+        // Center the board in the playable area between the top HUD and bottom boosters.
+        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + 15
+        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight
+        let playableTop = size.height / 2 - topReservedHeight
+        let playableBottom = -size.height / 2 + bottomReservedHeight
+        let boardY = (playableTop + playableBottom) / 2
 
-        boardNode.position = CGPoint(x: 0, y: boardY - 30)
+        boardNode.position = CGPoint(x: 0, y: boardY)
         boardNode.zPosition = 1
         addChild(boardNode)
     }
@@ -144,8 +146,9 @@ final class GameScene: SKScene {
             }
         }
 
-        hud = GameHUD(level: level, sceneSize: size)
-        hud.position = CGPoint(x: 0, y: size.height/2 - 70)
+        let hudY = size.height / 2 - safeAreaInsets.top - GameHUD.contentHeight / 2
+        hud = GameHUD(level: level, sceneSize: size, safeAreaInsets: safeAreaInsets, hudWorldY: hudY)
+        hud.position = CGPoint(x: 0, y: hudY)
         hud.zPosition = 10
         addChild(hud)
 

@@ -5,23 +5,27 @@ final class MapScene: SKScene {
     private var scrollNode: SKNode!
     private var contentHeight: CGFloat = 0
     private var touchStart: CGPoint?
-    private var touchStartScrollY: CGFloat = 0
     private var hasScrolled: Bool = false
     private var scrollVelocity: CGFloat = 0
     private var lastTouchY: CGFloat = 0
     private var lastTouchTime: TimeInterval = 0
     private var levelPositions: [Int: CGFloat] = [:]
+    private var safeAreaInsets: UIEdgeInsets = .zero
+    private var isTrackingScroll: Bool = false
 
     // Layout constants
-    private let headerH: CGFloat = 90
-    private var visibleCenterY: CGFloat { -headerH / 2 }
-    private var visibleH: CGFloat { size.height - headerH }
+    private let headerContentH: CGFloat = 90
+    private var headerH: CGFloat { headerContentH + safeAreaInsets.top }
+    private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
+    private var visibleCenterY: CGFloat { (safeAreaInsets.bottom - headerH) / 2 }
+    private var visibleH: CGFloat { size.height - headerH - safeAreaInsets.bottom }
     private var visibleTopY: CGFloat { visibleCenterY + visibleH / 2 }
     private var visibleBottomY: CGFloat { visibleCenterY - visibleH / 2 }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
+        safeAreaInsets = view.safeAreaInsets
         backgroundColor = UIColor(hex: "#050D1A")
         setupBackground()
         setupHeader()
@@ -51,18 +55,18 @@ final class MapScene: SKScene {
     }
 
     private func setupHeader() {
-        let bg = SKShapeNode(rectOf: CGSize(width: size.width, height: 90))
+        let bg = SKShapeNode(rectOf: CGSize(width: size.width, height: headerH))
         bg.fillColor = UIColor(hex: "#0A1628").withAlphaComponent(0.95)
         bg.strokeColor = UIColor(hex: "#1C3A5C")
         bg.lineWidth = 1.5
-        bg.position = CGPoint(x: 0, y: size.height/2 - 45)
+        bg.position = CGPoint(x: 0, y: size.height/2 - headerH / 2)
         bg.zPosition = 20
         addChild(bg)
 
         // Back button
         let backBtn = PixelButton(title: "◀", size: CGSize(width: 40, height: 40),
                                    style: .secondary, fontSize: 20)
-        backBtn.position = CGPoint(x: -size.width/2 + 32, y: size.height/2 - 45)
+        backBtn.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 32, y: safeTopY - 45)
         backBtn.zPosition = 25
         backBtn.onTap = { [weak self] in self?.goHome() }
         addChild(backBtn)
@@ -73,7 +77,7 @@ final class MapScene: SKScene {
         title.fontSize = 24
         title.fontColor = UIColor(hex: "#FFCC00")
         title.verticalAlignmentMode = .center
-        title.position = CGPoint(x: 0, y: size.height/2 - 38)
+        title.position = CGPoint(x: 0, y: safeTopY - 38)
         title.zPosition = 25
         addChild(title)
 
@@ -84,7 +88,7 @@ final class MapScene: SKScene {
                                                    light: .white, dark: UIColor(hex: "#CC8800"),
                                                    size: 22)
         let starIcon = SKSpriteNode(texture: starTex, size: CGSize(width: 22, height: 22))
-        starIcon.position = CGPoint(x: size.width/2 - 65, y: size.height/2 - 45)
+        starIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 45)
         starIcon.zPosition = 25
         addChild(starIcon)
 
@@ -93,7 +97,7 @@ final class MapScene: SKScene {
         starsLbl.fontSize = 18
         starsLbl.fontColor = UIColor(hex: "#FFCC00")
         starsLbl.verticalAlignmentMode = .center
-        starsLbl.position = CGPoint(x: size.width/2 - 42, y: size.height/2 - 45)
+        starsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 45)
         starsLbl.zPosition = 25
         addChild(starsLbl)
 
@@ -103,7 +107,7 @@ final class MapScene: SKScene {
                                                    light: .white, dark: UIColor(hex: "#CC8800"),
                                                    size: 20)
         let coinIcon = SKSpriteNode(texture: coinTex, size: CGSize(width: 20, height: 20))
-        coinIcon.position = CGPoint(x: size.width/2 - 65, y: size.height/2 - 68)
+        coinIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 68)
         coinIcon.zPosition = 25
         addChild(coinIcon)
 
@@ -112,7 +116,7 @@ final class MapScene: SKScene {
         coinsLbl.fontSize = 16
         coinsLbl.fontColor = UIColor(hex: "#FFCC00")
         coinsLbl.verticalAlignmentMode = .center
-        coinsLbl.position = CGPoint(x: size.width/2 - 42, y: size.height/2 - 68)
+        coinsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 68)
         coinsLbl.zPosition = 25
         addChild(coinsLbl)
     }
@@ -137,7 +141,7 @@ final class MapScene: SKScene {
         // Top-down layout: World 1 at top (y near 0), World 10 at bottom (most negative).
         // Each world stacked vertically with header + level grid + gap.
         let cols = 5
-        let hMargin: CGFloat = 16
+        let hMargin: CGFloat = 16 + max(safeAreaInsets.left, safeAreaInsets.right)
         let spacing: CGFloat = (size.width - 2 * hMargin) / CGFloat(cols)
         let headerSize: CGFloat = 56
         let headerGap: CGFloat = 14
@@ -185,7 +189,7 @@ final class MapScene: SKScene {
     }
 
     private func addWorldHeader(world: World, y: CGFloat) {
-        let bg = SKShapeNode(rectOf: CGSize(width: size.width - 24, height: 50), cornerRadius: 10)
+        let bg = SKShapeNode(rectOf: CGSize(width: size.width - safeAreaInsets.left - safeAreaInsets.right - 24, height: 50), cornerRadius: 10)
         bg.fillColor = world.themeColor.withAlphaComponent(0.18)
         bg.strokeColor = world.themeColor.withAlphaComponent(0.7)
         bg.lineWidth = 2
@@ -306,16 +310,17 @@ final class MapScene: SKScene {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        touchStart = touch.location(in: self)
-        touchStartScrollY = scrollNode.position.y
+        let loc = touch.location(in: self)
+        isTrackingScroll = loc.y <= visibleTopY && loc.y >= visibleBottomY
+        touchStart = loc
         hasScrolled = false
-        lastTouchY = touchStart!.y
+        lastTouchY = loc.y
         lastTouchTime = touch.timestamp
         scrollVelocity = 0
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, let start = touchStart else { return }
+        guard isTrackingScroll, let touch = touches.first, let start = touchStart else { return }
         let current = touch.location(in: self)
         let dy = current.y - lastTouchY
 
@@ -334,11 +339,20 @@ final class MapScene: SKScene {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchStart = nil
+        defer {
+            touchStart = nil
+            isTrackingScroll = false
+        }
+
+        guard isTrackingScroll, !hasScrolled, let touch = touches.first else { return }
+        if let levelButton = levelButton(at: touch.location(in: self)) {
+            levelButton.triggerTap()
+        }
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchStart = nil
+        isTrackingScroll = false
     }
 
     /// Children check this before treating their own touch as a tap.
@@ -347,7 +361,7 @@ final class MapScene: SKScene {
     override func update(_ currentTime: TimeInterval) {
         guard scrollNode != nil else { return }
         guard abs(scrollVelocity) > 0.5 else { scrollVelocity = 0; return }
-        let newY = scrollNode.position.y + scrollVelocity * 60
+        let newY = scrollNode.position.y + scrollVelocity
         let clamped = clampScrollY(newY)
         scrollNode.position.y = clamped
         // If we hit a clamp boundary, kill momentum.
@@ -361,6 +375,19 @@ final class MapScene: SKScene {
         let minY = visibleTopY
         let maxY = max(minY, visibleBottomY + contentHeight)
         return max(minY, min(maxY, y))
+    }
+
+    private func levelButton(at scenePoint: CGPoint) -> LevelButtonNode? {
+        for node in nodes(at: scenePoint) {
+            var current: SKNode? = node
+            while let candidate = current {
+                if let button = candidate as? LevelButtonNode {
+                    return button
+                }
+                current = candidate.parent
+            }
+        }
+        return nil
     }
 
     private func showFloatingText(_ text: String, color: UIColor) {
@@ -391,7 +418,6 @@ final class LevelButtonNode: SKNode {
         self.level = level
         self.btnSize = size
         super.init()
-        isUserInteractionEnabled = true
         buildUI(theme: theme)
     }
 
@@ -467,16 +493,10 @@ final class LevelButtonNode: SKNode {
         }
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        // Suppress tap if user was scrolling the map.
-        if let map = scene as? MapScene, map.isCurrentlyScrolling { return }
-        let loc = touch.location(in: self)
-        if abs(loc.x) < btnSize/2 && abs(loc.y) < btnSize/2 {
-            run(.sequence([.scale(to: 0.9, duration: 0.05), .scale(to: 1.0, duration: 0.08)]))
-            AudioManager.shared.play(.buttonTap)
-            onTap?()
-        }
+    func triggerTap() {
+        run(.sequence([.scale(to: 0.9, duration: 0.05), .scale(to: 1.0, duration: 0.08)]))
+        AudioManager.shared.play(.buttonTap)
+        onTap?()
     }
 }
 

@@ -26,10 +26,14 @@ final class TutorialScene: SKScene {
     private var skipBtn: PixelButton!
     private var highlightRing: SKShapeNode!
     private var handNode: SKNode!
+    private var safeAreaInsets: UIEdgeInsets = .zero
+    private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
+    private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
+        safeAreaInsets = view.safeAreaInsets
         backgroundColor = UIColor(hex: "#0A1628")
         setupBackground()
         setupTutorialBoard()
@@ -72,7 +76,9 @@ final class TutorialScene: SKScene {
         board.setup(from: level)
 
         boardNode = BoardNode(board: board)
-        boardNode.position = CGPoint(x: 0, y: 30)
+        let panelTop = safeBottomY + 222
+        let playableTop = safeTopY - 24
+        boardNode.position = CGPoint(x: 0, y: (playableTop + panelTop) / 2)
         boardNode.zPosition = 1
         addChild(boardNode)
 
@@ -91,16 +97,21 @@ final class TutorialScene: SKScene {
         messagePanel.zPosition = 25
         addChild(messagePanel)
 
-        let panelBg = SKShapeNode(rectOf: CGSize(width: size.width - 24, height: 210), cornerRadius: 16)
+        let panelHeight: CGFloat = 210
+        let panelBottom = safeBottomY + 12
+        let panelTop = panelBottom + panelHeight
+        let panelCenterY = panelBottom + panelHeight / 2
+        let panelWidth = size.width - safeAreaInsets.left - safeAreaInsets.right - 24
+        let panelBg = SKShapeNode(rectOf: CGSize(width: panelWidth, height: panelHeight), cornerRadius: 16)
         panelBg.fillColor = UIColor(hex: "#0A1628").withAlphaComponent(0.96)
         panelBg.strokeColor = UIColor(hex: "#334466")
         panelBg.lineWidth = 2
-        panelBg.position = CGPoint(x: 0, y: -size.height/2 + 125)
+        panelBg.position = CGPoint(x: 0, y: panelCenterY)
         messagePanel.addChild(panelBg)
 
         // Pixel art mascot (colored pixel face)
         let mascot = buildMascotNode()
-        mascot.position = CGPoint(x: -size.width/2 + 70, y: -size.height/2 + 165)
+        mascot.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 70, y: panelBottom + 52)
         mascot.zPosition = 26
         addChild(mascot)
 
@@ -109,7 +120,7 @@ final class TutorialScene: SKScene {
         titleLabel.fontColor = UIColor(hex: "#FFCC00")
         titleLabel.verticalAlignmentMode = .top
         titleLabel.horizontalAlignmentMode = .center
-        titleLabel.position = CGPoint(x: 20, y: -size.height/2 + 220)
+        titleLabel.position = CGPoint(x: 20, y: panelTop - 15)
         titleLabel.zPosition = 26
         addChild(titleLabel)
 
@@ -119,8 +130,8 @@ final class TutorialScene: SKScene {
         msgLabel.verticalAlignmentMode = .top
         msgLabel.horizontalAlignmentMode = .center
         msgLabel.numberOfLines = 4
-        msgLabel.preferredMaxLayoutWidth = size.width - 80
-        msgLabel.position = CGPoint(x: 20, y: -size.height/2 + 195)
+        msgLabel.preferredMaxLayoutWidth = panelWidth - 56
+        msgLabel.position = CGPoint(x: 20, y: panelTop - 40)
         msgLabel.zPosition = 26
         addChild(msgLabel)
 
@@ -128,7 +139,7 @@ final class TutorialScene: SKScene {
                               size: CGSize(width: 160, height: 44),
                               style: .primary,
                               color: UIColor(hex: "#34C759"))
-        nextBtn.position = CGPoint(x: 60, y: -size.height/2 + 50)
+        nextBtn.position = CGPoint(x: 60, y: panelBottom + 38)
         nextBtn.zPosition = 26
         nextBtn.onTap = { [weak self] in self?.advance() }
         addChild(nextBtn)
@@ -138,7 +149,7 @@ final class TutorialScene: SKScene {
                               style: .ghost,
                               color: UIColor(hex: "#7799CC"),
                               fontSize: 14)
-        skipBtn.position = CGPoint(x: -size.width/2 + 64, y: -size.height/2 + 50)
+        skipBtn.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 64, y: panelBottom + 38)
         skipBtn.zPosition = 26
         skipBtn.onTap = { [weak self] in self?.finishTutorial() }
         addChild(skipBtn)

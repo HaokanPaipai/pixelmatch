@@ -5,10 +5,15 @@ final class HomeScene: SKScene {
     private var bgParticles: [SKNode] = []
     private var logoNode: SKNode!
     private var dailyRewardTimer: Timer?
+    private var safeAreaInsets: UIEdgeInsets = .zero
+    private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
+    private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
+    private var playButtonY: CGFloat { max(safeBottomY + 180, -size.height * 0.12) }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
+        safeAreaInsets = view.safeAreaInsets
         PlayerData.shared.completeFirstLaunch()
         setupBackground()
         setupLogo()
@@ -86,7 +91,7 @@ final class HomeScene: SKScene {
 
     private func setupLogo() {
         logoNode = SKNode()
-        logoNode.position = CGPoint(x: 0, y: size.height * 0.2)
+        logoNode.position = CGPoint(x: 0, y: min(size.height * 0.16, safeTopY - 195))
         logoNode.zPosition = 5
         addChild(logoNode)
 
@@ -146,12 +151,15 @@ final class HomeScene: SKScene {
     private func setupPixelGems() {
         let gems: [GemColor] = [.red, .blue, .green, .yellow, .purple, .orange]
         let spacing = size.width / CGFloat(gems.count + 1)
+        let logoBottom = logoNode.position.y - 92
+        let playTop = playButtonY + 36
+        let gemY = min(size.height * 0.05, (logoBottom + playTop) / 2)
 
         for (i, color) in gems.enumerated() {
             let tex = PixelArt.shared.gemTexture(color: color, special: .none)
             let gem = SKSpriteNode(texture: tex, size: CGSize(width: 36, height: 36))
             gem.position = CGPoint(x: -size.width/2 + spacing * CGFloat(i+1),
-                                   y: size.height * 0.05)
+                                   y: gemY)
             gem.zPosition = 3
             addChild(gem)
 
@@ -169,11 +177,15 @@ final class HomeScene: SKScene {
     // MARK: - Player Info
 
     private func setupPlayerInfo() {
-        let infoBar = SKShapeNode(rectOf: CGSize(width: size.width - 40, height: 50), cornerRadius: 10)
+        let infoY = safeTopY - 72
+        let currencyY = infoY - 48
+        let heartsY = safeTopY - 24
+        let sideInset = safeAreaInsets.left + safeAreaInsets.right
+        let infoBar = SKShapeNode(rectOf: CGSize(width: size.width - sideInset - 40, height: 50), cornerRadius: 10)
         infoBar.fillColor = UIColor(hex: "#0D1B2A").withAlphaComponent(0.9)
         infoBar.strokeColor = UIColor(hex: "#1C3A5C")
         infoBar.lineWidth = 1.5
-        infoBar.position = CGPoint(x: 0, y: size.height * 0.28)
+        infoBar.position = CGPoint(x: 0, y: infoY)
         infoBar.zPosition = 6
         addChild(infoBar)
 
@@ -184,7 +196,7 @@ final class HomeScene: SKScene {
         nameLbl.fontColor = .white
         nameLbl.verticalAlignmentMode = .center
         nameLbl.horizontalAlignmentMode = .left
-        nameLbl.position = CGPoint(x: -size.width/2 + 36, y: size.height * 0.28)
+        nameLbl.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 36, y: infoY)
         nameLbl.zPosition = 7
         addChild(nameLbl)
 
@@ -196,13 +208,13 @@ final class HomeScene: SKScene {
         lvlLbl.fontColor = UIColor(hex: "#FFCC00")
         lvlLbl.verticalAlignmentMode = .center
         lvlLbl.horizontalAlignmentMode = .right
-        lvlLbl.position = CGPoint(x: size.width/2 - 36, y: size.height * 0.28)
+        lvlLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 36, y: infoY)
         lvlLbl.zPosition = 7
         addChild(lvlLbl)
 
         // Currency row
         let currencyBar = SKNode()
-        currencyBar.position = CGPoint(x: 0, y: size.height * 0.22)
+        currencyBar.position = CGPoint(x: 0, y: currencyY)
         currencyBar.zPosition = 6
 
         // Coins
@@ -248,7 +260,7 @@ final class HomeScene: SKScene {
                                                     dark: UIColor(hex: "#991111"), size: 20)
         for i in 0..<GameConstants.maxLives {
             let h = SKSpriteNode(texture: heartTex, size: CGSize(width: 18, height: 18))
-            h.position = CGPoint(x: -size.width/2 + 20 + CGFloat(i) * 22, y: size.height * 0.36)
+            h.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 20 + CGFloat(i) * 22, y: heartsY)
             h.zPosition = 6
             h.alpha = i < lives ? 1.0 : 0.2
             addChild(h)
@@ -260,12 +272,13 @@ final class HomeScene: SKScene {
     // MARK: - Main Buttons
 
     private func setupMainButtons() {
+        let playY = playButtonY
         let playBtn = PixelButton(title: "▶ PLAY",
                                    size: CGSize(width: 260, height: 64),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
                                    fontSize: 28)
-        playBtn.position = CGPoint(x: 0, y: -size.height * 0.12)
+        playBtn.position = CGPoint(x: 0, y: playY)
         playBtn.zPosition = 10
         playBtn.onTap = { [weak self] in self?.goToMap() }
         addChild(playBtn)
@@ -284,7 +297,7 @@ final class HomeScene: SKScene {
                                        style: .primary,
                                        color: UIColor(hex: "#FF9500"),
                                        fontSize: 18)
-            dailyBtn.position = CGPoint(x: 0, y: -size.height * 0.23)
+            dailyBtn.position = CGPoint(x: 0, y: playY - 78)
             dailyBtn.zPosition = 10
             dailyBtn.onTap = { [weak self] in self?.claimDailyReward() }
             addChild(dailyBtn)
@@ -297,11 +310,16 @@ final class HomeScene: SKScene {
     }
 
     private func setupBottomBar() {
-        let bar = SKShapeNode(rectOf: CGSize(width: size.width, height: 70))
+        let barHeight = safeAreaInsets.bottom + 70
+        let barCenterY = -size.height/2 + barHeight / 2
+        let buttonY = safeBottomY + 35
+        let labelY = safeBottomY + 12
+        let sideInset: CGFloat = 45
+        let bar = SKShapeNode(rectOf: CGSize(width: size.width, height: barHeight))
         bar.fillColor = UIColor(hex: "#0A1628").withAlphaComponent(0.95)
         bar.strokeColor = UIColor(hex: "#1C3A5C")
         bar.lineWidth = 1.5
-        bar.position = CGPoint(x: 0, y: -size.height/2 + 35)
+        bar.position = CGPoint(x: 0, y: barCenterY)
         bar.zPosition = 20
         addChild(bar)
 
@@ -310,7 +328,7 @@ final class HomeScene: SKScene {
                                    iconColor: UIColor(hex: "#FFCC00"),
                                    size: CGSize(width: 50, height: 50),
                                    bgColor: UIColor(hex: "#1C2E4A"))
-        shopBtn.position = CGPoint(x: -size.width/2 + 45, y: -size.height/2 + 35)
+        shopBtn.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + sideInset, y: buttonY)
         shopBtn.zPosition = 25
         shopBtn.onTap = { [weak self] in self?.showShop() }
         addChild(shopBtn)
@@ -320,7 +338,7 @@ final class HomeScene: SKScene {
         shopLbl.fontSize = 10
         shopLbl.fontColor = UIColor(hex: "#7799CC")
         shopLbl.verticalAlignmentMode = .center
-        shopLbl.position = CGPoint(x: -size.width/2 + 45, y: -size.height/2 + 12)
+        shopLbl.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + sideInset, y: labelY)
         shopLbl.zPosition = 25
         addChild(shopLbl)
 
@@ -339,7 +357,7 @@ final class HomeScene: SKScene {
                                       iconColor: UIColor(hex: "#7799CC"),
                                       size: CGSize(width: 50, height: 50),
                                       bgColor: UIColor(hex: "#1C2E4A"))
-        settingsBtn.position = CGPoint(x: size.width/2 - 45, y: -size.height/2 + 35)
+        settingsBtn.position = CGPoint(x: size.width/2 - safeAreaInsets.right - sideInset, y: buttonY)
         settingsBtn.zPosition = 25
         settingsBtn.onTap = { [weak self] in self?.showSettings() }
         addChild(settingsBtn)
@@ -349,7 +367,7 @@ final class HomeScene: SKScene {
         settingsLbl.fontSize = 10
         settingsLbl.fontColor = UIColor(hex: "#7799CC")
         settingsLbl.verticalAlignmentMode = .center
-        settingsLbl.position = CGPoint(x: size.width/2 - 45, y: -size.height/2 + 12)
+        settingsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - sideInset, y: labelY)
         settingsLbl.zPosition = 25
         addChild(settingsLbl)
 
@@ -368,7 +386,7 @@ final class HomeScene: SKScene {
                                  iconColor: UIColor(hex: "#FFCC00"),
                                  size: CGSize(width: 50, height: 50),
                                  bgColor: UIColor(hex: "#1C2E4A"))
-        lbBtn.position = CGPoint(x: 0, y: -size.height/2 + 35)
+        lbBtn.position = CGPoint(x: 0, y: buttonY)
         lbBtn.zPosition = 25
         lbBtn.onTap = { [weak self] in self?.showLeaderboard() }
         addChild(lbBtn)
@@ -378,7 +396,7 @@ final class HomeScene: SKScene {
         lbLbl.fontSize = 10
         lbLbl.fontColor = UIColor(hex: "#7799CC")
         lbLbl.verticalAlignmentMode = .center
-        lbLbl.position = CGPoint(x: 0, y: -size.height/2 + 12)
+        lbLbl.position = CGPoint(x: 0, y: labelY)
         lbLbl.zPosition = 25
         addChild(lbLbl)
     }
@@ -471,7 +489,7 @@ final class HomeScene: SKScene {
     }
 
     private func showShop() {
-        let dialog = ShopDialog(sceneSize: size)
+        let dialog = ShopDialog(sceneSize: size, safeAreaInsets: safeAreaInsets)
         dialog.zPosition = 50
         addChild(dialog)
         dialog.onClose = { [weak dialog] in dialog?.dismiss() }
@@ -531,17 +549,55 @@ final class HomeScene: SKScene {
 final class ShopDialog: DialogNode {
     var onClose: (() -> Void)?
 
-    init(sceneSize: CGSize) {
-        super.init(size: CGSize(width: 320, height: 520), sceneSize: sceneSize)
+    private let dialogSize: CGSize
+    private let viewportHeight: CGFloat
+    private let viewportTop: CGFloat
+    private let viewportBottom: CGFloat
+    private let scrollNode = SKNode()
+    private var contentHeight: CGFloat = 0
+    private var touchStartY: CGFloat = 0
+    private var scrollStartY: CGFloat = 0
+    private var isTrackingScroll = false
+    private var didDrag = false
+
+    init(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
+        let width = min(sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 32, 320)
+        let height = min(sceneSize.height - safeAreaInsets.top - safeAreaInsets.bottom - 40, 520)
+        dialogSize = CGSize(width: width, height: height)
+        viewportTop = height / 2 - 66
+        viewportBottom = -height / 2 + 78
+        viewportHeight = viewportTop - viewportBottom
+
+        super.init(size: dialogSize, sceneSize: sceneSize)
+        isUserInteractionEnabled = true
         buildUI()
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("🛒 SHOP", y: 230)
+        addPixelTitle("🛒 SHOP", y: dialogSize.height / 2 - 34)
 
-        var yPos: CGFloat = 160
+        let closeBtn = PixelButton(title: "CLOSE",
+                                   size: CGSize(width: 240, height: 44),
+                                   style: .secondary, fontSize: 16)
+        closeBtn.position = CGPoint(x: 0, y: -dialogSize.height / 2 + 38)
+        closeBtn.zPosition = 20
+        closeBtn.onTap = { [weak self] in self?.onClose?() }
+        addChild(closeBtn)
+
+        let clip = SKCropNode()
+        let mask = SKShapeNode(rectOf: CGSize(width: dialogSize.width - 24, height: viewportHeight), cornerRadius: 8)
+        mask.fillColor = .white
+        mask.position = CGPoint(x: 0, y: (viewportTop + viewportBottom) / 2)
+        clip.maskNode = mask
+        clip.zPosition = 1
+        addChild(clip)
+
+        scrollNode.position = CGPoint(x: 0, y: viewportTop)
+        clip.addChild(scrollNode)
+
+        var yPos: CGFloat = -36
 
         // Diamond packs
         let packs: [(name: String, diamonds: Int, coins: Int, price: String)] = [
@@ -565,7 +621,7 @@ final class ShopDialog: DialogNode {
         boosterTitle.fontColor = UIColor(hex: "#7799CC")
         boosterTitle.verticalAlignmentMode = .center
         boosterTitle.position = CGPoint(x: 0, y: yPos)
-        addChild(boosterTitle)
+        scrollNode.addChild(boosterTitle)
         yPos -= 60
 
         for type in BoosterType.allCases {
@@ -573,21 +629,16 @@ final class ShopDialog: DialogNode {
             yPos -= 55
         }
 
-        let closeBtn = PixelButton(title: "CLOSE",
-                                   size: CGSize(width: 240, height: 44),
-                                   style: .secondary, fontSize: 16)
-        closeBtn.position = CGPoint(x: 0, y: yPos - 20)
-        closeBtn.onTap = { [weak self] in self?.onClose?() }
-        addChild(closeBtn)
+        contentHeight = abs(yPos) + 24
     }
 
     private func addShopItem(name: String, diamonds: Int, coins: Int, price: String, y: CGFloat) {
-        let bg = SKShapeNode(rectOf: CGSize(width: 280, height: 64), cornerRadius: 8)
+        let bg = SKShapeNode(rectOf: CGSize(width: dialogSize.width - 40, height: 64), cornerRadius: 8)
         bg.fillColor = UIColor(hex: "#0F1E33")
         bg.strokeColor = UIColor(hex: "#1C3A5C")
         bg.lineWidth = 1.5
         bg.position = CGPoint(x: 0, y: y)
-        addChild(bg)
+        scrollNode.addChild(bg)
 
         let nameLbl = SKLabelNode(fontNamed: "Courier-Bold")
         nameLbl.text = name
@@ -595,8 +646,8 @@ final class ShopDialog: DialogNode {
         nameLbl.fontColor = .white
         nameLbl.verticalAlignmentMode = .center
         nameLbl.horizontalAlignmentMode = .left
-        nameLbl.position = CGPoint(x: -130, y: y + 12)
-        addChild(nameLbl)
+        nameLbl.position = CGPoint(x: -dialogSize.width / 2 + 34, y: y + 12)
+        scrollNode.addChild(nameLbl)
 
         let rewardLbl = SKLabelNode(fontNamed: "Courier")
         let rewardText = diamonds > 0 ? "+\(diamonds) 💎" : "" + (coins > 0 ? " +\(coins) 🪙" : "")
@@ -605,32 +656,32 @@ final class ShopDialog: DialogNode {
         rewardLbl.fontColor = UIColor(hex: "#AF52DE")
         rewardLbl.verticalAlignmentMode = .center
         rewardLbl.horizontalAlignmentMode = .left
-        rewardLbl.position = CGPoint(x: -130, y: y - 12)
-        addChild(rewardLbl)
+        rewardLbl.position = CGPoint(x: -dialogSize.width / 2 + 34, y: y - 12)
+        scrollNode.addChild(rewardLbl)
 
         let buyBtn = PixelButton(title: price,
                                   size: CGSize(width: 110, height: 36),
                                   style: .primary,
                                   color: UIColor(hex: "#FF9500"),
                                   fontSize: 13)
-        buyBtn.position = CGPoint(x: 80, y: y)
+        buyBtn.position = CGPoint(x: dialogSize.width / 2 - 78, y: y)
         buyBtn.onTap = { AudioManager.shared.play(.buttonTap) }
-        addChild(buyBtn)
+        scrollNode.addChild(buyBtn)
     }
 
     private func addBoosterItem(type: BoosterType, y: CGFloat) {
-        let bg = SKShapeNode(rectOf: CGSize(width: 280, height: 48), cornerRadius: 8)
+        let bg = SKShapeNode(rectOf: CGSize(width: dialogSize.width - 40, height: 48), cornerRadius: 8)
         bg.fillColor = UIColor(hex: "#0F1E33")
         bg.strokeColor = UIColor(hex: "#1C3A5C")
         bg.lineWidth = 1.5
         bg.position = CGPoint(x: 0, y: y)
-        addChild(bg)
+        scrollNode.addChild(bg)
 
         let icon = SKSpriteNode(texture: PixelArt.shared.iconTexture(
             pixels: type.iconPixels, primary: .white, light: UIColor.white.lighter(), dark: .gray, size: 28),
                                 size: CGSize(width: 28, height: 28))
-        icon.position = CGPoint(x: -120, y: y)
-        addChild(icon)
+        icon.position = CGPoint(x: -dialogSize.width / 2 + 40, y: y)
+        scrollNode.addChild(icon)
 
         let lbl = SKLabelNode(fontNamed: "Courier-Bold")
         lbl.text = type.name
@@ -638,8 +689,8 @@ final class ShopDialog: DialogNode {
         lbl.fontColor = .white
         lbl.verticalAlignmentMode = .center
         lbl.horizontalAlignmentMode = .left
-        lbl.position = CGPoint(x: -90, y: y)
-        addChild(lbl)
+        lbl.position = CGPoint(x: -dialogSize.width / 2 + 70, y: y)
+        scrollNode.addChild(lbl)
 
         let buyBtn = PixelButton(title: "\(type.cost) 🪙",
                                   size: CGSize(width: 90, height: 34),
@@ -657,7 +708,44 @@ final class ShopDialog: DialogNode {
                 AudioManager.shared.play(.coinCollect)
             }
         }
-        buyBtn.position = CGPoint(x: 90, y: y)
-        addChild(buyBtn)
+        buyBtn.position = CGPoint(x: dialogSize.width / 2 - 70, y: y)
+        scrollNode.addChild(buyBtn)
+    }
+
+    private func clampScrollY(_ y: CGFloat) -> CGFloat {
+        let minY = viewportTop
+        let maxY = max(minY, viewportBottom + contentHeight)
+        return max(minY, min(maxY, y))
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let loc = touch.location(in: self)
+        isTrackingScroll = abs(loc.x) <= dialogSize.width / 2 - 12
+            && loc.y <= viewportTop
+            && loc.y >= viewportBottom
+        didDrag = false
+        touchStartY = loc.y
+        scrollStartY = scrollNode.position.y
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard isTrackingScroll, let touch = touches.first else { return }
+        let currentY = touch.location(in: self).y
+        if abs(currentY - touchStartY) > 4 { didDrag = true }
+        scrollNode.position.y = clampScrollY(scrollStartY + currentY - touchStartY)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        defer {
+            isTrackingScroll = false
+            didDrag = false
+        }
+        guard !didDrag, let touch = touches.first else { return }
+        let loc = touch.location(in: self)
+        let closeY = -dialogSize.height / 2 + 38
+        if abs(loc.x) <= 120 && abs(loc.y - closeY) <= 26 {
+            onClose?()
+        }
     }
 }

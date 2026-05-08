@@ -1,6 +1,8 @@
 import SpriteKit
 
 final class GameHUD: SKNode {
+    static let contentHeight: CGFloat = 140
+    static let boosterReservedHeight: CGFloat = 112
 
     // Callbacks
     var onPause: (() -> Void)?
@@ -20,14 +22,14 @@ final class GameHUD: SKNode {
     private var targetScore: Int = 1000
     private var currentMoves: Int = 0
 
-    init(level: Level, sceneSize: CGSize) {
+    init(level: Level, sceneSize: CGSize, safeAreaInsets: UIEdgeInsets, hudWorldY: CGFloat) {
         super.init()
-        setupBackground(sceneSize: sceneSize)
-        setupPauseButton(sceneSize: sceneSize)
+        setupBackground(sceneSize: sceneSize, safeAreaInsets: safeAreaInsets)
+        setupPauseButton(sceneSize: sceneSize, safeAreaInsets: safeAreaInsets)
         setupMovesDisplay(sceneSize: sceneSize)
-        setupScoreDisplay(sceneSize: sceneSize)
-        setupObjectives(level: level, sceneSize: sceneSize)
-        setupBoosters(sceneSize: sceneSize)
+        setupScoreDisplay(sceneSize: sceneSize, safeAreaInsets: safeAreaInsets)
+        setupObjectives(level: level, sceneSize: sceneSize, safeAreaInsets: safeAreaInsets)
+        setupBoosters(sceneSize: sceneSize, safeAreaInsets: safeAreaInsets, hudWorldY: hudWorldY)
 
         currentMoves = level.moves
         updateMovesDisplay()
@@ -41,23 +43,24 @@ final class GameHUD: SKNode {
 
     // MARK: - Setup
 
-    private func setupBackground(sceneSize: CGSize) {
-        let bg = SKShapeNode(rectOf: CGSize(width: sceneSize.width, height: 140))
+    private func setupBackground(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
+        let bgHeight = Self.contentHeight + safeAreaInsets.top
+        let bg = SKShapeNode(rectOf: CGSize(width: sceneSize.width, height: bgHeight))
         bg.fillColor = UIColor(hex: "#0A1628").withAlphaComponent(0.95)
         bg.strokeColor = UIColor(hex: "#1C3A5C")
         bg.lineWidth = 1.5
-        bg.position = CGPoint(x: 0, y: 0)
+        bg.position = CGPoint(x: 0, y: safeAreaInsets.top / 2)
         bg.zPosition = -1
         addChild(bg)
 
         // Pixel top border decoration
         let border = SKSpriteNode(color: UIColor(hex: "#2255AA"), size: CGSize(width: sceneSize.width, height: 3))
-        border.position = CGPoint(x: 0, y: -70)
+        border.position = CGPoint(x: 0, y: -Self.contentHeight / 2)
         border.zPosition = 1
         addChild(border)
     }
 
-    private func setupPauseButton(sceneSize: CGSize) {
+    private func setupPauseButton(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
         let btn = PixelButton(icon: [[UInt8]]([
             [0,0,1,1,0,1,1,0],
             [0,0,1,1,0,1,1,0],
@@ -69,7 +72,7 @@ final class GameHUD: SKNode {
             [0,0,0,0,0,0,0,0],
         ]), iconColor: .white, size: CGSize(width: 40, height: 40),
             bgColor: UIColor(hex: "#1C2E4A"))
-        btn.position = CGPoint(x: -sceneSize.width/2 + 32, y: 25)
+        btn.position = CGPoint(x: -sceneSize.width/2 + safeAreaInsets.left + 32, y: 25)
         btn.zPosition = 10
         btn.onTap = { [weak self] in self?.onPause?() }
         addChild(btn)
@@ -103,13 +106,22 @@ final class GameHUD: SKNode {
         movesValueLabel = valLbl
     }
 
-    private func setupScoreDisplay(sceneSize: CGSize) {
+    private func setupScoreDisplay(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
+        let movesRightEdge: CGFloat = 35
+        let scoreLeftPadding: CGFloat = 14
+        let scoreRightPadding: CGFloat = 16
+        let scoreRightEdge = sceneSize.width / 2 - safeAreaInsets.right - scoreRightPadding
+        let maxBarW = sceneSize.width * 0.34
+        let availableBarW = scoreRightEdge - movesRightEdge - scoreLeftPadding
+        let barW = max(72, min(maxBarW, availableBarW))
+        let scoreX = scoreRightEdge - barW / 2
+
         let scoreLbl = SKLabelNode(fontNamed: "Courier-Bold")
         scoreLbl.text = "SCORE"
         scoreLbl.fontSize = 11
         scoreLbl.fontColor = UIColor(hex: "#7799CC")
         scoreLbl.verticalAlignmentMode = .center
-        scoreLbl.position = CGPoint(x: sceneSize.width / 4, y: 40)
+        scoreLbl.position = CGPoint(x: scoreX, y: 40)
         addChild(scoreLbl)
 
         let valLbl = SKLabelNode(fontNamed: "Courier-Bold")
@@ -117,17 +129,16 @@ final class GameHUD: SKNode {
         valLbl.fontSize = 28
         valLbl.fontColor = UIColor(hex: "#FFCC00")
         valLbl.verticalAlignmentMode = .center
-        valLbl.position = CGPoint(x: sceneSize.width / 4, y: 18)
+        valLbl.position = CGPoint(x: scoreX, y: 18)
         addChild(valLbl)
         scoreValueLabel = valLbl
 
         // Progress bar
-        let barW = sceneSize.width * 0.38
         let barBg = SKShapeNode(rectOf: CGSize(width: barW, height: 10), cornerRadius: 5)
         barBg.fillColor = UIColor(hex: "#0A1628")
         barBg.strokeColor = UIColor(hex: "#2255AA")
         barBg.lineWidth = 1.5
-        barBg.position = CGPoint(x: sceneSize.width / 4, y: -5)
+        barBg.position = CGPoint(x: scoreX, y: -5)
         addChild(barBg)
 
         progressBar = barBg
@@ -135,21 +146,21 @@ final class GameHUD: SKNode {
         progressFill = SKShapeNode(rectOf: CGSize(width: 2, height: 8), cornerRadius: 4)
         progressFill.fillColor = UIColor(hex: "#FFCC00")
         progressFill.strokeColor = .clear
-        progressFill.position = CGPoint(x: sceneSize.width/4 - barW/2 + 1, y: -5)
+        progressFill.position = CGPoint(x: scoreX - barW/2 + 1, y: -5)
         addChild(progressFill)
 
         // Stars row
         for i in 0..<3 {
             let star = StarIconNode(size: 24)
-            star.position = CGPoint(x: sceneSize.width/4 - 24 + CGFloat(i) * 24, y: -28)
+            star.position = CGPoint(x: scoreX - 24 + CGFloat(i) * 24, y: -28)
             star.zPosition = 2
             star.name = "star_\(i)"
             addChild(star)
         }
     }
 
-    private func setupObjectives(level: Level, sceneSize: CGSize) {
-        let startX = -sceneSize.width / 2 + 16
+    private func setupObjectives(level: Level, sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
+        let startX = -sceneSize.width / 2 + safeAreaInsets.left + 58
         let y: CGFloat = -50
 
         for (idx, obj) in level.objectives.enumerated() {
@@ -160,14 +171,16 @@ final class GameHUD: SKNode {
         }
     }
 
-    private func setupBoosters(sceneSize: CGSize) {
+    private func setupBoosters(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets, hudWorldY: CGFloat) {
         let types = BoosterType.allCases
         let spacing: CGFloat = 60
         let startX = -CGFloat(types.count - 1) * spacing / 2
+        let boosterWorldY = -sceneSize.height / 2 + safeAreaInsets.bottom + 68
+        let boosterLocalY = boosterWorldY - hudWorldY
 
         for (i, type) in types.enumerated() {
             let node = BoosterButtonNode(type: type)
-            node.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -sceneSize.height / 2 + 50)
+            node.position = CGPoint(x: startX + CGFloat(i) * spacing, y: boosterLocalY)
             node.onTap = { [weak self] in self?.onBoosterTap?(type) }
             addChild(node)
             boosterNodes.append(node)
