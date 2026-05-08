@@ -5,10 +5,19 @@ final class MapScene: SKScene {
     private var scrollNode: SKNode!
     private var contentHeight: CGFloat = 0
     private var touchStart: CGPoint?
-    private var lastScrollY: CGFloat = 0
+    private var touchStartScrollY: CGFloat = 0
+    private var hasScrolled: Bool = false
     private var scrollVelocity: CGFloat = 0
     private var lastTouchY: CGFloat = 0
     private var lastTouchTime: TimeInterval = 0
+    private var levelPositions: [Int: CGFloat] = [:]
+
+    // Layout constants
+    private let headerH: CGFloat = 90
+    private var visibleCenterY: CGFloat { -headerH / 2 }
+    private var visibleH: CGFloat { size.height - headerH }
+    private var visibleTopY: CGFloat { visibleCenterY + visibleH / 2 }
+    private var visibleBottomY: CGFloat { visibleCenterY - visibleH / 2 }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -113,9 +122,9 @@ final class MapScene: SKScene {
     private func setupScrollContent() {
         let clip = SKCropNode()
         clip.maskNode = {
-            let mask = SKShapeNode(rectOf: CGSize(width: size.width, height: size.height - 100))
+            let mask = SKShapeNode(rectOf: CGSize(width: size.width, height: visibleH))
             mask.fillColor = .white
-            mask.position = CGPoint(x: 0, y: -50)
+            mask.position = CGPoint(x: 0, y: visibleCenterY)
             return mask
         }()
         clip.position = .zero
@@ -125,79 +134,93 @@ final class MapScene: SKScene {
         scrollNode = SKNode()
         clip.addChild(scrollNode)
 
-        var yOffset: CGFloat = 0
-        let levelCount = LevelData.all.count
+        // Top-down layout: World 1 at top (y near 0), World 10 at bottom (most negative).
+        // Each world stacked vertically with header + level grid + gap.
+        let cols = 5
+        let hMargin: CGFloat = 16
+        let spacing: CGFloat = (size.width - 2 * hMargin) / CGFloat(cols)
+        let headerSize: CGFloat = 56
+        let headerGap: CGFloat = 14
+        let worldGap: CGFloat = 36
+        let topPad: CGFloat = 20
 
-        // Build world sections bottom-to-top
-        let levelsPerWorld = 20
-        let allLevels = LevelData.all
+        var cursorY: CGFloat = -topPad
 
-        for world in GameWorlds.reversed() {
-            let worldLevels = allLevels.filter { $0.worldId == world.id }
+        for world in GameWorlds {
+            let worldLevels = LevelData.all.filter { $0.worldId == world.id }
             guard !worldLevels.isEmpty else { continue }
 
-            // World header
-            let headerY = yOffset
-            addWorldHeader(world: world, y: headerY)
-            yOffset += 60
+            // Header (centered at cursorY - headerSize/2)
+            cursorY -= headerSize / 2
+            addWorldHeader(world: world, y: cursorY)
+            cursorY -= headerSize / 2 + headerGap
 
-            // Level buttons in grid (4 per row)
-            let cols = 5
-            let spacing: CGFloat = (size.width - 40) / CGFloat(cols)
-            let rows = Int(ceil(Double(worldLevels.count) / Double(cols)))
-
+            // Level grid: each row's center is spacing/2 below cursor, then advances by spacing
+            let rows = (worldLevels.count + cols - 1) / cols
             for row in 0..<rows {
+                cursorY -= spacing / 2
                 for col in 0..<cols {
                     let idx = row * cols + col
                     guard idx < worldLevels.count else { continue }
                     let lvl = worldLevels[idx]
-                    let x = -size.width/2 + 20 + CGFloat(col) * spacing + spacing/2
-                    let y = yOffset + CGFloat(row) * spacing
-
-                    let btn = LevelButtonNode(level: lvl, size: spacing - 8, theme: world)
-                    btn.position = CGPoint(x: x, y: y)
+                    let x = -size.width/2 + hMargin + CGFloat(col) * spacing + spacing/2
+                    let btn = LevelButtonNode(level: lvl, size: spacing - 10, theme: world)
+                    btn.position = CGPoint(x: x, y: cursorY)
                     btn.zPosition = 5
                     btn.name = "level_\(lvl.id)"
                     scrollNode.addChild(btn)
+                    levelPositions[lvl.id] = cursorY
 
                     btn.onTap = { [weak self] in self?.showLevelDetail(lvl) }
                 }
+                cursorY -= spacing / 2
             }
 
-            yOffset += CGFloat(rows) * spacing + 30
+            cursorY -= worldGap
         }
 
-        contentHeight = yOffset + 100
-        scrollNode.position = CGPoint(x: 0, y: -(size.height/2 - 100) + 20)
+        contentHeight = abs(cursorY) + topPad
+        // Initial position: content's top edge (y=0) sits at visible area's top
+        scrollNode.position = CGPoint(x: 0, y: visibleTopY)
     }
 
     private func addWorldHeader(world: World, y: CGFloat) {
-        let bg = SKShapeNode(rectOf: CGSize(width: size.width - 20, height: 48), cornerRadius: 8)
-        bg.fillColor = world.themeColor.withAlphaComponent(0.15)
-        bg.strokeColor = world.themeColor.withAlphaComponent(0.5)
+        let bg = SKShapeNode(rectOf: CGSize(width: size.width - 24, height: 50), cornerRadius: 10)
+        bg.fillColor = world.themeColor.withAlphaComponent(0.18)
+        bg.strokeColor = world.themeColor.withAlphaComponent(0.7)
         bg.lineWidth = 2
-        bg.position = CGPoint(x: 0, y: y + 24)
+        bg.position = CGPoint(x: 0, y: y)
         scrollNode.addChild(bg)
 
         let lbl = SKLabelNode(fontNamed: "Courier-Bold")
         lbl.text = "✦ \(world.name.uppercased()) ✦"
-        lbl.fontSize = 18
+        lbl.fontSize = 17
         lbl.fontColor = world.themeColor
         lbl.verticalAlignmentMode = .center
-        lbl.position = CGPoint(x: 0, y: y + 24)
+        lbl.position = CGPoint(x: 0, y: y)
         scrollNode.addChild(lbl)
+
+        // Sub-label: level range
+        let rangeLbl = SKLabelNode(fontNamed: "Courier")
+        rangeLbl.text = "Levels \(world.levelRange.lowerBound)-\(world.levelRange.upperBound)"
+        rangeLbl.fontSize = 10
+        rangeLbl.fontColor = world.themeColor.withAlphaComponent(0.7)
+        rangeLbl.verticalAlignmentMode = .center
+        rangeLbl.position = CGPoint(x: 0, y: y - 18)
+        scrollNode.addChild(rangeLbl)
     }
 
     private func scrollToCurrentLevel() {
         let maxLevel = PlayerData.shared.maxUnlockedLevel
-        // Scroll to show current level (basic calculation)
-        // The current level is somewhere in the scroll
-        let targetLevel = min(maxLevel, LevelData.all.count)
-        let world = LevelData.level(targetLevel)?.worldId ?? 1
-        // Scroll to that world (approximate)
-        let worldIndex = GameWorlds.count - world
-        let scrollTarget = CGFloat(worldIndex) * 150
-        scrollNode.run(.moveTo(y: max(-(size.height/2 - 100) + scrollTarget, scrollNode.position.y), duration: 0.8))
+        let target = min(maxLevel, LevelData.all.count)
+        guard let levelY = levelPositions[target] else { return }
+
+        // Place the current level about 1/3 down from the visible top, for context.
+        let targetSceneY = visibleTopY - visibleH * 0.30
+        let desiredScrollY = targetSceneY - levelY
+        let clamped = clampScrollY(desiredScrollY)
+
+        scrollNode.run(.moveTo(y: clamped, duration: 0.45))
     }
 
     // MARK: - Level Detail
@@ -284,6 +307,8 @@ final class MapScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         touchStart = touch.location(in: self)
+        touchStartScrollY = scrollNode.position.y
+        hasScrolled = false
         lastTouchY = touchStart!.y
         lastTouchTime = touch.timestamp
         scrollVelocity = 0
@@ -293,6 +318,11 @@ final class MapScene: SKScene {
         guard let touch = touches.first, let start = touchStart else { return }
         let current = touch.location(in: self)
         let dy = current.y - lastTouchY
+
+        // Once finger has moved more than 6pt, treat as scroll (cancels button taps).
+        if !hasScrolled && abs(current.y - start.y) > 6 {
+            hasScrolled = true
+        }
 
         let dt = touch.timestamp - lastTouchTime
         if dt > 0 { scrollVelocity = dy / CGFloat(dt) * 0.016 }
@@ -307,16 +337,29 @@ final class MapScene: SKScene {
         touchStart = nil
     }
 
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchStart = nil
+    }
+
+    /// Children check this before treating their own touch as a tap.
+    var isCurrentlyScrolling: Bool { hasScrolled }
+
     override func update(_ currentTime: TimeInterval) {
+        guard scrollNode != nil else { return }
         guard abs(scrollVelocity) > 0.5 else { scrollVelocity = 0; return }
         let newY = scrollNode.position.y + scrollVelocity * 60
-        scrollNode.position.y = clampScrollY(newY)
-        scrollVelocity *= 0.88
+        let clamped = clampScrollY(newY)
+        scrollNode.position.y = clamped
+        // If we hit a clamp boundary, kill momentum.
+        if clamped != newY { scrollVelocity = 0 } else { scrollVelocity *= 0.88 }
     }
 
     private func clampScrollY(_ y: CGFloat) -> CGFloat {
-        let minY = -(size.height/2 - 100) + 20
-        let maxY = minY + max(0, contentHeight - (size.height - 100))
+        // scrollNode local y range: [-contentHeight, 0]. Map to scene as scrollY + localY.
+        // Initial (top of content visible at top of visible area): scrollY = visibleTopY
+        // Max (bottom of content visible at bottom of visible area): scrollY = visibleBottomY + contentHeight
+        let minY = visibleTopY
+        let maxY = max(minY, visibleBottomY + contentHeight)
         return max(minY, min(maxY, y))
     }
 
@@ -426,6 +469,8 @@ final class LevelButtonNode: SKNode {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        // Suppress tap if user was scrolling the map.
+        if let map = scene as? MapScene, map.isCurrentlyScrolling { return }
         let loc = touch.location(in: self)
         if abs(loc.x) < btnSize/2 && abs(loc.y) < btnSize/2 {
             run(.sequence([.scale(to: 0.9, duration: 0.05), .scale(to: 1.0, duration: 0.08)]))
