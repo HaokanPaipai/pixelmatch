@@ -1,45 +1,44 @@
-//
-//  GameViewController.swift
-//  pixelmatch
-//
-//  Created by mchen on 2026/5/7.
-//
-
 import UIKit
 import SpriteKit
-import GameplayKit
 
 class GameViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let view = self.view as! SKView? {
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
-                // Set the scale mode to scale to fit the window
-                scene.scaleMode = .aspectFill
-                
-                // Present the scene
-                view.presentScene(scene)
-            }
-            
-            view.ignoresSiblingOrder = true
-            
-            view.showsFPS = true
-            view.showsNodeCount = true
-        }
+
+        guard let skView = view as? SKView else { return }
+
+        // Performance settings
+        skView.ignoresSiblingOrder = true
+        skView.showsFPS = false
+        skView.showsNodeCount = false
+        skView.showsDrawCount = false
+        skView.preferredFramesPerSecond = 60
+        skView.shouldCullNonVisibleNodes = true
+
+        // Initialize services
+        AdManager.shared.initialize()
+        GameCenterManager.shared.rootViewController = self
+        GameCenterManager.shared.authenticate()
+
+        // Use UIScreen.main.bounds rather than skView.bounds: in viewDidLoad
+        // the SKView's frame still reflects the storyboard design-time size,
+        // not the real device screen. UIScreen.main.bounds is always correct.
+        let screenSize = UIScreen.main.bounds.size
+        let scene = LoadingScene(size: screenSize)
+        scene.scaleMode = .aspectFill
+        skView.presentScene(scene)
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return .allButUpsideDown
-        } else {
-            return .all
-        }
+        return .portrait
     }
 
     override var prefersStatusBarHidden: Bool {
+        return true
+    }
+
+    override var prefersHomeIndicatorAutoHidden: Bool {
         return true
     }
 }
