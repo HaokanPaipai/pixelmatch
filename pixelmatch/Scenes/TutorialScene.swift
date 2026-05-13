@@ -78,13 +78,7 @@ final class TutorialScene: SKScene {
         boardNode = BoardNode(board: board)
         let panelTop = safeBottomY + 222
         let playableTop = safeTopY - 24
-        let availableWidth = max(1, size.width - safeAreaInsets.left - safeAreaInsets.right - 24)
-        let availableHeight = max(1, playableTop - panelTop - 18)
-        let boardScale = min(1.0,
-                             availableWidth / max(boardNode.boardSize.width, 1),
-                             availableHeight / max(boardNode.boardSize.height, 1))
         boardNode.position = CGPoint(x: 0, y: (playableTop + panelTop) / 2)
-        boardNode.setScale(boardScale)
         boardNode.zPosition = 1
         addChild(boardNode)
 

@@ -31,6 +31,11 @@ final class TileNode: SKNode {
     func refresh() {
         if tile.isHole { isHidden = true; return }
         isHidden = false
+        alpha = 1
+        setScale(1)
+        gemSprite.removeAllActions()
+        gemSprite.alpha = 1
+        gemSprite.setScale(1)
 
         let tex = PixelArt.shared.gemTexture(color: tile.gemColor, special: tile.special)
         gemSprite.texture = tex

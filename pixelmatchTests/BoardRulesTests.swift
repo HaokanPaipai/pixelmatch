@@ -89,6 +89,22 @@ final class BoardRulesTests: XCTestCase {
         XCTAssertFalse(effectPositions(effect).contains("1_1"))
     }
 
+    func testGravityDoesNotDropTilesIntoBottomHoles() {
+        let board = makeBoard(rows: 4, cols: 1)
+        board.grid[0][0] = tile(0, 0, .red)
+        board.grid[1][0] = nil
+        board.grid[2][0] = nil
+        board.grid[3][0] = Tile(row: 3, col: 0, color: .blue, isHole: true)
+
+        let falls = board.applyGravity()
+
+        XCTAssertEqual(falls.count, 1)
+        XCTAssertEqual(falls[0].fromRow, 0)
+        XCTAssertEqual(falls[0].toRow, 2)
+        XCTAssertTrue(board.grid[3][0]?.isHole == true)
+        XCTAssertEqual(board.grid[2][0]?.gemColor, .red)
+    }
+
     private func makeBoard(rows: Int, cols: Int) -> Board {
         let board = Board(rows: rows, cols: cols, availableColors: GemColor.allCases)
         board.grid = Array(repeating: Array(repeating: nil, count: cols), count: rows)

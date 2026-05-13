@@ -8,14 +8,7 @@ final class HomeScene: SKScene {
     private var safeAreaInsets: UIEdgeInsets = .zero
     private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
     private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
-    private var bottomBarHeight: CGFloat { safeAreaInsets.bottom + 70 }
-    private var bottomBarTopY: CGFloat { -size.height / 2 + bottomBarHeight }
-
-    private struct MainButtonLayout {
-        let playY: CGFloat
-        let dailyY: CGFloat?
-        let questY: CGFloat
-    }
+    private var playButtonY: CGFloat { max(safeBottomY + 180, -size.height * 0.12) }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -159,10 +152,7 @@ final class HomeScene: SKScene {
         let gems: [GemColor] = [.red, .blue, .green, .yellow, .purple, .orange]
         let spacing = size.width / CGFloat(gems.count + 1)
         let logoBottom = logoNode.position.y - 92
-        let playTop = mainButtonLayout().playY + 32
-        let availableGap = logoBottom - playTop
-        guard availableGap >= 44 else { return }
-
+        let playTop = playButtonY + 36
         let gemY = min(size.height * 0.05, (logoBottom + playTop) / 2)
 
         for (i, color) in gems.enumerated() {
@@ -284,8 +274,7 @@ final class HomeScene: SKScene {
     private func setupMainButtons() {
         LiveOpsManager.shared.refreshDailyQuestsIfNeeded()
 
-        let layout = mainButtonLayout()
-        let playY = layout.playY
+        let playY = playButtonY
         let playBtn = PixelButton(title: "▶ PLAY",
                                    size: CGSize(width: 260, height: 64),
                                    style: .primary,
@@ -304,13 +293,13 @@ final class HomeScene: SKScene {
         ])))
 
         // Daily reward button (if available)
-        if let dailyY = layout.dailyY {
+        if PlayerData.shared.canClaimDailyReward {
             let dailyBtn = PixelButton(title: "🎁 DAILY REWARD!",
                                        size: CGSize(width: 240, height: 50),
                                        style: .primary,
                                        color: UIColor(hex: "#FF9500"),
                                        fontSize: 18)
-            dailyBtn.position = CGPoint(x: 0, y: dailyY)
+            dailyBtn.position = CGPoint(x: 0, y: playY - 78)
             dailyBtn.zPosition = 10
             dailyBtn.onTap = { [weak self] in self?.claimDailyReward() }
             addChild(dailyBtn)
@@ -321,7 +310,7 @@ final class HomeScene: SKScene {
             ])))
         }
 
-        let questY = layout.questY
+        let questY = playY - (PlayerData.shared.canClaimDailyReward ? 140 : 78)
         let questCount = LiveOpsManager.shared.completedUnclaimedQuestCount
         let questTitle = questCount > 0 ? "✅ QUESTS (\(questCount))" : "📋 QUESTS"
         let questBtn = PixelButton(title: questTitle,
@@ -350,7 +339,7 @@ final class HomeScene: SKScene {
     }
 
     private func setupBottomBar() {
-        let barHeight = bottomBarHeight
+        let barHeight = safeAreaInsets.bottom + 70
         let barCenterY = -size.height/2 + barHeight / 2
         let buttonY = safeBottomY + 35
         let labelY = safeBottomY + 12
@@ -439,27 +428,6 @@ final class HomeScene: SKScene {
         lbLbl.position = CGPoint(x: 0, y: labelY)
         lbLbl.zPosition = 25
         addChild(lbLbl)
-    }
-
-    private func mainButtonLayout() -> MainButtonLayout {
-        // 主按钮区从底部工具栏往上排，再与 Logo 底部做碰撞限制。
-        // 小屏时优先保证按钮不进入安全区和底栏，大屏时保持原来的视觉中心。
-        let hasDailyReward = PlayerData.shared.canClaimDailyReward
-        let preferredPlayY = max(safeBottomY + 180, -size.height * 0.12)
-        let minPlayY = bottomBarTopY + (hasDailyReward ? 164 : 106)
-        let logoBottom = (logoNode?.position.y ?? safeTopY - 195) - 92
-        let maxPlayY = logoBottom - 40
-        let playY = min(max(preferredPlayY, minPlayY), maxPlayY)
-
-        if hasDailyReward {
-            let dailyY = playY - 69
-            return MainButtonLayout(playY: playY,
-                                    dailyY: dailyY,
-                                    questY: dailyY - 59)
-        }
-        return MainButtonLayout(playY: playY,
-                                dailyY: nil,
-                                questY: playY - 70)
     }
 
     // MARK: - Daily Reward

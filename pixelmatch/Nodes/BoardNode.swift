@@ -158,7 +158,6 @@ final class BoardNode: SKNode {
             }
 
             node.animateMatch { }
-            tileNodes[pos.row][pos.col] = nil
             maxDelay = max(maxDelay, 0.2)
         }
 
@@ -191,7 +190,6 @@ final class BoardNode: SKNode {
             guard let self = self else { return }
             for p in affectedPositions {
                 self.tileNodes[p.row][p.col]?.animateMatch { }
-                self.tileNodes[p.row][p.col] = nil
             }
             self.run(.wait(forDuration: 0.2)) { completion() }
         }
@@ -266,18 +264,28 @@ final class BoardNode: SKNode {
         guard !falls.isEmpty else { completion(); return }
 
         var completedCount = 0
-        let total = falls.count
+        let moves = falls.compactMap { fall -> (fall: TileFall, node: TileNode)? in
+            guard let node = tileNodes[fall.fromRow][fall.fromCol] else { return nil }
+            return (fall, node)
+        }
+        let total = moves.count
+        guard total > 0 else { completion(); return }
 
-        for fall in falls {
-            let node = tileNodes[fall.fromRow][fall.fromCol]
+        for move in moves {
+            tileNodes[move.fall.fromRow][move.fall.fromCol] = nil
+        }
+
+        for move in moves {
+            let fall = move.fall
+            let node = move.node
             let fromY = tilePos(row: fall.fromRow, col: fall.fromCol).y
             let toY = tilePos(row: fall.toRow, col: fall.toCol).y
 
-            // Move in tileNodes grid
+            // 先用快照取节点，再统一更新目标格，避免同一列连续下落时来源格被覆盖。
+            node.tile = fall.tile
             tileNodes[fall.toRow][fall.toCol] = node
-            tileNodes[fall.fromRow][fall.fromCol] = nil
 
-            node?.animateFall(fromY: fromY, toY: toY, delay: 0) {
+            node.animateFall(fromY: fromY, toY: toY, delay: 0) {
                 completedCount += 1
                 if completedCount == total { completion() }
             }
@@ -294,6 +302,8 @@ final class BoardNode: SKNode {
             let destPos = tilePos(row: tile.row, col: tile.col)
             let startPos = spawnPos(column: info.column, rowOffset: info.spawnRowOffset)
 
+            // 理论上补充位置应为空；这里兜底移除旧节点，避免残影叠到新棋子上。
+            tileNodes[tile.row][tile.col]?.removeFromParent()
             let node = TileNode(tile: tile)
             node.position = startPos
             node.zPosition = 1
@@ -356,6 +366,33 @@ final class BoardNode: SKNode {
                 node.zPosition = 1
                 addChild(node)
                 tileNodes[r][c] = node
+            }
+        }
+    }
+
+    func syncWithBoard() {
+        // 棋盘数据在消除后才知道哪些格子真的为空，哪些只是障碍层变化。
+        // 这里以 Board 为准修正视觉节点，避免旧节点或障碍贴图残留在底行。
+        for r in 0..<rows {
+            for c in 0..<cols {
+                guard let tile = board.grid[r][c], !tile.isHole else {
+                    tileNodes[r][c]?.removeFromParent()
+                    tileNodes[r][c] = nil
+                    continue
+                }
+
+                if let node = tileNodes[r][c] {
+                    node.tile = tile
+                    node.position = tilePos(row: r, col: c)
+                    node.zPosition = 1
+                    node.refresh()
+                } else {
+                    let node = TileNode(tile: tile)
+                    node.position = tilePos(row: r, col: c)
+                    node.zPosition = 1
+                    addChild(node)
+                    tileNodes[r][c] = node
+                }
             }
         }
     }

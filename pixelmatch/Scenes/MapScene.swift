@@ -88,8 +88,7 @@ final class MapScene: SKScene {
                                                    light: .white, dark: UIColor(hex: "#CC8800"),
                                                    size: 22)
         let starIcon = SKSpriteNode(texture: starTex, size: CGSize(width: 22, height: 22))
-        let statsRightX = size.width / 2 - safeAreaInsets.right - 16
-        starIcon.position = CGPoint(x: statsRightX - 52, y: safeTopY - 45)
+        starIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 45)
         starIcon.zPosition = 25
         addChild(starIcon)
 
@@ -98,8 +97,7 @@ final class MapScene: SKScene {
         starsLbl.fontSize = 18
         starsLbl.fontColor = UIColor(hex: "#FFCC00")
         starsLbl.verticalAlignmentMode = .center
-        starsLbl.horizontalAlignmentMode = .right
-        starsLbl.position = CGPoint(x: statsRightX, y: safeTopY - 45)
+        starsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 45)
         starsLbl.zPosition = 25
         addChild(starsLbl)
 
@@ -109,7 +107,7 @@ final class MapScene: SKScene {
                                                    light: .white, dark: UIColor(hex: "#CC8800"),
                                                    size: 20)
         let coinIcon = SKSpriteNode(texture: coinTex, size: CGSize(width: 20, height: 20))
-        coinIcon.position = CGPoint(x: statsRightX - 52, y: safeTopY - 68)
+        coinIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 68)
         coinIcon.zPosition = 25
         addChild(coinIcon)
 
@@ -118,15 +116,9 @@ final class MapScene: SKScene {
         coinsLbl.fontSize = 16
         coinsLbl.fontColor = UIColor(hex: "#FFCC00")
         coinsLbl.verticalAlignmentMode = .center
-        coinsLbl.horizontalAlignmentMode = .right
-        coinsLbl.position = CGPoint(x: statsRightX, y: safeTopY - 68)
+        coinsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 68)
         coinsLbl.zPosition = 25
         addChild(coinsLbl)
-
-        let titleLeftLimit = backBtn.position.x + 34
-        let titleRightLimit = statsRightX - 76
-        let centeredTitleWidth = 2 * max(1, min(abs(titleLeftLimit), abs(titleRightLimit)))
-        fitLabel(title, maxWidth: max(90, centeredTitleWidth))
     }
 
     // MARK: - Scroll Content
@@ -414,14 +406,6 @@ final class MapScene: SKScene {
         ]))
     }
 
-    private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat = 0.65) {
-        // 顶栏两侧信息会随账号数据变长，标题需要主动收进中间可用宽度。
-        label.setScale(1)
-        let width = max(label.frame.width, 1)
-        if width > maxWidth {
-            label.setScale(max(minScale, maxWidth / width))
-        }
-    }
 }
 
 // MARK: - Level Button Node

@@ -129,24 +129,14 @@ final class GameScene: SKScene {
 
         boardNode = BoardNode(board: board)
 
-        // 棋盘必须被限制在 HUD 和底部 Booster 之间。先计算安全可玩区域，
-        // 再按宽高同时缩放，避免小屏设备上横向超出或纵向压到控件。
-        let horizontalPadding: CGFloat = 24
-        let verticalPadding: CGFloat = 18
-        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + verticalPadding
-        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight + verticalPadding
+        // 保持既有棋盘布局基线：棋盘居中放在 HUD 与底部 Booster 之间。
+        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + 15
+        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight
         let playableTop = size.height / 2 - topReservedHeight
         let playableBottom = -size.height / 2 + bottomReservedHeight
-        let availableWidth = max(1, size.width - safeAreaInsets.left - safeAreaInsets.right - horizontalPadding)
-        let availableHeight = max(1, playableTop - playableBottom)
-        let boardSize = boardNode.boardSize
-        let boardScale = min(1.0,
-                             availableWidth / max(boardSize.width, 1),
-                             availableHeight / max(boardSize.height, 1))
         let boardY = (playableTop + playableBottom) / 2
 
         boardNode.position = CGPoint(x: 0, y: boardY)
-        boardNode.setScale(boardScale)
         boardNode.zPosition = 1
         addChild(boardNode)
     }
@@ -500,6 +490,7 @@ final class GameScene: SKScene {
                                            newSpecial: firstSpecialKind)
 
             self.updateObjectiveProgress(positions: allPositions)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
     }
@@ -602,6 +593,7 @@ final class GameScene: SKScene {
             self.updateObjectiveProgress(positions: positions)
             self.addScore(positions.count * GameConstants.scorePerTile * effect.scoreMultiplier
                 + expanded.activationBonus)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
     }
@@ -625,6 +617,7 @@ final class GameScene: SKScene {
             let score = expanded.positions.count * GameConstants.scorePerTile * 2
                 + expanded.activationBonus
             self.addScore(score)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
     }
@@ -639,7 +632,8 @@ final class GameScene: SKScene {
             return
         }
 
-        let affected = board.positionsForSpecial(.colorBomb, at: bombPos, targetColor: targetColor)
+        var affected = board.positionsForSpecial(.colorBomb, at: bombPos, targetColor: targetColor)
+        appendUniquePosition(bombPos, to: &affected)
         board.grid[bombPos.row][bombPos.col]?.special = .none
         let expanded = expandedPositionsByActivatingExistingSpecials(from: affected)
 
@@ -650,6 +644,7 @@ final class GameScene: SKScene {
             self.updateObjectiveProgress(positions: expanded.positions)
             self.addScore(expanded.positions.count * GameConstants.scorePerTile * 3
                 + expanded.activationBonus)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
     }
@@ -670,6 +665,7 @@ final class GameScene: SKScene {
             let _ = self.board.removeTiles(at: positions)
             self.updateObjectiveProgress(positions: positions)
             self.addScore(positions.count * GameConstants.scorePerTile * 4)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
     }
@@ -689,6 +685,7 @@ final class GameScene: SKScene {
             let _ = self.board.removeTiles(at: [pos])
             self.updateObjectiveProgress(positions: [pos])
             self.addScore(GameConstants.scorePerTile * 2)
+            self.boardNode.syncWithBoard()
             self.applyGravityAndRefill()
         }
         AudioManager.shared.play(.boosterUse)

@@ -163,19 +163,12 @@ final class GameHUD: SKNode {
     }
 
     private func setupObjectives(level: Level, sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
-        let itemWidth: CGFloat = 100
-        let itemGap: CGFloat = 10
-        let count = max(level.objectives.count, 1)
-        let totalWidth = CGFloat(count) * itemWidth + CGFloat(max(count - 1, 0)) * itemGap
-        let availableWidth = max(1, sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 20)
-        let scale = min(1, availableWidth / totalWidth)
-        let startX = -totalWidth * scale / 2 + itemWidth * scale / 2
+        let startX = -sceneSize.width / 2 + safeAreaInsets.left + 58
         let y: CGFloat = -50
 
         for (idx, obj) in level.objectives.enumerated() {
             let node = ObjectiveDisplayNode(objective: obj)
-            node.setScale(scale)
-            node.position = CGPoint(x: startX + CGFloat(idx) * (itemWidth + itemGap) * scale, y: y)
+            node.position = CGPoint(x: startX + CGFloat(idx) * 110, y: y)
             addChild(node)
             objectiveNodes.append(node)
         }
@@ -183,17 +176,14 @@ final class GameHUD: SKNode {
 
     private func setupBoosters(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets, hudWorldY: CGFloat) {
         let types = BoosterType.allCases
-        let availableWidth = max(1, sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 40)
-        let spacing = min(60, max(48, availableWidth / CGFloat(types.count)))
+        let spacing: CGFloat = 60
         let startX = -CGFloat(types.count - 1) * spacing / 2
         let boosterWorldY = -sceneSize.height / 2 + safeAreaInsets.bottom + 68
         let boosterLocalY = boosterWorldY - hudWorldY
-        let scale = min(1, availableWidth / 240)
 
         for (i, type) in types.enumerated() {
             let node = BoosterButtonNode(type: type)
             node.position = CGPoint(x: startX + CGFloat(i) * spacing, y: boosterLocalY)
-            node.setScale(scale)
             node.onTap = { [weak self] in self?.onBoosterTap?(type) }
             addChild(node)
             boosterNodes.append(node)

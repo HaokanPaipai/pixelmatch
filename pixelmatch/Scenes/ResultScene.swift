@@ -11,7 +11,6 @@ final class ResultScene: SKScene {
 
     private var starNodes: [SKNode] = []
     private var safeAreaInsets: UIEdgeInsets = .zero
-    private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
     private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
 
     override func didMove(to view: SKView) {
@@ -69,9 +68,14 @@ final class ResultScene: SKScene {
     // MARK: - Win UI
 
     private func setupWinUI() {
+        let buttonBaseY = winButtonBaseY()
+        let buttonTopY = buttonBaseY + 27
+        let hasStreakBonus = winStreak >= 3
+        let hasRewardLine = coinsEarned > 0 || hasStreakBonus
+
         // Title
         let title = makeLargeLabel("LEVEL CLEAR!", color: UIColor(hex: "#FFCC00"), size: 36)
-        title.position = CGPoint(x: 0, y: min(size.height * 0.3, safeTopY - 54))
+        title.position = CGPoint(x: 0, y: size.height * 0.3)
         title.zPosition = 10
         addChild(title)
         title.popIn()
@@ -80,7 +84,7 @@ final class ResultScene: SKScene {
         let levelLbl = makeLargeLabel(level.displayName.uppercased(),
                                       color: UIColor(hex: level.world?.themeColorHex ?? "#FFFFFF"),
                                       size: 18)
-        levelLbl.position = CGPoint(x: 0, y: min(size.height * 0.22, safeTopY - 104))
+        levelLbl.position = CGPoint(x: 0, y: size.height * 0.22)
         levelLbl.zPosition = 10
         addChild(levelLbl)
 
@@ -88,15 +92,22 @@ final class ResultScene: SKScene {
         setupStars(y: size.height * 0.1)
 
         // Score panel
-        setupScorePanel(y: -size.height * 0.08)
+        let scoreY = max(-size.height * 0.08, buttonTopY + (hasRewardLine ? 92 : 72))
+        setupScorePanel(y: scoreY)
+
+        let scoreBottomY = scoreY - 40
 
         // Coins reward
-        setupCoinsReward(y: -size.height * 0.2)
+        let rewardY = hasStreakBonus
+            ? min(buttonTopY + 62, scoreBottomY - 18)
+            : min(buttonTopY + 45, scoreBottomY - 18)
+        setupCoinsReward(y: rewardY)
 
         // Win streak
-        if winStreak >= 3 {
+        if hasStreakBonus {
             let streakLbl = makeLargeLabel("🔥 ×\(winStreak) STREAK BONUS!", color: UIColor(hex: "#FF9500"), size: 15)
-            streakLbl.position = CGPoint(x: 0, y: -size.height * 0.27)
+            let streakY = coinsEarned > 0 ? max(buttonTopY + 15, rewardY - 28) : rewardY
+            streakLbl.position = CGPoint(x: 0, y: streakY)
             streakLbl.zPosition = 11
             addChild(streakLbl)
             streakLbl.run(.repeatForever(.sequence([
@@ -106,7 +117,7 @@ final class ResultScene: SKScene {
         }
 
         // Buttons
-        setupWinButtons()
+        setupWinButtons(yBase: buttonBaseY)
     }
 
     private func setupStars(y: CGFloat) {
@@ -211,9 +222,7 @@ final class ResultScene: SKScene {
         AudioManager.shared.play(.coinCollect)
     }
 
-    private func setupWinButtons() {
-        // 结果按钮从底部安全区往上排，避免小屏上最后一个按钮掉出画面。
-        let yBase = max(-size.height * 0.38, safeBottomY + 141)
+    private func setupWinButtons(yBase: CGFloat) {
 
         // Next Level button
         let nextBtn = PixelButton(title: "NEXT LEVEL ▶",
@@ -251,7 +260,7 @@ final class ResultScene: SKScene {
     private func setupFailUI() {
         // Title
         let title = makeLargeLabel("LEVEL FAILED", color: UIColor(hex: "#FF3B30"), size: 36)
-        title.position = CGPoint(x: 0, y: min(size.height * 0.28, safeTopY - 54))
+        title.position = CGPoint(x: 0, y: size.height * 0.28)
         title.zPosition = 10
         addChild(title)
         title.popIn()
@@ -294,7 +303,7 @@ final class ResultScene: SKScene {
     }
 
     private func setupFailButtons() {
-        let yBase = max(-size.height * 0.3, safeBottomY + 84)
+        let yBase = max(-size.height * 0.3, safeBottomY + 99)
 
         let retryBtn = PixelButton(title: "↺ TRY AGAIN",
                                    size: CGSize(width: 240, height: 54),
@@ -317,6 +326,11 @@ final class ResultScene: SKScene {
     }
 
     // MARK: - Navigation
+
+    private func winButtonBaseY() -> CGFloat {
+        // Replay 是按钮组最底部的控件，按安全区反推整组按钮基线。
+        max(-size.height * 0.38, safeBottomY + 154)
+    }
 
     private func goToNextLevel() {
         guard let view = view else { return }

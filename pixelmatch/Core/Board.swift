@@ -527,7 +527,13 @@ final class Board {
         for c in 0..<cols {
             var writeRow = rows - 1
             for r in stride(from: rows - 1, through: 0, by: -1) {
-                if let t = grid[r][c], !t.isHole {
+                // hole 和 stone 是重力屏障，不能被上方棋子覆盖。
+                if let blocker = grid[r][c], blocker.isHole || blocker.obstacle == .stone {
+                    writeRow = r - 1
+                    continue
+                }
+
+                if let t = grid[r][c] {
                     if r != writeRow {
                         falls.append(TileFall(tile: t, fromRow: r, fromCol: c, toRow: writeRow, toCol: c))
                         grid[writeRow][c] = t
