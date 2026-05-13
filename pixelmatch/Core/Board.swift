@@ -24,6 +24,14 @@ struct NewTileInfo {
     var spawnRowOffset: Int // negative = above board
 }
 
+struct SpecialComboEffect {
+    var origin: (row: Int, col: Int)
+    var consumedPositions: [(row: Int, col: Int)]
+    var positions: [(row: Int, col: Int)]
+    var visualSpecial: TileSpecial
+    var scoreMultiplier: Int
+}
+
 // MARK: - Board
 
 final class Board {
@@ -110,6 +118,7 @@ final class Board {
         guard ta.isMovable && tb.isMovable else { return false }
 
         if ta.special == .colorBomb || tb.special == .colorBomb { return true }
+        if ta.special != .none && tb.special != .none { return true }
 
         doSwap(a, b)
         let hasMatch = !detectMatches().isEmpty
@@ -135,13 +144,15 @@ final class Board {
         for r in 0..<rows {
             var c = 0
             while c < cols {
-                guard let anchor = grid[r][c], anchor.isMatchable, anchor.special == .none else {
+                // 条纹和包裹棋子仍保留颜色，可以参与后续三消并触发效果；
+                // 彩虹炸弹没有普通颜色消除语义，只通过交换触发。
+                guard let anchor = grid[r][c], anchor.isMatchable, anchor.special != .colorBomb else {
                     c += 1; continue
                 }
                 var len = 1
                 while c + len < cols,
                       let next = grid[r][c + len],
-                      next.isMatchable, next.special == .none,
+                      next.isMatchable, next.special != .colorBomb,
                       next.gemColor == anchor.gemColor { len += 1 }
                 if len >= 3 {
                     let positions = (0..<len).map { (row: r, col: c + $0) }
@@ -159,13 +170,15 @@ final class Board {
         for c in 0..<cols {
             var r = 0
             while r < rows {
-                guard let anchor = grid[r][c], anchor.isMatchable, anchor.special == .none else {
+                // 竖向检测与横向保持一致：普通特殊棋子可被匹配触发，
+                // 彩虹炸弹仍由交换逻辑单独处理。
+                guard let anchor = grid[r][c], anchor.isMatchable, anchor.special != .colorBomb else {
                     r += 1; continue
                 }
                 var len = 1
                 while r + len < rows,
                       let next = grid[r + len][c],
-                      next.isMatchable, next.special == .none,
+                      next.isMatchable, next.special != .colorBomb,
                       next.gemColor == anchor.gemColor { len += 1 }
                 if len >= 3 {
                     let positions = (0..<len).map { (row: r + $0, col: c) }
@@ -330,6 +343,181 @@ final class Board {
         case .none:
             return []
         }
+    }
+
+    func specialComboEffect(first: TileSpecial,
+                            firstColor: GemColor,
+                            at firstPos: (row: Int, col: Int),
+                            second: TileSpecial,
+                            secondColor: GemColor,
+                            at secondPos: (row: Int, col: Int)) -> SpecialComboEffect? {
+        guard first != .none, second != .none else { return nil }
+
+        let origin = second == .colorBomb ? firstPos : secondPos
+        var positions: [(row: Int, col: Int)] = []
+        var visualSpecial: TileSpecial = .wrapped
+        var scoreMultiplier = 3
+
+        switch (first, second) {
+        case (.colorBomb, .colorBomb):
+            positions = allClearablePositions()
+            visualSpecial = .colorBomb
+            scoreMultiplier = 5
+
+        case (.colorBomb, .stripedH), (.colorBomb, .stripedV):
+            positions = colorBombLineComboPositions(targetColor: secondColor)
+            visualSpecial = second
+            scoreMultiplier = 4
+
+        case (.stripedH, .colorBomb), (.stripedV, .colorBomb):
+            positions = colorBombLineComboPositions(targetColor: firstColor)
+            visualSpecial = first
+            scoreMultiplier = 4
+
+        case (.colorBomb, .wrapped):
+            positions = colorBombWrappedComboPositions(targetColor: secondColor)
+            visualSpecial = .colorBomb
+            scoreMultiplier = 4
+
+        case (.wrapped, .colorBomb):
+            positions = colorBombWrappedComboPositions(targetColor: firstColor)
+            visualSpecial = .colorBomb
+            scoreMultiplier = 4
+
+        case (.stripedH, .stripedH), (.stripedH, .stripedV), (.stripedV, .stripedH), (.stripedV, .stripedV):
+            positions.append(contentsOf: rowPositions(firstPos.row))
+            positions.append(contentsOf: colPositions(secondPos.col))
+            visualSpecial = .stripedH
+            scoreMultiplier = 3
+
+        case (.stripedH, .wrapped), (.stripedV, .wrapped):
+            positions = wideCrossPositions(center: secondPos)
+            visualSpecial = first
+            scoreMultiplier = 4
+
+        case (.wrapped, .stripedH), (.wrapped, .stripedV):
+            positions = wideCrossPositions(center: firstPos)
+            visualSpecial = second
+            scoreMultiplier = 4
+
+        case (.wrapped, .wrapped):
+            positions = areaPositions(center: firstPos, radius: 3, skipCorners: false)
+            visualSpecial = .wrapped
+            scoreMultiplier = 4
+
+        default:
+            return nil
+        }
+
+        positions.append(firstPos)
+        positions.append(secondPos)
+        return SpecialComboEffect(origin: origin,
+                                  consumedPositions: [firstPos, secondPos],
+                                  positions: uniquePositions(positions),
+                                  visualSpecial: visualSpecial,
+                                  scoreMultiplier: scoreMultiplier)
+    }
+
+    private func colorBombLineComboPositions(targetColor: GemColor) -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for pos in positions(of: targetColor) {
+            let special: TileSpecial = (pos.row + pos.col).isMultiple(of: 2) ? .stripedH : .stripedV
+            result.append(contentsOf: positionsForSpecial(special, at: pos))
+        }
+        return uniquePositions(result)
+    }
+
+    private func colorBombWrappedComboPositions(targetColor: GemColor) -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for pos in positions(of: targetColor) {
+            result.append(contentsOf: positionsForSpecial(.wrapped, at: pos))
+        }
+        return uniquePositions(result)
+    }
+
+    private func wideCrossPositions(center: (row: Int, col: Int)) -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for dr in -1...1 {
+            let row = center.row + dr
+            if row >= 0 && row < rows {
+                result.append(contentsOf: rowPositions(row))
+            }
+        }
+        for dc in -1...1 {
+            let col = center.col + dc
+            if col >= 0 && col < cols {
+                result.append(contentsOf: colPositions(col))
+            }
+        }
+        return uniquePositions(result)
+    }
+
+    private func areaPositions(center: (row: Int, col: Int),
+                               radius: Int,
+                               skipCorners: Bool) -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for dr in -radius...radius {
+            for dc in -radius...radius {
+                if skipCorners && abs(dr) == radius && abs(dc) == radius { continue }
+                let pos = (row: center.row + dr, col: center.col + dc)
+                guard isClearable(pos) else { continue }
+                result.append(pos)
+            }
+        }
+        return result
+    }
+
+    private func rowPositions(_ row: Int) -> [(row: Int, col: Int)] {
+        (0..<cols).compactMap { col in
+            let pos = (row: row, col: col)
+            return isClearable(pos) ? pos : nil
+        }
+    }
+
+    private func colPositions(_ col: Int) -> [(row: Int, col: Int)] {
+        (0..<rows).compactMap { row in
+            let pos = (row: row, col: col)
+            return isClearable(pos) ? pos : nil
+        }
+    }
+
+    private func positions(of color: GemColor) -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for r in 0..<rows {
+            for c in 0..<cols {
+                guard let tile = grid[r][c], !tile.isHole, tile.obstacle != .stone,
+                      tile.gemColor == color else { continue }
+                result.append((r, c))
+            }
+        }
+        return result
+    }
+
+    private func allClearablePositions() -> [(row: Int, col: Int)] {
+        var result: [(row: Int, col: Int)] = []
+        for r in 0..<rows {
+            for c in 0..<cols where isClearable((r, c)) {
+                result.append((r, c))
+            }
+        }
+        return result
+    }
+
+    private func isClearable(_ pos: (row: Int, col: Int)) -> Bool {
+        guard valid(pos), let tile = grid[pos.row][pos.col] else { return false }
+        return !tile.isHole && tile.obstacle != .stone
+    }
+
+    private func uniquePositions(_ positions: [(row: Int, col: Int)]) -> [(row: Int, col: Int)] {
+        var seen = Set<String>()
+        var result: [(row: Int, col: Int)] = []
+        for pos in positions {
+            let key = "\(pos.row)_\(pos.col)"
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            result.append(pos)
+        }
+        return result
     }
 
     // MARK: - Gravity & Refill

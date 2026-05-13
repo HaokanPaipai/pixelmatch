@@ -10,55 +10,67 @@ struct LevelData {
 
     // MARK: - Builder Helpers
 
+    private static func lesson(_ title: String, _ message: String) -> LevelLesson {
+        LevelLesson(title: title, message: message)
+    }
+
     private static func score(_ id: Int, world: Int, rows: Int, cols: Int,
                                moves: Int, colors: Int, target: Int,
                                holes: [(row: Int, col: Int)] = [],
-                               obstacles: [BoardObstacle] = []) -> Level {
+                               obstacles: [BoardObstacle] = [],
+                               lesson: LevelLesson? = nil) -> Level {
         let c = Array(GemColor.allCases.prefix(colors))
         return Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
                      availableColors: c,
                      objectives: [LevelObjective(kind: .score(target: target))],
                      holes: holes, obstacles: obstacles,
-                     starThresholds: (target, target * 15 / 10, target * 2))
+                     starThresholds: (target, target * 15 / 10, target * 2),
+                     lesson: lesson)
     }
 
     private static func collect(_ id: Int, world: Int, rows: Int, cols: Int,
                                  moves: Int, colors: Int,
                                  collectColor: GemColor, count: Int,
-                                 obstacles: [BoardObstacle] = []) -> Level {
+                                 obstacles: [BoardObstacle] = [],
+                                 lesson: LevelLesson? = nil) -> Level {
         let c = Array(GemColor.allCases.prefix(colors))
         let baseScore = count * GameConstants.scorePerTile
         return Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
                      availableColors: c,
                      objectives: [LevelObjective(kind: .collect(color: collectColor, count: count))],
                      holes: [], obstacles: obstacles,
-                     starThresholds: (baseScore, baseScore * 15 / 10, baseScore * 2))
+                     starThresholds: (baseScore, baseScore * 15 / 10, baseScore * 2),
+                     lesson: lesson)
     }
 
     private static func jelly(_ id: Int, world: Int, rows: Int, cols: Int,
                                moves: Int, colors: Int,
                                jellyPositions: [(row: Int, col: Int)],
-                               target: Int) -> Level {
+                               target: Int,
+                               lesson: LevelLesson? = nil) -> Level {
         let c = Array(GemColor.allCases.prefix(colors))
         let obs = jellyPositions.map { BoardObstacle(position: $0, type: .jelly1) }
         return Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
                      availableColors: c,
                      objectives: [LevelObjective(kind: .clearAllJelly, progress: jellyPositions.count)],
                      holes: [], obstacles: obs,
-                     starThresholds: (target, target * 15 / 10, target * 2))
+                     starThresholds: (target, target * 15 / 10, target * 2),
+                     lesson: lesson)
     }
 
     private static func ice(_ id: Int, world: Int, rows: Int, cols: Int,
                              moves: Int, colors: Int,
                              icePositions: [(row: Int, col: Int)],
-                             target: Int) -> Level {
+                             target: Int,
+                             lesson: LevelLesson? = nil) -> Level {
         let c = Array(GemColor.allCases.prefix(colors))
         let obs = icePositions.map { BoardObstacle(position: $0, type: .ice) }
         return Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
                      availableColors: c,
                      objectives: [LevelObjective(kind: .breakIce(count: icePositions.count))],
                      holes: [], obstacles: obs,
-                     starThresholds: (target, target * 15 / 10, target * 2))
+                     starThresholds: (target, target * 15 / 10, target * 2),
+                     lesson: lesson)
     }
 
     // MARK: - All Levels
@@ -68,49 +80,61 @@ struct LevelData {
 
         // ── World 1: Pixel Forest (1–20) ──────────────────────────────────────
         levels += [
-            score(1,  world:1, rows:7, cols:7, moves:25, colors:4, target:3000),
-            score(2,  world:1, rows:7, cols:7, moves:22, colors:4, target:4500),
-            score(3,  world:1, rows:8, cols:8, moves:22, colors:5, target:6000),
-            score(4,  world:1, rows:8, cols:8, moves:20, colors:5, target:7500),
-            score(5,  world:1, rows:8, cols:8, moves:18, colors:5, target:9000),
-            score(6,  world:1, rows:9, cols:9, moves:20, colors:5, target:10000),
-            collect(7, world:1, rows:8, cols:8, moves:22, colors:5, collectColor:.red, count:25),
-            collect(8, world:1, rows:8, cols:8, moves:20, colors:5, collectColor:.blue, count:25),
-            score(9,  world:1, rows:9, cols:9, moves:18, colors:5, target:12000),
-            score(10, world:1, rows:9, cols:9, moves:22, colors:5, target:15000),
+            score(1,  world:1, rows:6, cols:6, moves:28, colors:4, target:1200,
+                  lesson: lesson("SWAP", "Match 3 gems. Keep moves calm and learn the board.")),
+            score(2,  world:1, rows:6, cols:6, moves:26, colors:4, target:2200,
+                  lesson: lesson("CHAIN", "Matches can fall into new matches for free combo score.")),
+            score(3,  world:1, rows:7, cols:7, moves:26, colors:4, target:3600,
+                  lesson: lesson("STRIPED", "Match 4 to create a striped gem, then match it again.")),
+            score(4,  world:1, rows:7, cols:7, moves:25, colors:4, target:4800,
+                  lesson: lesson("COLOR BOMB", "Match 5 to create a color bomb. Swap it with any gem.")),
+            collect(5, world:1, rows:7, cols:7, moves:25, colors:4, collectColor:.red, count:16,
+                    lesson: lesson("COLLECT", "Only the target color matters. Big clears help finish faster.")),
+            jelly(6,  world:1, rows:7, cols:7, moves:27, colors:4,
+                  jellyPositions: rowJelly(row:6, cols:7), target:4200,
+                  lesson: lesson("JELLY", "Clear gems on jelly to remove it from the board.")),
+            score(7,  world:1, rows:8, cols:8, moves:24, colors:5, target:6500,
+                  lesson: lesson("COMBO", "Swap two special gems together for a much bigger clear.")),
+            collect(8, world:1, rows:8, cols:8, moves:24, colors:5, collectColor:.blue, count:22,
+                    lesson: lesson("FOCUS", "Aim every move toward the objective, not only score.")),
+            ice(9,   world:1, rows:8, cols:8, moves:27, colors:5,
+                 icePositions: rowIce(row:0, cols:8), target:6200,
+                 lesson: lesson("ICE", "Break ice by clearing the frozen tile or hitting it with specials.")),
+            score(10, world:1, rows:8, cols:8, moves:25, colors:5, target:9000,
+                  lesson: lesson("BOSS", "Use specials early. Saving moves creates bigger win rewards.")),
             jelly(11, world:1, rows:8, cols:8, moves:25, colors:5,
-                  jellyPositions: rowJelly(row:7, cols:8), target:5000),
-            jelly(12, world:1, rows:8, cols:8, moves:22, colors:5,
-                  jellyPositions: colJelly(col:4, rows:8), target:6000),
-            score(13, world:1, rows:9, cols:9, moves:18, colors:5, target:16000,
+                  jellyPositions: rowJelly(row:7, cols:8), target:6500),
+            jelly(12, world:1, rows:8, cols:8, moves:23, colors:5,
+                  jellyPositions: colJelly(col:4, rows:8), target:7600),
+            score(13, world:1, rows:9, cols:9, moves:21, colors:5, target:12000,
                   holes: cornerHoles4(rows:9,cols:9)),
-            score(14, world:1, rows:9, cols:9, moves:16, colors:5, target:18000),
-            collect(15, world:1, rows:9, cols:9, moves:20, colors:5, collectColor:.green, count:30),
-            collect(16, world:1, rows:9, cols:9, moves:20, colors:5, collectColor:.yellow, count:30),
-            score(17, world:1, rows:9, cols:9, moves:15, colors:6, target:20000),
-            jelly(18, world:1, rows:9, cols:9, moves:28, colors:5,
-                  jellyPositions: centerJelly(rows:9,cols:9,size:3), target:8000),
-            score(19, world:1, rows:9, cols:9, moves:14, colors:6, target:22000),
-            score(20, world:1, rows:9, cols:9, moves:20, colors:6, target:25000), // world boss
+            score(14, world:1, rows:9, cols:9, moves:20, colors:5, target:13500),
+            collect(15, world:1, rows:9, cols:9, moves:23, colors:5, collectColor:.green, count:26),
+            collect(16, world:1, rows:9, cols:9, moves:22, colors:5, collectColor:.yellow, count:28),
+            score(17, world:1, rows:9, cols:9, moves:20, colors:6, target:15500),
+            jelly(18, world:1, rows:9, cols:9, moves:27, colors:5,
+                  jellyPositions: centerJelly(rows:9,cols:9,size:3), target:10000),
+            score(19, world:1, rows:9, cols:9, moves:18, colors:6, target:18000),
+            score(20, world:1, rows:9, cols:9, moves:24, colors:6, target:22000), // world boss
         ]
 
         // ── World 2: Crystal Ocean (21–40) ────────────────────────────────────
         levels += [
-            ice(21, world:2, rows:8, cols:8, moves:25, colors:5,
-                icePositions: rowIce(row:0, cols:8), target:6000),
-            ice(22, world:2, rows:8, cols:8, moves:22, colors:5,
-                icePositions: rowIce(row:7, cols:8), target:7000),
-            score(23, world:2, rows:9, cols:9, moves:18, colors:5, target:20000),
-            collect(24, world:2, rows:9, cols:9, moves:22, colors:6, collectColor:.blue, count:40),
-            jelly(25, world:2, rows:9, cols:9, moves:26, colors:5,
-                  jellyPositions: diamondJelly(rows:9,cols:9), target:8000),
-            score(26, world:2, rows:9, cols:9, moves:16, colors:6, target:24000,
+            ice(21, world:2, rows:8, cols:8, moves:26, colors:5,
+                icePositions: rowIce(row:0, cols:8), target:8000),
+            ice(22, world:2, rows:8, cols:8, moves:24, colors:5,
+                icePositions: rowIce(row:7, cols:8), target:9000),
+            score(23, world:2, rows:9, cols:9, moves:21, colors:5, target:19000),
+            collect(24, world:2, rows:9, cols:9, moves:24, colors:6, collectColor:.blue, count:34),
+            jelly(25, world:2, rows:9, cols:9, moves:28, colors:5,
+                  jellyPositions: diamondJelly(rows:9,cols:9), target:12000),
+            score(26, world:2, rows:9, cols:9, moves:19, colors:6, target:23000,
                   holes: crossHoles(rows:9,cols:9)),
-            ice(27, world:2, rows:9, cols:9, moves:28, colors:5,
-                icePositions: outerIce(rows:9,cols:9), target:9000),
-            collect(28, world:2, rows:9, cols:9, moves:20, colors:6, collectColor:.purple, count:35),
-            score(29, world:2, rows:9, cols:9, moves:15, colors:6, target:26000),
-            score(30, world:2, rows:9, cols:9, moves:22, colors:6, target:28000),
+            ice(27, world:2, rows:9, cols:9, moves:29, colors:5,
+                icePositions: outerIce(rows:9,cols:9), target:13000),
+            collect(28, world:2, rows:9, cols:9, moves:23, colors:6, collectColor:.purple, count:36),
+            score(29, world:2, rows:9, cols:9, moves:18, colors:6, target:26000),
+            score(30, world:2, rows:9, cols:9, moves:24, colors:6, target:30000),
             jelly(31, world:2, rows:9, cols:9, moves:30, colors:6,
                   jellyPositions: fullBorder(rows:9,cols:9), target:10000),
             score(32, world:2, rows:9, cols:9, moves:14, colors:6, target:28000),

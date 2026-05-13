@@ -3,12 +3,15 @@ import GameplayKit
 
 // MARK: - Game State
 
+// 描述场景的整体交互状态，避免输入、动画、弹窗和结算流程互相打架。
 enum GameState {
     case idle, selecting, animating, paused, won, failed
 }
 
 // MARK: - GameScene
 
+// 负责一个可游玩的关卡：场景布局、棋盘交互、消除流程、HUD 回调、
+// 道具、计分、胜负跳转以及轻量级反馈效果。
 final class GameScene: SKScene {
 
     // Level
@@ -47,6 +50,8 @@ final class GameScene: SKScene {
 
     // MARK: - Lifecycle
 
+    // SpriteKit 将场景挂到 view 后的入口。这里记录安全区，创建棋盘和 HUD，
+    // 然后启动入场动画与提示计时器。
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
@@ -60,10 +65,16 @@ final class GameScene: SKScene {
         setupHUD()
         animateIntro()
         startHintTimer()
+        AnalyticsManager.shared.track(.levelStart,
+                                      properties: ["level": "\(level.id)",
+                                                   "moves": "\(level.moves)",
+                                                   "colors": "\(level.availableColors.count)"])
     }
 
     // MARK: - Setup
 
+    // 构建静态视觉层和初始 UI：世界背景、装饰网格、居中的棋盘、
+    // 适配安全区的 HUD，以及关卡入场动画。
     private func setupBackground() {
         backgroundColor = UIColor(hex: "#0A1628")
 
@@ -118,14 +129,24 @@ final class GameScene: SKScene {
 
         boardNode = BoardNode(board: board)
 
-        // Center the board in the playable area between the top HUD and bottom boosters.
-        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + 15
-        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight
+        // 棋盘必须被限制在 HUD 和底部 Booster 之间。先计算安全可玩区域，
+        // 再按宽高同时缩放，避免小屏设备上横向超出或纵向压到控件。
+        let horizontalPadding: CGFloat = 24
+        let verticalPadding: CGFloat = 18
+        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + verticalPadding
+        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight + verticalPadding
         let playableTop = size.height / 2 - topReservedHeight
         let playableBottom = -size.height / 2 + bottomReservedHeight
+        let availableWidth = max(1, size.width - safeAreaInsets.left - safeAreaInsets.right - horizontalPadding)
+        let availableHeight = max(1, playableTop - playableBottom)
+        let boardSize = boardNode.boardSize
+        let boardScale = min(1.0,
+                             availableWidth / max(boardSize.width, 1),
+                             availableHeight / max(boardSize.height, 1))
         let boardY = (playableTop + playableBottom) / 2
 
         boardNode.position = CGPoint(x: 0, y: boardY)
+        boardNode.setScale(boardScale)
         boardNode.zPosition = 1
         addChild(boardNode)
     }
@@ -190,7 +211,7 @@ final class GameScene: SKScene {
 
         let worldName = level.world?.name ?? "Level"
         let lbl1 = SKLabelNode(fontNamed: "Courier-Bold")
-        lbl1.text = worldName.uppercased()
+        lbl1.text = level.lesson?.title ?? worldName.uppercased()
         lbl1.fontSize = 14
         lbl1.fontColor = UIColor(hex: level.world?.themeColorHex ?? "#FFCC00")
         lbl1.verticalAlignmentMode = .center
@@ -206,10 +227,12 @@ final class GameScene: SKScene {
         intro.addChild(lbl2)
 
         let lbl3 = SKLabelNode(fontNamed: "Courier")
-        lbl3.text = objectiveSummary()
+        lbl3.text = level.lesson?.message ?? objectiveSummary()
         lbl3.fontSize = 13
         lbl3.fontColor = UIColor(hex: "#99BBCC")
         lbl3.verticalAlignmentMode = .center
+        lbl3.numberOfLines = 2
+        lbl3.preferredMaxLayoutWidth = min(size.width - 48, 360)
         lbl3.position = CGPoint(x: 0, y: -34)
         intro.addChild(lbl3)
 
@@ -262,6 +285,8 @@ final class GameScene: SKScene {
 
     // MARK: - Touch Handling
 
+    // 将点击和滑动转换成棋子选择、交换或当前道具操作。
+    // 所有输入都受场景状态控制，避免动画过程中修改棋盘。
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard state == .idle, let touch = touches.first else { return }
         let loc = touch.location(in: boardNode)
@@ -346,21 +371,45 @@ final class GameScene: SKScene {
 
     // MARK: - Swap Logic
 
+    // 校验并执行玩家交换。这里处理无效交换反馈，也会在普通消除流程前
+    // 先处理彩虹炸弹相关组合。
     private func attemptSwap(from a: (row: Int, col: Int), to b: (row: Int, col: Int)) {
         guard state == .idle else { return }
         guard board.isAdjacent(a, b) else { return }
         guard let ta = board.tile(at: a), let tb = board.tile(at: b) else { return }
         guard !ta.isHole && !tb.isHole else { return }
 
-        // Color bomb combo – determine bomb/target BEFORE swap
+        if let combo = board.specialComboEffect(first: ta.special,
+                                                firstColor: ta.gemColor,
+                                                at: a,
+                                                second: tb.special,
+                                                secondColor: tb.gemColor,
+                                                at: b) {
+            state = .animating
+            board.doSwap(a, b)
+            boardNode.animateSwap(from: a, to: b) { [weak self] in
+                self?.handleSpecialComboActivation(combo)
+            }
+            spendMove()
+            return
+        }
+
+        // 彩虹炸弹需要在交换前记录目标颜色，再同步交换数据和节点。
+        // 双彩虹炸弹没有目标颜色，直接清全盘。
         if ta.special == .colorBomb || tb.special == .colorBomb {
             state = .animating
-            let bombPos    = ta.special == .colorBomb ? a : b
-            let targetPos  = ta.special == .colorBomb ? b : a
-            let targetColor = board.tile(at: targetPos)?.gemColor
+            let isDoubleBomb = ta.special == .colorBomb && tb.special == .colorBomb
+            let bombPosAfterSwap = ta.special == .colorBomb ? b : a
+            let targetPos = ta.special == .colorBomb ? b : a
+            let targetColor = isDoubleBomb ? nil : board.tile(at: targetPos)?.gemColor
+            board.doSwap(a, b)
             boardNode.animateSwap(from: a, to: b) { [weak self] in
                 guard let self = self else { return }
-                self.handleColorBombActivation(bombPos: bombPos, targetColor: targetColor)
+                if isDoubleBomb {
+                    self.handleDoubleBomb()
+                } else {
+                    self.handleColorBombActivation(bombPos: bombPosAfterSwap, targetColor: targetColor)
+                }
             }
             spendMove()
             return
@@ -384,6 +433,8 @@ final class GameScene: SKScene {
 
     // MARK: - Match Processing Pipeline
 
+    // 核心三消流水线：检测匹配、计分、移除棋子、应用重力、顶部补充，
+    // 并持续处理连锁直到棋盘稳定。
     private func processMatches() {
         let matches = board.detectMatches()
         guard !matches.isEmpty else {
@@ -407,11 +458,24 @@ final class GameScene: SKScene {
                 collectedCounts[color, default: 0] += match.positions.count
             }
         }
+        LiveOpsManager.shared.recordSpecialsCreated(specialCreations.count)
+        if !specialCreations.isEmpty {
+            AnalyticsManager.shared.track(.specialCreated,
+                                          properties: ["level": "\(level.id)",
+                                                       "count": "\(specialCreations.count)"])
+        }
+
+        // 已存在的条纹/包裹棋子如果被本轮匹配命中，就在同一轮触发它的范围消除。
+        // 新生成的特殊棋子只保留下来，不会刚生成就立刻自爆。
+        let expanded = expandedPositionsByActivatingExistingSpecials(from: allPositions,
+                                                                     preserving: specialCreations.map { $0.pos })
+        allPositions = expanded.positions
 
         // Score calculation with combo multiplier + event multiplier
         let comboMult = cascadeCount > 0 ? min(cascadeCount + 1, 5) : 1
         let matchScore = (allPositions.count * GameConstants.scorePerTile * comboMult
-            + specialCreations.count * GameConstants.scorePerSpecial) * scoreMultiplier
+            + specialCreations.count * GameConstants.scorePerSpecial
+            + expanded.activationBonus) * scoreMultiplier
         addScore(matchScore)
 
         // Haptic + combo text feedback
@@ -473,20 +537,93 @@ final class GameScene: SKScene {
 
     // MARK: - Special Activation
 
+    private func containsPosition(_ positions: [(row: Int, col: Int)], _ pos: (row: Int, col: Int)) -> Bool {
+        positions.contains { $0.row == pos.row && $0.col == pos.col }
+    }
+
+    private func appendUniquePosition(_ pos: (row: Int, col: Int),
+                                      to positions: inout [(row: Int, col: Int)]) {
+        if !containsPosition(positions, pos) {
+            positions.append(pos)
+        }
+    }
+
+    // 范围消除如果命中已有条纹/包裹棋子，会继续把它的清除范围并入本轮。
+    // 彩虹炸弹需要目标颜色，因此仍只通过交换触发，不在这里自动展开。
+    private func expandedPositionsByActivatingExistingSpecials(
+        from initialPositions: [(row: Int, col: Int)],
+        preserving preservedPositions: [(row: Int, col: Int)] = []
+    ) -> (positions: [(row: Int, col: Int)], activationBonus: Int) {
+        var positions: [(row: Int, col: Int)] = []
+        var activatedKeys = Set<String>()
+        var activationBonus = 0
+
+        for pos in initialPositions {
+            appendUniquePosition(pos, to: &positions)
+        }
+
+        var index = 0
+        while index < positions.count {
+            let pos = positions[index]
+            index += 1
+
+            guard !containsPosition(preservedPositions, pos),
+                  let tile = board.tile(at: pos),
+                  tile.special != .none,
+                  tile.special != .colorBomb else { continue }
+
+            let key = "\(pos.row)_\(pos.col)"
+            guard !activatedKeys.contains(key) else { continue }
+            activatedKeys.insert(key)
+
+            let affected = board.positionsForSpecial(tile.special, at: pos)
+            activationBonus += affected.count * GameConstants.scorePerTile
+            for affectedPos in affected {
+                appendUniquePosition(affectedPos, to: &positions)
+            }
+        }
+
+        return (positions, activationBonus)
+    }
+
+    // 两个特殊棋子互换时触发组合技，例如双条纹十字消除、
+    // 条纹加包裹的大范围横竖清除，以及彩虹炸弹组合。
+    private func handleSpecialComboActivation(_ effect: SpecialComboEffect) {
+        let expanded = expandedPositionsByActivatingExistingSpecials(from: effect.positions,
+                                                                     preserving: effect.consumedPositions)
+        let positions = expanded.positions
+
+        HapticsManager.shared.special()
+        boardNode.animateSpecialActivation(at: effect.origin,
+                                           affectedPositions: positions,
+                                           special: effect.visualSpecial) { [weak self] in
+            guard let self = self else { return }
+            let _ = self.board.removeTiles(at: positions)
+            self.updateObjectiveProgress(positions: positions)
+            self.addScore(positions.count * GameConstants.scorePerTile * effect.scoreMultiplier
+                + expanded.activationBonus)
+            self.applyGravityAndRefill()
+        }
+    }
+
+    // 处理非交换触发的特殊棋子效果，例如横竖条纹、爆炸或按颜色清除，
+    // 之后回到重力与补充流程。
     private func activateSpecialTile(at pos: (row: Int, col: Int), targetColor: GemColor? = nil) {
         guard let tile = board.tile(at: pos), tile.special != .none else { return }
         let special = tile.special
 
         let affected = board.positionsForSpecial(special, at: pos, targetColor: targetColor)
         tile.special = .none  // consume
+        let expanded = expandedPositionsByActivatingExistingSpecials(from: affected)
 
         state = .animating
         HapticsManager.shared.special()
-        boardNode.animateSpecialActivation(at: pos, affectedPositions: affected, special: special) { [weak self] in
+        boardNode.animateSpecialActivation(at: pos, affectedPositions: expanded.positions, special: special) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: affected)
-            self.updateObjectiveProgress(positions: affected)
-            let score = affected.count * GameConstants.scorePerTile * 2
+            let _ = self.board.removeTiles(at: expanded.positions)
+            self.updateObjectiveProgress(positions: expanded.positions)
+            let score = expanded.positions.count * GameConstants.scorePerTile * 2
+                + expanded.activationBonus
             self.addScore(score)
             self.applyGravityAndRefill()
         }
@@ -494,6 +631,7 @@ final class GameScene: SKScene {
 
     // MARK: - Color Bomb Activation
 
+    // 单独处理彩虹炸弹交换，因为目标颜色必须在棋盘数据变化前记录下来。
     private func handleColorBombActivation(bombPos: (row: Int, col: Int), targetColor: GemColor?) {
         guard let bombTile = board.tile(at: bombPos), bombTile.special == .colorBomb else {
             // Both might be color bombs (double bomb)
@@ -503,13 +641,15 @@ final class GameScene: SKScene {
 
         let affected = board.positionsForSpecial(.colorBomb, at: bombPos, targetColor: targetColor)
         board.grid[bombPos.row][bombPos.col]?.special = .none
+        let expanded = expandedPositionsByActivatingExistingSpecials(from: affected)
 
         HapticsManager.shared.colorBomb()
-        boardNode.animateSpecialActivation(at: bombPos, affectedPositions: affected, special: .colorBomb) { [weak self] in
+        boardNode.animateSpecialActivation(at: bombPos, affectedPositions: expanded.positions, special: .colorBomb) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: affected)
-            self.updateObjectiveProgress(positions: affected)
-            self.addScore(affected.count * GameConstants.scorePerTile * 3)
+            let _ = self.board.removeTiles(at: expanded.positions)
+            self.updateObjectiveProgress(positions: expanded.positions)
+            self.addScore(expanded.positions.count * GameConstants.scorePerTile * 3
+                + expanded.activationBonus)
             self.applyGravityAndRefill()
         }
     }
@@ -536,6 +676,7 @@ final class GameScene: SKScene {
 
     // MARK: - Booster Handling
 
+    // 处理 HUD 和开局选择中的消耗型道具，包括库存扣减、棋盘变化和玩家反馈。
     private func handleHammerTap(at pos: (row: Int, col: Int)) {
         guard let tile = board.tile(at: pos), !tile.isHole else { return }
         isHammerMode = false
@@ -559,6 +700,9 @@ final class GameScene: SKScene {
         switch type {
         case .hammer:
             if PlayerData.shared.useBooster(.hammer) {
+                LiveOpsManager.shared.recordBoosterUsed()
+                AnalyticsManager.shared.track(.boosterUsed,
+                                              properties: ["level": "\(level.id)", "type": "hammer"])
                 isHammerMode = true
                 hud.updateBoosterCounts()
                 showBoosterIndicator("🔨 Tap a tile to remove it!")
@@ -567,6 +711,9 @@ final class GameScene: SKScene {
             }
         case .shuffle:
             if PlayerData.shared.useBooster(.shuffle) {
+                LiveOpsManager.shared.recordBoosterUsed()
+                AnalyticsManager.shared.track(.boosterUsed,
+                                              properties: ["level": "\(level.id)", "type": "shuffle"])
                 board.shuffle()
                 boardNode.animateShuffle { [weak self] in
                     self?.boardNode.rebuildAfterShuffle()
@@ -579,6 +726,9 @@ final class GameScene: SKScene {
             }
         case .extraMoves:
             if PlayerData.shared.useBooster(.extraMoves) {
+                LiveOpsManager.shared.recordBoosterUsed()
+                AnalyticsManager.shared.track(.boosterUsed,
+                                              properties: ["level": "\(level.id)", "type": "extra_moves"])
                 remainingMoves += 5
                 hud.updateMoves(remainingMoves)
                 hud.updateBoosterCounts()
@@ -588,6 +738,9 @@ final class GameScene: SKScene {
             }
         case .colorBomb:
             if PlayerData.shared.useBooster(.colorBomb) {
+                LiveOpsManager.shared.recordBoosterUsed()
+                AnalyticsManager.shared.track(.boosterUsed,
+                                              properties: ["level": "\(level.id)", "type": "color_bomb"])
                 placeColorBombBooster()
                 hud.updateBoosterCounts()
             } else {
@@ -639,6 +792,7 @@ final class GameScene: SKScene {
 
     // MARK: - Score & Objectives
 
+    // 维护分数、步数、临时计分事件和目标进度，保证 HUD 与胜负判断同步。
     private func addScore(_ amount: Int) {
         currentScore += amount
         hud.updateScore(currentScore)
@@ -648,7 +802,7 @@ final class GameScene: SKScene {
     private func spendMove() {
         remainingMoves -= 1
         hud.updateMoves(remainingMoves)
-        board.spreadChocolate()
+        _ = board.spreadChocolate()
 
         movesUntilNextEvent -= 1
         if movesUntilNextEvent <= 0 && level.id >= 10 && Int.random(in: 0..<5) == 0 {
@@ -703,6 +857,7 @@ final class GameScene: SKScene {
 
     // MARK: - Win / Lose
 
+    // 判断关卡胜负、保存奖励与进度、处理无可行步的洗牌，并跳转到庆祝或结果界面。
     private func checkWin() -> Bool {
         let allComplete = objectives.allSatisfy { obj in
             switch obj.kind {
@@ -769,10 +924,18 @@ final class GameScene: SKScene {
 
         // Coin reward + win streak bonus
         let streak = PlayerData.shared.recordWin()
-        let streakBonus = min(streak / 3, 5) * 10
-        let coins = (stars + 1) * 15 + remainingMoves * 5 + streakBonus
+        let coins = EconomyConfig.shared.winCoins(stars: stars,
+                                                  remainingMoves: remainingMoves,
+                                                  winStreak: streak)
         PlayerData.shared.addCoins(coins)
         PlayerData.shared.totalMatches += 1
+        LiveOpsManager.shared.recordLevelWin()
+        AnalyticsManager.shared.track(.levelWin,
+                                      properties: ["level": "\(level.id)",
+                                                   "score": "\(currentScore)",
+                                                   "stars": "\(stars)",
+                                                   "remaining_moves": "\(remainingMoves)",
+                                                   "coins": "\(coins)"])
 
         // Game Center
         GameCenterManager.shared.submitScore(PlayerData.shared.totalScore, to: .totalScore)
@@ -839,6 +1002,8 @@ final class GameScene: SKScene {
 
     // MARK: - Pause
 
+    // 展示会阻塞游戏流程的弹窗：暂停、设置、步数耗尽、重开和返回地图。
+    // 这里会按场景需要恢复状态或切换到新场景。
     private func showPause() {
         guard state == .idle || state == .animating else { return }
         let prevState = state
@@ -875,13 +1040,17 @@ final class GameScene: SKScene {
 
     private func showOutOfMoves() {
         state = .paused
+        AnalyticsManager.shared.track(.levelFail,
+                                      properties: ["level": "\(level.id)",
+                                                   "score": "\(currentScore)",
+                                                   "reason": "out_of_moves"])
         let dialog = OutOfMovesDialog(sceneSize: size)
         dialog.zPosition = 100
         addChild(dialog)
 
         dialog.onContinue = { [weak self, weak dialog] in
             guard let self = self else { return }
-            let cost = 10
+            let cost = EconomyConfig.shared.outOfMovesContinueDiamonds
             if PlayerData.shared.spendDiamonds(cost) {
                 self.remainingMoves += 5
                 self.hud.updateMoves(self.remainingMoves)
@@ -920,6 +1089,7 @@ final class GameScene: SKScene {
 
     // MARK: - Hints
 
+    // 管理延迟提示。玩家输入后会重置提示，只在棋盘空闲时显示。
     private func startHintTimer() {
         hintTimer?.invalidate()
         hintTimer = Timer.scheduledTimer(withTimeInterval: 3.5, repeats: false) { [weak self] _ in
@@ -958,6 +1128,7 @@ final class GameScene: SKScene {
 
     // MARK: - Utilities
 
+    // 通用视觉反馈工具，包括短暂文本、连击提示和临时覆盖层。
     private func showComboText(_ combo: Int) {
         guard combo >= 2 else { return }
         let messages = ["", "DOUBLE!", "TRIPLE!", "MEGA!", "ULTRA!"]
@@ -1021,6 +1192,7 @@ final class GameScene: SKScene {
 
     // MARK: - World Unlock
 
+    // 检查通关后是否解锁新世界，并在进入正常结果流程前展示庆祝横幅。
     private func checkNewWorldUnlock(fromLevel: Int, toLevel: Int) -> World? {
         guard let from = LevelData.level(fromLevel),
               let to   = LevelData.level(toLevel),

@@ -8,7 +8,14 @@ final class HomeScene: SKScene {
     private var safeAreaInsets: UIEdgeInsets = .zero
     private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
     private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
-    private var playButtonY: CGFloat { max(safeBottomY + 180, -size.height * 0.12) }
+    private var bottomBarHeight: CGFloat { safeAreaInsets.bottom + 70 }
+    private var bottomBarTopY: CGFloat { -size.height / 2 + bottomBarHeight }
+
+    private struct MainButtonLayout {
+        let playY: CGFloat
+        let dailyY: CGFloat?
+        let questY: CGFloat
+    }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -152,7 +159,10 @@ final class HomeScene: SKScene {
         let gems: [GemColor] = [.red, .blue, .green, .yellow, .purple, .orange]
         let spacing = size.width / CGFloat(gems.count + 1)
         let logoBottom = logoNode.position.y - 92
-        let playTop = playButtonY + 36
+        let playTop = mainButtonLayout().playY + 32
+        let availableGap = logoBottom - playTop
+        guard availableGap >= 44 else { return }
+
         let gemY = min(size.height * 0.05, (logoBottom + playTop) / 2)
 
         for (i, color) in gems.enumerated() {
@@ -272,7 +282,10 @@ final class HomeScene: SKScene {
     // MARK: - Main Buttons
 
     private func setupMainButtons() {
-        let playY = playButtonY
+        LiveOpsManager.shared.refreshDailyQuestsIfNeeded()
+
+        let layout = mainButtonLayout()
+        let playY = layout.playY
         let playBtn = PixelButton(title: "▶ PLAY",
                                    size: CGSize(width: 260, height: 64),
                                    style: .primary,
@@ -291,13 +304,13 @@ final class HomeScene: SKScene {
         ])))
 
         // Daily reward button (if available)
-        if PlayerData.shared.canClaimDailyReward {
+        if let dailyY = layout.dailyY {
             let dailyBtn = PixelButton(title: "🎁 DAILY REWARD!",
                                        size: CGSize(width: 240, height: 50),
                                        style: .primary,
                                        color: UIColor(hex: "#FF9500"),
                                        fontSize: 18)
-            dailyBtn.position = CGPoint(x: 0, y: playY - 78)
+            dailyBtn.position = CGPoint(x: 0, y: dailyY)
             dailyBtn.zPosition = 10
             dailyBtn.onTap = { [weak self] in self?.claimDailyReward() }
             addChild(dailyBtn)
@@ -307,10 +320,37 @@ final class HomeScene: SKScene {
                 .scale(to: 1.0, duration: 0.5)
             ])))
         }
+
+        let questY = layout.questY
+        let questCount = LiveOpsManager.shared.completedUnclaimedQuestCount
+        let questTitle = questCount > 0 ? "✅ QUESTS (\(questCount))" : "📋 QUESTS"
+        let questBtn = PixelButton(title: questTitle,
+                                   size: CGSize(width: 150, height: 44),
+                                   style: .secondary,
+                                   color: UIColor(hex: "#34C759"),
+                                   fontSize: 15)
+        questBtn.position = CGPoint(x: -82, y: questY)
+        questBtn.zPosition = 10
+        questBtn.onTap = { [weak self] in self?.showQuests() }
+        addChild(questBtn)
+
+        let chest = LiveOpsManager.shared.chestProgress
+        let chestTitle = LiveOpsManager.shared.canClaimChest
+            ? "⭐ CHEST!"
+            : "⭐ \(chest.current)/\(chest.target)"
+        let chestBtn = PixelButton(title: chestTitle,
+                                   size: CGSize(width: 150, height: 44),
+                                   style: .secondary,
+                                   color: UIColor(hex: "#FFCC00"),
+                                   fontSize: 15)
+        chestBtn.position = CGPoint(x: 82, y: questY)
+        chestBtn.zPosition = 10
+        chestBtn.onTap = { [weak self] in self?.showChest() }
+        addChild(chestBtn)
     }
 
     private func setupBottomBar() {
-        let barHeight = safeAreaInsets.bottom + 70
+        let barHeight = bottomBarHeight
         let barCenterY = -size.height/2 + barHeight / 2
         let buttonY = safeBottomY + 35
         let labelY = safeBottomY + 12
@@ -401,12 +441,33 @@ final class HomeScene: SKScene {
         addChild(lbLbl)
     }
 
+    private func mainButtonLayout() -> MainButtonLayout {
+        // 主按钮区从底部工具栏往上排，再与 Logo 底部做碰撞限制。
+        // 小屏时优先保证按钮不进入安全区和底栏，大屏时保持原来的视觉中心。
+        let hasDailyReward = PlayerData.shared.canClaimDailyReward
+        let preferredPlayY = max(safeBottomY + 180, -size.height * 0.12)
+        let minPlayY = bottomBarTopY + (hasDailyReward ? 164 : 106)
+        let logoBottom = (logoNode?.position.y ?? safeTopY - 195) - 92
+        let maxPlayY = logoBottom - 40
+        let playY = min(max(preferredPlayY, minPlayY), maxPlayY)
+
+        if hasDailyReward {
+            let dailyY = playY - 69
+            return MainButtonLayout(playY: playY,
+                                    dailyY: dailyY,
+                                    questY: dailyY - 59)
+        }
+        return MainButtonLayout(playY: playY,
+                                dailyY: nil,
+                                questY: playY - 70)
+    }
+
     // MARK: - Daily Reward
 
     private func checkDailyReward() {
         if PlayerData.shared.canClaimDailyReward {
             // Slight delay for entrance
-            run(.wait(forDuration: 0.8)) { [weak self] in
+            run(.wait(forDuration: 0.8)) {
                 // Badge already shown on button
             }
         }
@@ -414,10 +475,16 @@ final class HomeScene: SKScene {
 
     private func claimDailyReward() {
         let reward = PlayerData.shared.claimDailyReward()
-        showRewardPopup(coins: reward.coins, diamonds: reward.diamonds)
+        showRewardPopup(title: "🎁 DAILY REWARD!",
+                        coins: reward.coins,
+                        diamonds: reward.diamonds)
     }
 
-    private func showRewardPopup(coins: Int, diamonds: Int) {
+    private func showRewardPopup(title: String,
+                                 coins: Int,
+                                 diamonds: Int,
+                                 hammer: Int = 0,
+                                 shuffle: Int = 0) {
         let popup = SKNode()
         popup.zPosition = 100
 
@@ -427,16 +494,18 @@ final class HomeScene: SKScene {
         bg.lineWidth = 3
         popup.addChild(bg)
 
-        let title = SKLabelNode(fontNamed: "Courier-Bold")
-        title.text = "🎁 DAILY REWARD!"
-        title.fontSize = 22
-        title.fontColor = UIColor(hex: "#FFCC00")
-        title.verticalAlignmentMode = .center
-        title.position = CGPoint(x: 0, y: 75)
-        popup.addChild(title)
+        let titleLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        titleLbl.text = title
+        titleLbl.fontSize = 22
+        titleLbl.fontColor = UIColor(hex: "#FFCC00")
+        titleLbl.verticalAlignmentMode = .center
+        titleLbl.position = CGPoint(x: 0, y: 75)
+        popup.addChild(titleLbl)
 
         let streakLbl = SKLabelNode(fontNamed: "Courier")
-        streakLbl.text = "Day \(PlayerData.shared.dailyStreak) Streak! 🔥"
+        streakLbl.text = title.contains("DAILY")
+            ? "Day \(PlayerData.shared.dailyStreak) Streak!"
+            : "Rewards added to your inventory"
         streakLbl.fontSize = 16
         streakLbl.fontColor = UIColor(hex: "#FF9500")
         streakLbl.verticalAlignmentMode = .center
@@ -459,6 +528,16 @@ final class HomeScene: SKScene {
             dLbl.verticalAlignmentMode = .center
             dLbl.position = CGPoint(x: 50, y: -10)
             popup.addChild(dLbl)
+        }
+
+        if hammer > 0 || shuffle > 0 {
+            let boosterLbl = SKLabelNode(fontNamed: "Courier-Bold")
+            boosterLbl.text = "+\(hammer) Hammer  +\(shuffle) Shuffle"
+            boosterLbl.fontSize = 14
+            boosterLbl.fontColor = UIColor(hex: "#99BBCC")
+            boosterLbl.verticalAlignmentMode = .center
+            boosterLbl.position = CGPoint(x: 0, y: -42)
+            popup.addChild(boosterLbl)
         }
 
         let closeBtn = PixelButton(title: "CLAIM!", size: CGSize(width: 200, height: 46),
@@ -493,6 +572,34 @@ final class HomeScene: SKScene {
         dialog.zPosition = 50
         addChild(dialog)
         dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+    }
+
+    private func showQuests() {
+        let dialog = QuestsDialog(sceneSize: size)
+        dialog.zPosition = 50
+        addChild(dialog)
+        dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+        dialog.onClaim = { [weak self, weak dialog] questId in
+            guard let reward = LiveOpsManager.shared.claimQuest(id: questId) else { return }
+            dialog?.dismiss()
+            self?.showRewardPopup(title: "✅ QUEST COMPLETE!",
+                                  coins: reward.coins,
+                                  diamonds: reward.diamonds)
+        }
+    }
+
+    private func showChest() {
+        guard let reward = LiveOpsManager.shared.claimChest() else {
+            let chest = LiveOpsManager.shared.chestProgress
+            showFloatingText("Collect stars to open chest: \(chest.current)/\(chest.target)",
+                             color: UIColor(hex: "#FFCC00"))
+            return
+        }
+        showRewardPopup(title: "⭐ STAR CHEST!",
+                        coins: reward.coins,
+                        diamonds: reward.diamonds,
+                        hammer: reward.hammer,
+                        shuffle: reward.shuffle)
     }
 
     private func showSettings() {
@@ -541,6 +648,105 @@ final class HomeScene: SKScene {
             ]),
             .scale(to: 1.0, duration: 0.1)
         ]))
+    }
+}
+
+// MARK: - Quests Dialog
+
+final class QuestsDialog: DialogNode {
+    var onClose: (() -> Void)?
+    var onClaim: ((String) -> Void)?
+
+    private let dialogSize: CGSize
+
+    init(sceneSize: CGSize) {
+        dialogSize = CGSize(width: min(sceneSize.width - 36, 330), height: 360)
+        super.init(size: dialogSize, sceneSize: sceneSize)
+        buildUI()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func buildUI() {
+        addPixelTitle("DAILY QUESTS", y: 145)
+
+        let quests = LiveOpsManager.shared.quests
+        for (index, quest) in quests.enumerated() {
+            addQuestRow(quest, y: 78 - CGFloat(index) * 78)
+        }
+
+        let closeBtn = PixelButton(title: "CLOSE",
+                                   size: CGSize(width: 220, height: 44),
+                                   style: .secondary,
+                                   fontSize: 16)
+        closeBtn.position = CGPoint(x: 0, y: -145)
+        closeBtn.onTap = { [weak self] in self?.onClose?() }
+        addChild(closeBtn)
+    }
+
+    private func addQuestRow(_ quest: DailyQuest, y: CGFloat) {
+        let rowWidth = dialogSize.width - 28
+        let claimWidth: CGFloat = min(84, max(72, rowWidth * 0.30))
+        let textLeft = -rowWidth / 2 + 12
+        let claimX = rowWidth / 2 - claimWidth / 2 - 10
+        let maxTextWidth = rowWidth - claimWidth - 34
+
+        let bg = SKShapeNode(rectOf: CGSize(width: rowWidth, height: 60), cornerRadius: 8)
+        bg.fillColor = UIColor(hex: "#0F1E33")
+        bg.strokeColor = quest.isComplete ? UIColor(hex: "#34C759") : UIColor(hex: "#1C3A5C")
+        bg.lineWidth = 1.5
+        bg.position = CGPoint(x: 0, y: y)
+        addChild(bg)
+
+        let title = SKLabelNode(fontNamed: "Courier-Bold")
+        title.text = quest.displayText
+        title.fontSize = 13
+        title.fontColor = .white
+        title.verticalAlignmentMode = .center
+        title.horizontalAlignmentMode = .left
+        title.position = CGPoint(x: textLeft, y: y + 10)
+        fitLabel(title, maxWidth: maxTextWidth)
+        addChild(title)
+
+        let reward = SKLabelNode(fontNamed: "Courier")
+        reward.text = "+\(EconomyConfig.shared.questRewardCoins) coins  +\(EconomyConfig.shared.questRewardDiamonds) diamond"
+        reward.fontSize = 11
+        reward.fontColor = UIColor(hex: "#99BBCC")
+        reward.verticalAlignmentMode = .center
+        reward.horizontalAlignmentMode = .left
+        reward.position = CGPoint(x: textLeft, y: y - 13)
+        fitLabel(reward, maxWidth: maxTextWidth, minScale: 0.72)
+        addChild(reward)
+
+        let claimTitle: String
+        if quest.claimed {
+            claimTitle = "DONE"
+        } else if quest.isComplete {
+            claimTitle = "CLAIM"
+        } else {
+            claimTitle = "..."
+        }
+
+        let claimBtn = PixelButton(title: claimTitle,
+                                   size: CGSize(width: claimWidth, height: 34),
+                                   style: quest.isComplete && !quest.claimed ? .primary : .secondary,
+                                   color: UIColor(hex: "#34C759"),
+                                   fontSize: 12)
+        claimBtn.position = CGPoint(x: claimX, y: y)
+        claimBtn.onTap = { [weak self] in
+            guard quest.isComplete && !quest.claimed else { return }
+            self?.onClaim?(quest.id)
+        }
+        addChild(claimBtn)
+    }
+
+    private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat = 0.68) {
+        // 任务文案和奖励文字在小屏上不能挤进领取按钮。
+        label.setScale(1)
+        let width = max(label.frame.width, 1)
+        if width > maxWidth {
+            label.setScale(max(minScale, maxWidth / width))
+        }
     }
 }
 
@@ -697,7 +903,7 @@ final class ShopDialog: DialogNode {
                                   style: .primary,
                                   color: UIColor(hex: "#FFCC00"),
                                   fontSize: 13)
-        buyBtn.onTap = { [weak self] in
+        buyBtn.onTap = {
             if PlayerData.shared.spendCoins(type.cost) {
                 switch type {
                 case .hammer: PlayerData.shared.hammerCount += 1

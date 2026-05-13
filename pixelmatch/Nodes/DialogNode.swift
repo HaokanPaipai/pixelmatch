@@ -427,6 +427,7 @@ private final class BoosterSelectButton: SKNode {
     private var isSelected = false
     private let type: BoosterType
     private weak var container: SKNode?
+    private let hitSize = CGSize(width: 120, height: 76)
 
     init(type: BoosterType, container: SKNode) {
         self.type = type
@@ -437,8 +438,13 @@ private final class BoosterSelectButton: SKNode {
 
     required init?(coder: NSCoder) { fatalError() }
 
+    override func contains(_ p: CGPoint) -> Bool {
+        abs(p.x) <= hitSize.width / 2 && abs(p.y) <= hitSize.height / 2
+    }
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isEnabled else { return }
+        if let touch = touches.first, !contains(touch.location(in: self)) { return }
         isSelected = !isSelected
         onToggle?(isSelected)
 

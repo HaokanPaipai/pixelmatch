@@ -62,7 +62,7 @@ final class LivesManager {
             defaults.removeObject(forKey: Key.lastLostTime)
             return true
         }
-        let cost = 15
+        let cost = EconomyConfig.shared.lifeRefillDiamonds
         guard PlayerData.shared.spendDiamonds(cost) else { return false }
         currentLives = maxLives
         defaults.removeObject(forKey: Key.lastLostTime)

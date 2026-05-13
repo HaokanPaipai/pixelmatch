@@ -81,6 +81,11 @@ let GameWorlds: [World] = [
 
 // MARK: - Level
 
+struct LevelLesson {
+    let title: String
+    let message: String
+}
+
 struct Level {
     let id: Int
     let worldId: Int
@@ -92,6 +97,31 @@ struct Level {
     let holes: [(row: Int, col: Int)]
     let obstacles: [BoardObstacle]
     let starThresholds: (one: Int, two: Int, three: Int)
+    let lesson: LevelLesson?
+
+    init(id: Int,
+         worldId: Int,
+         rows: Int,
+         cols: Int,
+         moves: Int,
+         availableColors: [GemColor],
+         objectives: [LevelObjective],
+         holes: [(row: Int, col: Int)],
+         obstacles: [BoardObstacle],
+         starThresholds: (one: Int, two: Int, three: Int),
+         lesson: LevelLesson? = nil) {
+        self.id = id
+        self.worldId = worldId
+        self.rows = rows
+        self.cols = cols
+        self.moves = moves
+        self.availableColors = availableColors
+        self.objectives = objectives
+        self.holes = holes
+        self.obstacles = obstacles
+        self.starThresholds = starThresholds
+        self.lesson = lesson
+    }
 
     var world: World? { GameWorlds.first { $0.id == worldId } }
     var displayName: String { "Level \(id)" }

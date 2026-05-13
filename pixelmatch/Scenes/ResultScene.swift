@@ -10,10 +10,14 @@ final class ResultScene: SKScene {
     var winStreak: Int = 0
 
     private var starNodes: [SKNode] = []
+    private var safeAreaInsets: UIEdgeInsets = .zero
+    private var safeTopY: CGFloat { size.height / 2 - safeAreaInsets.top }
+    private var safeBottomY: CGFloat { -size.height / 2 + safeAreaInsets.bottom }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         size = view.bounds.size
+        safeAreaInsets = view.safeAreaInsets
         setupBackground()
         if isWin {
             setupWinUI()
@@ -67,7 +71,7 @@ final class ResultScene: SKScene {
     private func setupWinUI() {
         // Title
         let title = makeLargeLabel("LEVEL CLEAR!", color: UIColor(hex: "#FFCC00"), size: 36)
-        title.position = CGPoint(x: 0, y: size.height * 0.3)
+        title.position = CGPoint(x: 0, y: min(size.height * 0.3, safeTopY - 54))
         title.zPosition = 10
         addChild(title)
         title.popIn()
@@ -76,7 +80,7 @@ final class ResultScene: SKScene {
         let levelLbl = makeLargeLabel(level.displayName.uppercased(),
                                       color: UIColor(hex: level.world?.themeColorHex ?? "#FFFFFF"),
                                       size: 18)
-        levelLbl.position = CGPoint(x: 0, y: size.height * 0.22)
+        levelLbl.position = CGPoint(x: 0, y: min(size.height * 0.22, safeTopY - 104))
         levelLbl.zPosition = 10
         addChild(levelLbl)
 
@@ -208,7 +212,8 @@ final class ResultScene: SKScene {
     }
 
     private func setupWinButtons() {
-        let yBase = -size.height * 0.38
+        // 结果按钮从底部安全区往上排，避免小屏上最后一个按钮掉出画面。
+        let yBase = max(-size.height * 0.38, safeBottomY + 141)
 
         // Next Level button
         let nextBtn = PixelButton(title: "NEXT LEVEL ▶",
@@ -246,7 +251,7 @@ final class ResultScene: SKScene {
     private func setupFailUI() {
         // Title
         let title = makeLargeLabel("LEVEL FAILED", color: UIColor(hex: "#FF3B30"), size: 36)
-        title.position = CGPoint(x: 0, y: size.height * 0.28)
+        title.position = CGPoint(x: 0, y: min(size.height * 0.28, safeTopY - 54))
         title.zPosition = 10
         addChild(title)
         title.popIn()
@@ -272,7 +277,7 @@ final class ResultScene: SKScene {
     }
 
     private func addBrokenX() {
-        for i in 0..<8 {
+        for _ in 0..<8 {
             let size = CGFloat.random(in: 4...12)
             let sq = SKShapeNode(rectOf: CGSize(width: size, height: size))
             sq.fillColor = UIColor(hex: "#FF3B30").withAlphaComponent(0.6)
@@ -289,7 +294,7 @@ final class ResultScene: SKScene {
     }
 
     private func setupFailButtons() {
-        let yBase = -size.height * 0.3
+        let yBase = max(-size.height * 0.3, safeBottomY + 84)
 
         let retryBtn = PixelButton(title: "↺ TRY AGAIN",
                                    size: CGSize(width: 240, height: 54),

@@ -85,7 +85,7 @@ final class PlayerData {
     var coins: Int {
         get {
             let v = defaults.integer(forKey: Key.coins)
-            return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? GameConstants.startingCoins : v
+            return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? EconomyConfig.shared.startingCoins : v
         }
         set { defaults.set(newValue, forKey: Key.coins) }
     }
@@ -93,24 +93,38 @@ final class PlayerData {
     var diamonds: Int {
         get {
             let v = defaults.integer(forKey: Key.diamonds)
-            return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? GameConstants.startingDiamonds : v
+            return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? EconomyConfig.shared.startingDiamonds : v
         }
         set { defaults.set(newValue, forKey: Key.diamonds) }
     }
 
     func spendCoins(_ amount: Int) -> Bool {
         guard coins >= amount else { return false }
-        coins -= amount; return true
+        coins -= amount
+        AnalyticsManager.shared.track(.currencyChanged,
+                                      properties: ["currency": "coins", "delta": "-\(amount)", "reason": "spend"])
+        return true
     }
 
-    func addCoins(_ amount: Int) { coins += amount }
+    func addCoins(_ amount: Int) {
+        coins += amount
+        AnalyticsManager.shared.track(.currencyChanged,
+                                      properties: ["currency": "coins", "delta": "\(amount)", "reason": "earn"])
+    }
 
     func spendDiamonds(_ amount: Int) -> Bool {
         guard diamonds >= amount else { return false }
-        diamonds -= amount; return true
+        diamonds -= amount
+        AnalyticsManager.shared.track(.currencyChanged,
+                                      properties: ["currency": "diamonds", "delta": "-\(amount)", "reason": "spend"])
+        return true
     }
 
-    func addDiamonds(_ amount: Int) { diamonds += amount }
+    func addDiamonds(_ amount: Int) {
+        diamonds += amount
+        AnalyticsManager.shared.track(.currencyChanged,
+                                      properties: ["currency": "diamonds", "delta": "\(amount)", "reason": "earn"])
+    }
 
     // MARK: - Stats
 
@@ -203,17 +217,20 @@ final class PlayerData {
     }
 
     func claimDailyReward() -> (coins: Int, diamonds: Int) {
-        let streak = min(dailyStreak + 1, 7)
+        let streak = min(dailyStreak + 1, EconomyConfig.shared.dailyStreakCap)
         dailyStreak = streak
         lastDailyRewardDate = Date()
 
-        let coinsReward = 50 + streak * 25
-        let diamondsReward = streak == 7 ? 5 : (streak >= 5 ? 2 : 0)
+        let reward = EconomyConfig.shared.dailyReward(for: streak)
 
-        addCoins(coinsReward)
-        if diamondsReward > 0 { addDiamonds(diamondsReward) }
+        addCoins(reward.coins)
+        if reward.diamonds > 0 { addDiamonds(reward.diamonds) }
+        AnalyticsManager.shared.track(.dailyRewardClaimed,
+                                      properties: ["streak": "\(streak)",
+                                                   "coins": "\(reward.coins)",
+                                                   "diamonds": "\(reward.diamonds)"])
 
-        return (coinsReward, diamondsReward)
+        return reward
     }
 
     // MARK: - First Launch
@@ -225,8 +242,8 @@ final class PlayerData {
 
     func completeFirstLaunch() {
         if isFirstLaunch {
-            coins = GameConstants.startingCoins
-            diamonds = GameConstants.startingDiamonds
+            coins = EconomyConfig.shared.startingCoins
+            diamonds = EconomyConfig.shared.startingDiamonds
             hammerCount = 2
             shuffleCount = 2
             extraMovesCount = 1
@@ -243,6 +260,7 @@ final class PlayerData {
 
     func setTutorialComplete() {
         defaults.set(true, forKey: Key.tutorialComplete)
+        AnalyticsManager.shared.track(.tutorialComplete)
     }
 
     // MARK: - Win Streak
@@ -285,12 +303,7 @@ enum BoosterType: CaseIterable {
     }
 
     var cost: Int {
-        switch self {
-        case .hammer: return 50
-        case .shuffle: return 30
-        case .extraMoves: return 80
-        case .colorBomb: return 100
-        }
+        EconomyConfig.shared.boosterCost(self)
     }
 
     var iconPixels: [[UInt8]] {

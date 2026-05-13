@@ -11,11 +11,11 @@ final class TutorialScene: SKScene {
     private var touchStartBoardPos: (row: Int, col: Int)?
 
     private let steps: [(title: String, message: String)] = [
-        ("WELCOME!", "Swap adjacent gems to make matches of 3 or more in a row or column!"),
-        ("MATCH 3+", "Matching 4 gems in a row creates a STRIPED gem — it clears an entire row or column!"),
-        ("MATCH 5!", "Matching 5 in a row creates a COLOR BOMB — swap it with any gem to clear all gems of that color!"),
-        ("COMPLETE\nOBJECTIVES", "Each level has goals to complete before your moves run out. Watch the objective panel at the top!"),
-        ("BOOSTERS", "Use boosters like the Hammer or Color Bomb to help on tricky levels. You can buy more in the shop!")
+        ("WELCOME!", "Swap adjacent gems. Match 3 to clear space and build score."),
+        ("MAKE 4", "Match 4 to create a striped gem. Match it again to clear a full line."),
+        ("MAKE 5", "Match 5 to create a color bomb. Swap it with a color to clear that color."),
+        ("COMBOS", "Swap two special gems together for a bigger board-clearing effect."),
+        ("OBJECTIVES", "Every level has a goal. Spend each move toward that goal.")
     ]
 
     private var overlayNode: SKNode!
@@ -78,7 +78,13 @@ final class TutorialScene: SKScene {
         boardNode = BoardNode(board: board)
         let panelTop = safeBottomY + 222
         let playableTop = safeTopY - 24
+        let availableWidth = max(1, size.width - safeAreaInsets.left - safeAreaInsets.right - 24)
+        let availableHeight = max(1, playableTop - panelTop - 18)
+        let boardScale = min(1.0,
+                             availableWidth / max(boardNode.boardSize.width, 1),
+                             availableHeight / max(boardNode.boardSize.height, 1))
         boardNode.position = CGPoint(x: 0, y: (playableTop + panelTop) / 2)
+        boardNode.setScale(boardScale)
         boardNode.zPosition = 1
         addChild(boardNode)
 

@@ -9,15 +9,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        let rootViewController = GameViewController()
+        let appWindow = UIWindow(frame: UIScreen.main.bounds)
+        appWindow.rootViewController = rootViewController
+        appWindow.makeKeyAndVisible()
+        window = appWindow
+
         UNUserNotificationCenter.current().delegate = self
         NotificationManager.shared.requestPermission()
         NotificationManager.shared.scheduleDailyRewardNotification()
         NotificationManager.shared.scheduleReturnReminderNotification()
 
-        if let vc = window?.rootViewController {
-            GameCenterManager.shared.rootViewController = vc
-            GameCenterManager.shared.authenticate()
-        }
+        GameCenterManager.shared.rootViewController = rootViewController
+        GameCenterManager.shared.authenticate()
+        AnalyticsManager.shared.track(.appLaunch)
         return true
     }
 

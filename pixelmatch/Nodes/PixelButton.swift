@@ -16,6 +16,7 @@ final class PixelButton: SKNode {
     private let label: SKLabelNode?
     private let iconSprite: SKSpriteNode?
     private let style: Style
+    private let buttonSize: CGSize
 
     init(title: String,
          size: CGSize = CGSize(width: 180, height: 50),
@@ -23,6 +24,7 @@ final class PixelButton: SKNode {
          color: UIColor = UIColor(hex: "#007AFF"),
          fontSize: CGFloat = 20) {
         self.style = style
+        self.buttonSize = size
 
         bg = PixelButton.makeBg(size, style: style, color: color)
 
@@ -39,6 +41,7 @@ final class PixelButton: SKNode {
         super.init()
         addChild(bg)
         addChild(lbl)
+        fitTitleIfNeeded()
         isUserInteractionEnabled = true
     }
 
@@ -48,6 +51,7 @@ final class PixelButton: SKNode {
          bgColor: UIColor = UIColor(hex: "#334466"),
          badge: String? = nil) {
         self.style = .icon
+        self.buttonSize = size
 
         bg = PixelButton.makeBg(size, style: .icon, color: bgColor)
 
@@ -86,6 +90,10 @@ final class PixelButton: SKNode {
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    override func contains(_ p: CGPoint) -> Bool {
+        isPointInsideButton(p, padding: 4)
+    }
 
     private static func makeBg(_ size: CGSize, style: Style, color: UIColor) -> SKShapeNode {
         let rect = CGRect(origin: CGPoint(x: -size.width/2, y: -size.height/2), size: size)
@@ -132,6 +140,8 @@ final class PixelButton: SKNode {
     // MARK: - Touch
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first,
+              isPointInsideButton(touch.location(in: self), padding: 6) else { return }
         run(.scale(to: 0.93, duration: 0.06))
         bg.run(.fadeAlpha(to: 0.85, duration: 0.06))
         AudioManager.shared.play(.buttonTap)
@@ -142,7 +152,7 @@ final class PixelButton: SKNode {
         bg.run(.fadeAlpha(to: 1.0, duration: 0.08))
         guard let touch = touches.first else { return }
         let loc = touch.location(in: self)
-        if abs(loc.x) < 200 && abs(loc.y) < 100 {
+        if isPointInsideButton(loc, padding: 8) {
             onTap?()
         }
     }
@@ -154,8 +164,28 @@ final class PixelButton: SKNode {
 
     // MARK: - Update
 
-    func setTitle(_ title: String) { label?.text = title }
+    func setTitle(_ title: String) {
+        label?.text = title
+        fitTitleIfNeeded()
+    }
     func setEnabled(_ enabled: Bool) { alpha = enabled ? 1.0 : 0.4; isUserInteractionEnabled = enabled }
+
+    private func isPointInsideButton(_ point: CGPoint, padding: CGFloat) -> Bool {
+        abs(point.x) <= buttonSize.width / 2 + padding
+            && abs(point.y) <= buttonSize.height / 2 + padding
+    }
+
+    private func fitTitleIfNeeded() {
+        guard let label = label else { return }
+
+        // 文本按钮只允许在自己的可见区域内响应，长文案也要收进按钮宽度。
+        label.setScale(1)
+        let maxWidth = max(24, buttonSize.width - 18)
+        guard label.frame.width > maxWidth else { return }
+
+        let scale = max(0.72, maxWidth / max(label.frame.width, 1))
+        label.setScale(scale)
+    }
 }
 
 // MARK: - HUD Coin/Diamond Counter

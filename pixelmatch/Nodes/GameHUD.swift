@@ -21,6 +21,8 @@ final class GameHUD: SKNode {
     private var currentScore: Int = 0
     private var targetScore: Int = 1000
     private var currentMoves: Int = 0
+    private var scoreValueMaxWidth: CGFloat = 90
+    private var movesValueMaxWidth: CGFloat = 58
 
     init(level: Level, sceneSize: CGSize, safeAreaInsets: UIEdgeInsets, hudWorldY: CGFloat) {
         super.init()
@@ -115,6 +117,7 @@ final class GameHUD: SKNode {
         let availableBarW = scoreRightEdge - movesRightEdge - scoreLeftPadding
         let barW = max(72, min(maxBarW, availableBarW))
         let scoreX = scoreRightEdge - barW / 2
+        scoreValueMaxWidth = barW
 
         let scoreLbl = SKLabelNode(fontNamed: "Courier-Bold")
         scoreLbl.text = "SCORE"
@@ -160,12 +163,19 @@ final class GameHUD: SKNode {
     }
 
     private func setupObjectives(level: Level, sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
-        let startX = -sceneSize.width / 2 + safeAreaInsets.left + 58
+        let itemWidth: CGFloat = 100
+        let itemGap: CGFloat = 10
+        let count = max(level.objectives.count, 1)
+        let totalWidth = CGFloat(count) * itemWidth + CGFloat(max(count - 1, 0)) * itemGap
+        let availableWidth = max(1, sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 20)
+        let scale = min(1, availableWidth / totalWidth)
+        let startX = -totalWidth * scale / 2 + itemWidth * scale / 2
         let y: CGFloat = -50
 
         for (idx, obj) in level.objectives.enumerated() {
             let node = ObjectiveDisplayNode(objective: obj)
-            node.position = CGPoint(x: startX + CGFloat(idx) * 110, y: y)
+            node.setScale(scale)
+            node.position = CGPoint(x: startX + CGFloat(idx) * (itemWidth + itemGap) * scale, y: y)
             addChild(node)
             objectiveNodes.append(node)
         }
@@ -173,14 +183,17 @@ final class GameHUD: SKNode {
 
     private func setupBoosters(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets, hudWorldY: CGFloat) {
         let types = BoosterType.allCases
-        let spacing: CGFloat = 60
+        let availableWidth = max(1, sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 40)
+        let spacing = min(60, max(48, availableWidth / CGFloat(types.count)))
         let startX = -CGFloat(types.count - 1) * spacing / 2
         let boosterWorldY = -sceneSize.height / 2 + safeAreaInsets.bottom + 68
         let boosterLocalY = boosterWorldY - hudWorldY
+        let scale = min(1, availableWidth / 240)
 
         for (i, type) in types.enumerated() {
             let node = BoosterButtonNode(type: type)
             node.position = CGPoint(x: startX + CGFloat(i) * spacing, y: boosterLocalY)
+            node.setScale(scale)
             node.onTap = { [weak self] in self?.onBoosterTap?(type) }
             addChild(node)
             boosterNodes.append(node)
@@ -192,9 +205,10 @@ final class GameHUD: SKNode {
     func updateScore(_ score: Int) {
         currentScore = score
         scoreValueLabel.text = score.scoreFormatted
+        let fittedScale = fitLabel(scoreValueLabel, maxWidth: scoreValueMaxWidth, minScale: 0.58)
         scoreValueLabel.run(.sequence([
-            .scale(to: 1.2, duration: 0.07),
-            .scale(to: 1.0, duration: 0.07)
+            .scale(to: min(1.0, fittedScale * 1.15), duration: 0.07),
+            .scale(to: fittedScale, duration: 0.07)
         ]))
         updateScoreProgress()
     }
@@ -206,11 +220,12 @@ final class GameHUD: SKNode {
 
     private func updateMovesDisplay() {
         movesValueLabel.text = "\(currentMoves)"
+        let fittedScale = fitLabel(movesValueLabel, maxWidth: movesValueMaxWidth, minScale: 0.72)
         if currentMoves <= 3 {
             movesValueLabel.fontColor = UIColor(hex: "#FF3B30")
             movesValueLabel.run(.repeatForever(.sequence([
-                .scale(to: 1.1, duration: 0.4),
-                .scale(to: 1.0, duration: 0.4)
+                .scale(to: min(1.0, fittedScale * 1.1), duration: 0.4),
+                .scale(to: fittedScale, duration: 0.4)
             ])), withKey: "pulse")
         } else {
             movesValueLabel.fontColor = .white
@@ -247,7 +262,7 @@ final class GameHUD: SKNode {
         }
 
         // Update stars
-        let s1 = progress >= 0.5, s2 = progress >= 0.75, s3 = progress >= 1.0
+        let s1 = progress >= 0.5, s2 = progress >= 0.75
         let starStates = [true, s1, s2]
         for (i, lit) in starStates.enumerated() {
             (childNode(withName: "star_\(i)") as? StarIconNode)?.setLit(lit)
@@ -280,6 +295,17 @@ final class GameHUD: SKNode {
             ]),
             .removeFromParent()
         ]))
+    }
+
+    @discardableResult
+    private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat) -> CGFloat {
+        // HUD 数值会持续变化，先收进指定宽度再做动画，防止步数和分数互相压住。
+        label.removeAction(forKey: "pulse")
+        label.setScale(1)
+        let width = max(label.frame.width, 1)
+        let scale = width > maxWidth ? max(minScale, maxWidth / width) : 1
+        label.setScale(scale)
+        return scale
     }
 }
 
@@ -372,6 +398,7 @@ final class ObjectiveDisplayNode: SKNode {
         addChild(iconNode)
         progressLabel.position = CGPoint(x: 0, y: -12)
         addChild(progressLabel)
+        fitProgressText()
     }
     required init?(coder: NSCoder) { fatalError() }
 
@@ -380,12 +407,23 @@ final class ObjectiveDisplayNode: SKNode {
         updated.progress = progress
         obj = updated
         progressLabel.text = updated.displayText
+        fitProgressText()
         if updated.isComplete {
             iconNode.run(.repeatForever(.sequence([
                 .scale(to: 1.2, duration: 0.4),
                 .scale(to: 1.0, duration: 0.4)
             ])), withKey: "complete")
             progressLabel.fontColor = UIColor(hex: "#34C759")
+        }
+    }
+
+    private func fitProgressText() {
+        // 目标数字会变长，限制在目标卡片内部，避免压到相邻目标。
+        progressLabel.setScale(1)
+        let maxWidth: CGFloat = 84
+        let width = max(progressLabel.frame.width, 1)
+        if width > maxWidth {
+            progressLabel.setScale(max(0.68, maxWidth / width))
         }
     }
 }
