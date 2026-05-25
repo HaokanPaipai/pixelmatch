@@ -10,8 +10,8 @@ struct LevelData {
 
     // MARK: - Builder Helpers
 
-    private static func lesson(_ title: String, _ message: String) -> LevelLesson {
-        LevelLesson(title: title, message: message)
+    private static func lesson(_ titleKey: String, _ messageKey: String) -> LevelLesson {
+        LevelLesson(title: L10n.tr(titleKey), message: L10n.tr(messageKey))
     }
 
     private static func score(_ id: Int, world: Int, rows: Int, cols: Int,
@@ -81,27 +81,27 @@ struct LevelData {
         // ── World 1: Pixel Forest (1–20) ──────────────────────────────────────
         levels += [
             score(1,  world:1, rows:6, cols:6, moves:28, colors:4, target:1200,
-                  lesson: lesson("SWAP", "Match 3 gems. Keep moves calm and learn the board.")),
+                  lesson: lesson("lesson.swap.title", "lesson.swap.message")),
             score(2,  world:1, rows:6, cols:6, moves:26, colors:4, target:2200,
-                  lesson: lesson("CHAIN", "Matches can fall into new matches for free combo score.")),
+                  lesson: lesson("lesson.chain.title", "lesson.chain.message")),
             score(3,  world:1, rows:7, cols:7, moves:26, colors:4, target:3600,
-                  lesson: lesson("STRIPED", "Match 4 to create a striped gem, then match it again.")),
+                  lesson: lesson("lesson.striped.title", "lesson.striped.message")),
             score(4,  world:1, rows:7, cols:7, moves:25, colors:4, target:4800,
-                  lesson: lesson("COLOR BOMB", "Match 5 to create a color bomb. Swap it with any gem.")),
+                  lesson: lesson("lesson.color_bomb.title", "lesson.color_bomb.message")),
             collect(5, world:1, rows:7, cols:7, moves:25, colors:4, collectColor:.red, count:16,
-                    lesson: lesson("COLLECT", "Only the target color matters. Big clears help finish faster.")),
+                    lesson: lesson("lesson.collect.title", "lesson.collect.message")),
             jelly(6,  world:1, rows:7, cols:7, moves:27, colors:4,
                   jellyPositions: rowJelly(row:6, cols:7), target:4200,
-                  lesson: lesson("JELLY", "Clear gems on jelly to remove it from the board.")),
+                  lesson: lesson("lesson.jelly.title", "lesson.jelly.message")),
             score(7,  world:1, rows:8, cols:8, moves:24, colors:5, target:6500,
-                  lesson: lesson("COMBO", "Swap two special gems together for a much bigger clear.")),
+                  lesson: lesson("lesson.combo.title", "lesson.combo.message")),
             collect(8, world:1, rows:8, cols:8, moves:24, colors:5, collectColor:.blue, count:22,
-                    lesson: lesson("FOCUS", "Aim every move toward the objective, not only score.")),
+                    lesson: lesson("lesson.focus.title", "lesson.focus.message")),
             ice(9,   world:1, rows:8, cols:8, moves:27, colors:5,
                  icePositions: rowIce(row:0, cols:8), target:6200,
-                 lesson: lesson("ICE", "Break ice by clearing the frozen tile or hitting it with specials.")),
+                 lesson: lesson("lesson.ice.title", "lesson.ice.message")),
             score(10, world:1, rows:8, cols:8, moves:25, colors:5, target:9000,
-                  lesson: lesson("BOSS", "Use specials early. Saving moves creates bigger win rewards.")),
+                  lesson: lesson("lesson.boss.title", "lesson.boss.message")),
             jelly(11, world:1, rows:8, cols:8, moves:25, colors:5,
                   jellyPositions: rowJelly(row:7, cols:8), target:6500),
             jelly(12, world:1, rows:8, cols:8, moves:23, colors:5,

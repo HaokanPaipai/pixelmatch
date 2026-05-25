@@ -16,8 +16,8 @@ final class NotificationManager {
         guard seconds > 0 else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "❤️ Lives Full!"
-        content.body  = "Your hearts are full — jump back in and beat that level!"
+        content.title = L10n.tr("notification.lives_full.title", fallback: "❤️ Lives Full!")
+        content.body  = L10n.tr("notification.lives_full.body", fallback: "Your hearts are full - jump back in and beat that level!")
         content.sound = .default
         content.badge = 1
 
@@ -30,8 +30,8 @@ final class NotificationManager {
         cancelNotifications(withIdentifier: "daily_reward")
 
         let content = UNMutableNotificationContent()
-        content.title = "🎁 Daily Reward Ready!"
-        content.body  = "Open PixelMatch and claim your free coins and diamonds!"
+        content.title = L10n.tr("notification.daily_reward.title", fallback: "🎁 Daily Reward Ready!")
+        content.body  = L10n.tr("notification.daily_reward.body", fallback: "Open PixelMatch and claim your free coins and diamonds!")
         content.sound = .default
         content.badge = 1
 
@@ -48,8 +48,8 @@ final class NotificationManager {
         cancelNotifications(withIdentifier: "return_reminder")
 
         let content = UNMutableNotificationContent()
-        content.title = "🎮 Still Matching?"
-        content.body  = "New levels await! Your pixel gems miss you."
+        content.title = L10n.tr("notification.return.title", fallback: "🎮 Still Matching?")
+        content.body  = L10n.tr("notification.return.body", fallback: "New levels await! Your pixel gems miss you.")
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 86400 * 2, repeats: false)

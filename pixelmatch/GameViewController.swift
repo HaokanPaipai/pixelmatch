@@ -21,7 +21,9 @@ class GameViewController: UIViewController {
         skView.shouldCullNonVisibleNodes = true
 
         // Initialize services
-        AdManager.shared.initialize()
+        // 广告 SDK 由 AppDelegate 经 PixelMatchAdBootstrap.bootstrap() 注入；
+        // 这里只接 IAP + Game Center。
+        IAPManager.shared.start()
         GameCenterManager.shared.rootViewController = self
         GameCenterManager.shared.authenticate()
 

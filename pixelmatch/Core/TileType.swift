@@ -38,12 +38,12 @@ enum GemColor: Int, CaseIterable, Codable, Equatable {
 
     var name: String {
         switch self {
-        case .red: return "Flame"
-        case .blue: return "Drop"
-        case .green: return "Leaf"
-        case .yellow: return "Star"
-        case .purple: return "Crystal"
-        case .orange: return "Sun"
+        case .red: return L10n.tr("gem.flame", fallback: "Flame")
+        case .blue: return L10n.tr("gem.drop", fallback: "Drop")
+        case .green: return L10n.tr("gem.leaf", fallback: "Leaf")
+        case .yellow: return L10n.tr("gem.star", fallback: "Star")
+        case .purple: return L10n.tr("gem.crystal", fallback: "Crystal")
+        case .orange: return L10n.tr("gem.sun", fallback: "Sun")
         }
     }
 

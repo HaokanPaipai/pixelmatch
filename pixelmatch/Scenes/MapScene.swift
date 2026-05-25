@@ -1,4 +1,5 @@
 import SpriteKit
+import HKAdKit
 
 final class MapScene: SKScene {
 
@@ -73,7 +74,7 @@ final class MapScene: SKScene {
 
         // Title
         let title = SKLabelNode(fontNamed: "Courier-Bold")
-        title.text = "PIXEL MATCH"
+        title.text = L10n.tr("app.name.upper", fallback: "PIXEL MATCH")
         title.fontSize = 24
         title.fontColor = UIColor(hex: "#FFCC00")
         title.verticalAlignmentMode = .center
@@ -197,7 +198,7 @@ final class MapScene: SKScene {
         scrollNode.addChild(bg)
 
         let lbl = SKLabelNode(fontNamed: "Courier-Bold")
-        lbl.text = "✦ \(world.name.uppercased()) ✦"
+        lbl.text = "✦ \(L10n.upper(world.localizedName)) ✦"
         lbl.fontSize = 17
         lbl.fontColor = world.themeColor
         lbl.verticalAlignmentMode = .center
@@ -206,7 +207,7 @@ final class MapScene: SKScene {
 
         // Sub-label: level range
         let rangeLbl = SKLabelNode(fontNamed: "Courier")
-        rangeLbl.text = "Levels \(world.levelRange.lowerBound)-\(world.levelRange.upperBound)"
+        rangeLbl.text = L10n.fmt("map.levels_range", world.levelRange.lowerBound, world.levelRange.upperBound, fallback: "Levels %d-%d")
         rangeLbl.fontSize = 10
         rangeLbl.fontColor = world.themeColor.withAlphaComponent(0.7)
         rangeLbl.verticalAlignmentMode = .center
@@ -292,7 +293,19 @@ final class MapScene: SKScene {
             if LivesManager.shared.refillLives(for: 15) {
                 dialog?.dismiss()
             } else {
-                self?.showFloatingText("Not enough diamonds!", color: UIColor(hex: "#FF3B30"))
+                self?.showFloatingText(L10n.tr("game.not_enough_diamonds", fallback: "Not enough diamonds!"), color: UIColor(hex: "#FF3B30"))
+            }
+        }
+        dialog.onRefillWithAd = { [weak self, weak dialog] in
+            guard let view = self?.view, let vc = view.window?.rootViewController else { return }
+            AdManager.shared.showRewardedAd(placement: "refillLife", from: vc) { earned in
+                DispatchQueue.main.async {
+                    if earned {
+                        // PixelMatchAdRewardProvider.grantReward 已经 +1 ❤；关弹窗刷新心数显示。
+                        dialog?.dismiss()
+                    }
+                    // 失败/未发奖：保留弹窗，玩家可改走"REFILL 15💎"或"WAIT"。
+                }
             }
         }
         dialog.onWaitForFree = { [weak dialog] in dialog?.dismiss() }
@@ -518,7 +531,7 @@ final class LevelDetailDialog: DialogNode {
         // World name
         if let world = level.world {
             let worldLbl = SKLabelNode(fontNamed: "Courier-Bold")
-            worldLbl.text = world.name.uppercased()
+            worldLbl.text = L10n.upper(world.localizedName)
             worldLbl.fontSize = 14
             worldLbl.fontColor = world.themeColor
             worldLbl.verticalAlignmentMode = .center
@@ -526,7 +539,7 @@ final class LevelDetailDialog: DialogNode {
             addChild(worldLbl)
         }
 
-        addPixelTitle(level.displayName.uppercased(), y: 125)
+        addPixelTitle(L10n.upper(level.displayName), y: 125)
 
         // Stars display
         let bestStars = PlayerData.shared.stars(forLevel: level.id)
@@ -556,7 +569,7 @@ final class LevelDetailDialog: DialogNode {
 
         // Moves
         let movesLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        movesLbl.text = "Moves: \(level.moves)"
+        movesLbl.text = L10n.fmt("map.moves", level.moves, fallback: "Moves: %d")
         movesLbl.fontSize = 16
         movesLbl.fontColor = UIColor(hex: "#7799CC")
         movesLbl.verticalAlignmentMode = .center
@@ -567,7 +580,7 @@ final class LevelDetailDialog: DialogNode {
         let best = PlayerData.shared.bestScore(forLevel: level.id)
         if best > 0 {
             let bestLbl = SKLabelNode(fontNamed: "Courier")
-            bestLbl.text = "Best: \(best.scoreFormatted)"
+            bestLbl.text = L10n.fmt("map.best", best.scoreFormatted, fallback: "Best: %@")
             bestLbl.fontSize = 14
             bestLbl.fontColor = UIColor(hex: "#FFCC00")
             bestLbl.verticalAlignmentMode = .center
@@ -591,7 +604,7 @@ final class LevelDetailDialog: DialogNode {
 
         if !LivesManager.shared.isFull {
             let timeLbl = SKLabelNode(fontNamed: "Courier")
-            timeLbl.text = "+♥ in \(LivesManager.shared.timeUntilNextLifeString)"
+            timeLbl.text = L10n.fmt("map.life_timer", LivesManager.shared.timeUntilNextLifeString, fallback: "+♥ in %@")
             timeLbl.fontSize = 12
             timeLbl.fontColor = UIColor(hex: "#FF3B30")
             timeLbl.verticalAlignmentMode = .center
@@ -600,7 +613,7 @@ final class LevelDetailDialog: DialogNode {
         }
 
         // Play button
-        let playBtn = PixelButton(title: lives > 0 ? "▶ PLAY!" : "NO LIVES",
+        let playBtn = PixelButton(title: lives > 0 ? L10n.tr("map.play", fallback: "▶ PLAY!") : L10n.tr("map.no_lives", fallback: "NO LIVES"),
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: lives > 0 ? UIColor(hex: "#34C759") : UIColor(hex: "#FF3B30"),
@@ -618,11 +631,11 @@ final class LevelDetailDialog: DialogNode {
 
     private func objectiveText(_ obj: LevelObjective) -> String {
         switch obj.kind {
-        case .score(let t): return "Score \(t.scoreFormatted) pts"
-        case .collect(let c, let n): return "Collect \(n) \(c.name)"
-        case .clearAllJelly: return "Clear all jelly"
-        case .breakIce(let n): return "Break \(n) ice blocks"
-        case .eliminateChocolate: return "Remove chocolate"
+        case .score(let t): return L10n.fmt("objective.score", t.scoreFormatted, fallback: "Score %@ pts")
+        case .collect(let c, let n): return L10n.fmt("objective.collect", n, c.name, fallback: "Collect %d %@")
+        case .clearAllJelly: return L10n.tr("objective.clear_jelly", fallback: "Clear all jelly")
+        case .breakIce(let n): return L10n.fmt("objective.break_ice", n, fallback: "Break %d ice blocks")
+        case .eliminateChocolate: return L10n.tr("objective.remove_chocolate", fallback: "Remove chocolate")
         }
     }
 }

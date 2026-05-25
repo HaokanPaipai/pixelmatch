@@ -46,9 +46,9 @@ struct LevelObjective {
         switch kind {
         case .score(let t): return "\(progress.scoreFormatted)/\(t.scoreFormatted)"
         case .collect(let color, let c): return "\(color.name): \(progress)/\(c)"
-        case .clearAllJelly: return "Jelly ×\(progress)"
-        case .breakIce(let c): return "Ice: \(progress)/\(c)"
-        case .eliminateChocolate: return "Choco ×\(progress)"
+        case .clearAllJelly: return L10n.fmt("objective.progress.jelly", progress, fallback: "Jelly ×%d")
+        case .breakIce(let c): return L10n.fmt("objective.progress.ice", progress, c, fallback: "Ice: %d/%d")
+        case .eliminateChocolate: return L10n.fmt("objective.progress.chocolate", progress, fallback: "Choco ×%d")
         }
     }
 }
@@ -64,6 +64,7 @@ struct World {
 
     var themeColor: UIColor { UIColor(hex: themeColorHex) }
     var bgColor: UIColor { UIColor(hex: bgColorHex) }
+    var localizedName: String { L10n.tr("world.\(id)", fallback: name) }
 }
 
 let GameWorlds: [World] = [
@@ -124,7 +125,7 @@ struct Level {
     }
 
     var world: World? { GameWorlds.first { $0.id == worldId } }
-    var displayName: String { "Level \(id)" }
+    var displayName: String { L10n.fmt("level.name", id, fallback: "Level %d") }
 
     func stars(for score: Int) -> Int {
         if score >= starThresholds.three { return 3 }

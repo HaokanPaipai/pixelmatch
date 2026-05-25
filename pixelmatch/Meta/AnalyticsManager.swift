@@ -12,6 +12,10 @@ enum AnalyticsEventName: String {
     case dailyRewardClaimed = "daily_reward_claimed"
     case questClaimed = "quest_claimed"
     case chestClaimed = "chest_claimed"
+    case iapPurchaseStart = "iap_purchase_start"
+    case iapPurchaseSuccess = "iap_purchase_success"
+    case iapPurchaseFail = "iap_purchase_fail"
+    case iapRestore = "iap_restore"
 }
 
 struct AnalyticsEvent: Codable {

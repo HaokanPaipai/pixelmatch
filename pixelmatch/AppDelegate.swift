@@ -1,6 +1,7 @@
 import UIKit
 import UserNotifications
 import GameKit
+import HKAdKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -23,6 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         GameCenterManager.shared.rootViewController = rootViewController
         GameCenterManager.shared.authenticate()
         AnalyticsManager.shared.track(.appLaunch)
+
+        // 广告：先注入 provider/adapter，再触发冷启动开屏编排（先后顺序要紧）。
+        PixelMatchAdBootstrap.bootstrap()
+        AdManager.shared.startOnColdLaunch()
         return true
     }
 
@@ -38,6 +43,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func applicationDidBecomeActive(_ application: UIApplication) {
         NotificationManager.shared.clearBadge()
         NotificationManager.shared.cancelNotifications(withIdentifier: "lives_full")
+        // 回前台开屏（OpenAdCoordinator 自带冷启动后 10s 静默窗，避免与冷启动重复）。
+        AdManager.shared.showOnWarmResume()
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter,

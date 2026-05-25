@@ -95,9 +95,9 @@ final class HomeScene: SKScene {
         logoNode.zPosition = 5
         addChild(logoNode)
 
-        // Pixel art title: "PIXEL MATCH"
+        // 像素风品牌标题。
         let titleLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        titleLbl.text = "PIXEL"
+        titleLbl.text = L10n.tr("home.logo.pixel", fallback: "PIXEL")
         titleLbl.fontSize = 52
         titleLbl.fontColor = UIColor(hex: "#FFCC00")
         titleLbl.verticalAlignmentMode = .center
@@ -105,7 +105,7 @@ final class HomeScene: SKScene {
         logoNode.addChild(titleLbl)
 
         let subtitleLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        subtitleLbl.text = "MATCH"
+        subtitleLbl.text = L10n.tr("home.logo.match", fallback: "MATCH")
         subtitleLbl.fontSize = 52
         subtitleLbl.fontColor = .white
         subtitleLbl.verticalAlignmentMode = .center
@@ -132,7 +132,7 @@ final class HomeScene: SKScene {
 
         // Tagline
         let tagLbl = SKLabelNode(fontNamed: "Courier")
-        tagLbl.text = "The Ultimate Pixel Puzzle"
+        tagLbl.text = L10n.tr("home.tagline", fallback: "The Ultimate Pixel Puzzle")
         tagLbl.fontSize = 14
         tagLbl.fontColor = UIColor(hex: "#7799CC")
         tagLbl.verticalAlignmentMode = .center
@@ -203,7 +203,7 @@ final class HomeScene: SKScene {
         // Level indicator
         let maxLvl = PlayerData.shared.maxUnlockedLevel
         let lvlLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        lvlLbl.text = "Level \(maxLvl)"
+        lvlLbl.text = L10n.fmt("home.level", maxLvl, fallback: "Level %d")
         lvlLbl.fontSize = 14
         lvlLbl.fontColor = UIColor(hex: "#FFCC00")
         lvlLbl.verticalAlignmentMode = .center
@@ -226,6 +226,7 @@ final class HomeScene: SKScene {
         currencyBar.addChild(coinIcon)
 
         let coinsLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        coinsLbl.name = "home.coins"
         coinsLbl.text = "\(PlayerData.shared.coins)"
         coinsLbl.fontSize = 16
         coinsLbl.fontColor = UIColor(hex: "#FFCC00")
@@ -244,6 +245,7 @@ final class HomeScene: SKScene {
         currencyBar.addChild(dIcon)
 
         let diamondsLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        diamondsLbl.name = "home.diamonds"
         diamondsLbl.text = "\(PlayerData.shared.diamonds)"
         diamondsLbl.fontSize = 16
         diamondsLbl.fontColor = UIColor(hex: "#AF52DE")
@@ -275,7 +277,7 @@ final class HomeScene: SKScene {
         LiveOpsManager.shared.refreshDailyQuestsIfNeeded()
 
         let playY = playButtonY
-        let playBtn = PixelButton(title: "▶ PLAY",
+        let playBtn = PixelButton(title: L10n.tr("home.play", fallback: "▶ PLAY"),
                                    size: CGSize(width: 260, height: 64),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
@@ -294,7 +296,7 @@ final class HomeScene: SKScene {
 
         // Daily reward button (if available)
         if PlayerData.shared.canClaimDailyReward {
-            let dailyBtn = PixelButton(title: "🎁 DAILY REWARD!",
+            let dailyBtn = PixelButton(title: L10n.tr("home.daily_reward", fallback: "🎁 DAILY REWARD!"),
                                        size: CGSize(width: 240, height: 50),
                                        style: .primary,
                                        color: UIColor(hex: "#FF9500"),
@@ -312,7 +314,9 @@ final class HomeScene: SKScene {
 
         let questY = playY - (PlayerData.shared.canClaimDailyReward ? 140 : 78)
         let questCount = LiveOpsManager.shared.completedUnclaimedQuestCount
-        let questTitle = questCount > 0 ? "✅ QUESTS (\(questCount))" : "📋 QUESTS"
+        let questTitle = questCount > 0
+            ? L10n.fmt("home.quests_count", questCount, fallback: "✅ QUESTS (%d)")
+            : L10n.tr("home.quests", fallback: "📋 QUESTS")
         let questBtn = PixelButton(title: questTitle,
                                    size: CGSize(width: 150, height: 44),
                                    style: .secondary,
@@ -325,8 +329,8 @@ final class HomeScene: SKScene {
 
         let chest = LiveOpsManager.shared.chestProgress
         let chestTitle = LiveOpsManager.shared.canClaimChest
-            ? "⭐ CHEST!"
-            : "⭐ \(chest.current)/\(chest.target)"
+            ? L10n.tr("home.chest_ready", fallback: "⭐ CHEST!")
+            : L10n.fmt("home.chest_progress", chest.current, chest.target, fallback: "⭐ %d/%d")
         let chestBtn = PixelButton(title: chestTitle,
                                    size: CGSize(width: 150, height: 44),
                                    style: .secondary,
@@ -363,7 +367,7 @@ final class HomeScene: SKScene {
         addChild(shopBtn)
 
         let shopLbl = SKLabelNode(fontNamed: "Courier")
-        shopLbl.text = "SHOP"
+        shopLbl.text = L10n.tr("home.shop", fallback: "SHOP")
         shopLbl.fontSize = 10
         shopLbl.fontColor = UIColor(hex: "#7799CC")
         shopLbl.verticalAlignmentMode = .center
@@ -392,7 +396,7 @@ final class HomeScene: SKScene {
         addChild(settingsBtn)
 
         let settingsLbl = SKLabelNode(fontNamed: "Courier")
-        settingsLbl.text = "SETTINGS"
+        settingsLbl.text = L10n.tr("home.settings", fallback: "SETTINGS")
         settingsLbl.fontSize = 10
         settingsLbl.fontColor = UIColor(hex: "#7799CC")
         settingsLbl.verticalAlignmentMode = .center
@@ -421,7 +425,7 @@ final class HomeScene: SKScene {
         addChild(lbBtn)
 
         let lbLbl = SKLabelNode(fontNamed: "Courier")
-        lbLbl.text = "RANKS"
+        lbLbl.text = L10n.tr("home.ranks", fallback: "RANKS")
         lbLbl.fontSize = 10
         lbLbl.fontColor = UIColor(hex: "#7799CC")
         lbLbl.verticalAlignmentMode = .center
@@ -443,16 +447,18 @@ final class HomeScene: SKScene {
 
     private func claimDailyReward() {
         let reward = PlayerData.shared.claimDailyReward()
-        showRewardPopup(title: "🎁 DAILY REWARD!",
+        showRewardPopup(title: L10n.tr("home.daily_reward", fallback: "🎁 DAILY REWARD!"),
                         coins: reward.coins,
-                        diamonds: reward.diamonds)
+                        diamonds: reward.diamonds,
+                        isDailyReward: true)
     }
 
     private func showRewardPopup(title: String,
                                  coins: Int,
                                  diamonds: Int,
                                  hammer: Int = 0,
-                                 shuffle: Int = 0) {
+                                 shuffle: Int = 0,
+                                 isDailyReward: Bool = false) {
         let popup = SKNode()
         popup.zPosition = 100
 
@@ -471,9 +477,9 @@ final class HomeScene: SKScene {
         popup.addChild(titleLbl)
 
         let streakLbl = SKLabelNode(fontNamed: "Courier")
-        streakLbl.text = title.contains("DAILY")
-            ? "Day \(PlayerData.shared.dailyStreak) Streak!"
-            : "Rewards added to your inventory"
+        streakLbl.text = isDailyReward
+            ? L10n.fmt("home.daily_streak", PlayerData.shared.dailyStreak, fallback: "Day %d Streak!")
+            : L10n.tr("home.reward_inventory", fallback: "Rewards added to your inventory")
         streakLbl.fontSize = 16
         streakLbl.fontColor = UIColor(hex: "#FF9500")
         streakLbl.verticalAlignmentMode = .center
@@ -500,7 +506,7 @@ final class HomeScene: SKScene {
 
         if hammer > 0 || shuffle > 0 {
             let boosterLbl = SKLabelNode(fontNamed: "Courier-Bold")
-            boosterLbl.text = "+\(hammer) Hammer  +\(shuffle) Shuffle"
+            boosterLbl.text = L10n.fmt("home.booster_reward", hammer, shuffle, fallback: "+%d Hammer  +%d Shuffle")
             boosterLbl.fontSize = 14
             boosterLbl.fontColor = UIColor(hex: "#99BBCC")
             boosterLbl.verticalAlignmentMode = .center
@@ -508,7 +514,7 @@ final class HomeScene: SKScene {
             popup.addChild(boosterLbl)
         }
 
-        let closeBtn = PixelButton(title: "CLAIM!", size: CGSize(width: 200, height: 46),
+        let closeBtn = PixelButton(title: L10n.tr("home.claim", fallback: "CLAIM!"), size: CGSize(width: 200, height: 46),
                                    style: .primary, color: UIColor(hex: "#34C759"), fontSize: 20)
         closeBtn.position = CGPoint(x: 0, y: -72)
         closeBtn.onTap = { popup.removeFromParent() }
@@ -540,6 +546,13 @@ final class HomeScene: SKScene {
         dialog.zPosition = 50
         addChild(dialog)
         dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+        dialog.onCurrencyChanged = { [weak self] in self?.refreshCurrency() }
+    }
+
+    /// 购买/恢复成功后即时刷新顶部货币条。
+    func refreshCurrency() {
+        (childNode(withName: "//home.coins") as? SKLabelNode)?.text = "\(PlayerData.shared.coins)"
+        (childNode(withName: "//home.diamonds") as? SKLabelNode)?.text = "\(PlayerData.shared.diamonds)"
     }
 
     private func showQuests() {
@@ -550,7 +563,7 @@ final class HomeScene: SKScene {
         dialog.onClaim = { [weak self, weak dialog] questId in
             guard let reward = LiveOpsManager.shared.claimQuest(id: questId) else { return }
             dialog?.dismiss()
-            self?.showRewardPopup(title: "✅ QUEST COMPLETE!",
+            self?.showRewardPopup(title: L10n.tr("home.quest_complete_title", fallback: "✅ QUEST COMPLETE!"),
                                   coins: reward.coins,
                                   diamonds: reward.diamonds)
         }
@@ -559,11 +572,11 @@ final class HomeScene: SKScene {
     private func showChest() {
         guard let reward = LiveOpsManager.shared.claimChest() else {
             let chest = LiveOpsManager.shared.chestProgress
-            showFloatingText("Collect stars to open chest: \(chest.current)/\(chest.target)",
+            showFloatingText(L10n.fmt("home.chest_need", chest.current, chest.target, fallback: "Collect stars to open chest: %d/%d"),
                              color: UIColor(hex: "#FFCC00"))
             return
         }
-        showRewardPopup(title: "⭐ STAR CHEST!",
+        showRewardPopup(title: L10n.tr("home.star_chest_title", fallback: "⭐ STAR CHEST!"),
                         coins: reward.coins,
                         diamonds: reward.diamonds,
                         hammer: reward.hammer,
@@ -583,7 +596,7 @@ final class HomeScene: SKScene {
             GameCenterManager.shared.showLeaderboard(from: vc)
         } else {
             GameCenterManager.shared.authenticate()
-            showFloatingText("Sign in to Game Center to view leaderboards!", color: UIColor(hex: "#FFCC00"))
+            showFloatingText(L10n.tr("home.gc_sign_in", fallback: "Sign in to Game Center to view leaderboards!"), color: UIColor(hex: "#FFCC00"))
         }
     }
 
@@ -636,14 +649,14 @@ final class QuestsDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("DAILY QUESTS", y: 145)
+        addPixelTitle(L10n.tr("home.daily_quests", fallback: "DAILY QUESTS"), y: 145)
 
         let quests = LiveOpsManager.shared.quests
         for (index, quest) in quests.enumerated() {
             addQuestRow(quest, y: 78 - CGFloat(index) * 78)
         }
 
-        let closeBtn = PixelButton(title: "CLOSE",
+        let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
                                    size: CGSize(width: 220, height: 44),
                                    style: .secondary,
                                    fontSize: 16)
@@ -677,7 +690,7 @@ final class QuestsDialog: DialogNode {
         addChild(title)
 
         let reward = SKLabelNode(fontNamed: "Courier")
-        reward.text = "+\(EconomyConfig.shared.questRewardCoins) coins  +\(EconomyConfig.shared.questRewardDiamonds) diamond"
+        reward.text = L10n.fmt("home.quest_reward", EconomyConfig.shared.questRewardCoins, EconomyConfig.shared.questRewardDiamonds, fallback: "+%d coins  +%d diamond")
         reward.fontSize = 11
         reward.fontColor = UIColor(hex: "#99BBCC")
         reward.verticalAlignmentMode = .center
@@ -688,9 +701,9 @@ final class QuestsDialog: DialogNode {
 
         let claimTitle: String
         if quest.claimed {
-            claimTitle = "DONE"
+            claimTitle = L10n.tr("home.done", fallback: "DONE")
         } else if quest.isComplete {
-            claimTitle = "CLAIM"
+            claimTitle = L10n.tr("home.claim_short", fallback: "CLAIM")
         } else {
             claimTitle = "..."
         }
@@ -722,6 +735,8 @@ final class QuestsDialog: DialogNode {
 
 final class ShopDialog: DialogNode {
     var onClose: (() -> Void)?
+    var onCurrencyChanged: (() -> Void)?
+    private var purchaseInFlight = false
 
     private let dialogSize: CGSize
     private let viewportHeight: CGFloat
@@ -733,6 +748,8 @@ final class ShopDialog: DialogNode {
     private var scrollStartY: CGFloat = 0
     private var isTrackingScroll = false
     private var didDrag = false
+    /// IAP 行的购买按钮，按 product 索引；异步拉到的本地化价格在 refreshPrices() 里刷新。
+    private var iapPriceButtons: [IAPProduct: PixelButton] = [:]
 
     init(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
         let width = min(sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 32, 320)
@@ -750,9 +767,9 @@ final class ShopDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("🛒 SHOP", y: dialogSize.height / 2 - 34)
+        addPixelTitle(L10n.tr("shop.title", fallback: "🛒 SHOP"), y: dialogSize.height / 2 - 34)
 
-        let closeBtn = PixelButton(title: "CLOSE",
+        let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
                                    size: CGSize(width: 240, height: 44),
                                    style: .secondary, fontSize: 16)
         closeBtn.position = CGPoint(x: 0, y: -dialogSize.height / 2 + 38)
@@ -773,24 +790,20 @@ final class ShopDialog: DialogNode {
 
         var yPos: CGFloat = -36
 
-        // Diamond packs
-        let packs: [(name: String, diamonds: Int, coins: Int, price: String)] = [
-            ("Starter Pack", 20, 200, "Free → Watch Ad"),
-            ("Small Pack", 50, 0, "$ 0.99"),
-            ("Medium Pack", 120, 0, "$ 1.99"),
-            ("Large Pack", 300, 0, "$ 4.99"),
-        ]
-
-        for pack in packs {
-            addShopItem(name: pack.name, diamonds: pack.diamonds,
-                        coins: pack.coins, price: pack.price, y: yPos)
+        // 真钱档位：走 HKIAPKit（复用 Goodlook 后端）
+        for product in IAPProduct.shopCatalog {
+            addIAPItem(product: product, y: yPos)
             yPos -= 80
         }
+
+        // 恢复购买
+        addRestoreRow(y: yPos)
+        yPos -= 64
 
         // Booster section
         yPos -= 20
         let boosterTitle = SKLabelNode(fontNamed: "Courier-Bold")
-        boosterTitle.text = "──── BOOSTERS ────"
+        boosterTitle.text = L10n.tr("shop.boosters", fallback: "──── BOOSTERS ────")
         boosterTitle.fontSize = 14
         boosterTitle.fontColor = UIColor(hex: "#7799CC")
         boosterTitle.verticalAlignmentMode = .center
@@ -804,6 +817,141 @@ final class ShopDialog: DialogNode {
         }
 
         contentHeight = abs(yPos) + 24
+
+        // 异步刷新真钱档位的价格（启动时已拉过，这里再刷一次保证 StoreKit 本地化生效）。
+        IAPManager.shared.reloadProducts { [weak self] _ in
+            Task { @MainActor in self?.refreshPrices() }
+        }
+    }
+
+    // MARK: - IAP rows
+
+    /// 真钱档位一行：左侧标题 + 奖励文案，右侧本地化价格按钮（noAds 已购显示 OWNED）。
+    private func addIAPItem(product: IAPProduct, y: CGFloat) {
+        let bg = SKShapeNode(rectOf: CGSize(width: dialogSize.width - 40, height: 68), cornerRadius: 8)
+        bg.fillColor = UIColor(hex: "#0F1E33")
+        bg.strokeColor = UIColor(hex: "#1C3A5C")
+        bg.lineWidth = 1.5
+        bg.position = CGPoint(x: 0, y: y)
+        scrollNode.addChild(bg)
+
+        let nameLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        nameLbl.text = product.displayName
+        nameLbl.fontSize = 14
+        nameLbl.fontColor = .white
+        nameLbl.verticalAlignmentMode = .center
+        nameLbl.horizontalAlignmentMode = .left
+        nameLbl.position = CGPoint(x: -dialogSize.width / 2 + 34, y: y + 13)
+        scrollNode.addChild(nameLbl)
+
+        let rewardLbl = SKLabelNode(fontNamed: "Courier")
+        rewardLbl.text = product.shopRewardText
+        rewardLbl.fontSize = 12
+        rewardLbl.fontColor = UIColor(hex: "#AF52DE")
+        rewardLbl.verticalAlignmentMode = .center
+        rewardLbl.horizontalAlignmentMode = .left
+        rewardLbl.position = CGPoint(x: -dialogSize.width / 2 + 34, y: y - 13)
+        scrollNode.addChild(rewardLbl)
+        // 长奖励文案在窄屏不能挤进价格按钮（noAds 的"Remove all ads forever" 偏长）。
+        let maxRewardWidth = dialogSize.width - 40 - 34 - 120
+        if rewardLbl.frame.width > maxRewardWidth {
+            rewardLbl.setScale(max(0.7, maxRewardWidth / max(rewardLbl.frame.width, 1)))
+        }
+
+        let isOwned = (product == .noAds) && PlayerData.shared.noAds
+        let title = isOwned
+            ? L10n.tr("iap.owned", fallback: "OWNED")
+            : IAPManager.shared.localizedPrice(for: product)
+        let buyBtn = PixelButton(title: title,
+                                  size: CGSize(width: 110, height: 38),
+                                  style: isOwned ? .secondary : .primary,
+                                  color: UIColor(hex: "#FF9500"),
+                                  fontSize: 13)
+        buyBtn.position = CGPoint(x: dialogSize.width / 2 - 78, y: y)
+        if isOwned {
+            buyBtn.setEnabled(false)
+        } else {
+            buyBtn.onTap = { [weak self] in self?.buy(product) }
+        }
+        scrollNode.addChild(buyBtn)
+        iapPriceButtons[product] = buyBtn
+    }
+
+    /// "Restore Purchases" 一行：苹果上架要求非消耗品商店暴露该入口。
+    private func addRestoreRow(y: CGFloat) {
+        let restoreBtn = PixelButton(title: L10n.tr("iap.restore", fallback: "Restore Purchases"),
+                                     size: CGSize(width: 220, height: 36),
+                                     style: .ghost,
+                                     color: UIColor(hex: "#7799CC"),
+                                     fontSize: 12)
+        restoreBtn.position = CGPoint(x: 0, y: y)
+        restoreBtn.onTap = { [weak self] in self?.restore() }
+        scrollNode.addChild(restoreBtn)
+    }
+
+    private func buy(_ product: IAPProduct) {
+        guard !purchaseInFlight else { return }
+        purchaseInFlight = true
+        AudioManager.shared.play(.buttonTap)
+        let btn = iapPriceButtons[product]
+        let originalTitle = product == .noAds ? IAPManager.shared.localizedPrice(for: product) : nil
+        btn?.setTitle(L10n.tr("iap.processing", fallback: "..."))
+        btn?.setEnabled(false)
+
+        IAPManager.shared.purchase(product) { [weak self] ok, errMsg in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.purchaseInFlight = false
+                if ok {
+                    AudioManager.shared.play(.coinCollect)
+                    self.onCurrencyChanged?()
+                    self.refreshPrices()
+                } else {
+                    // 失败/取消都恢复按钮态；errMsg == nil 表示用户取消，不弹错。
+                    if product == .noAds {
+                        btn?.setTitle(originalTitle ?? IAPManager.shared.localizedPrice(for: product))
+                    } else {
+                        btn?.setTitle(IAPManager.shared.localizedPrice(for: product))
+                    }
+                    btn?.setEnabled(true)
+                    if let msg = errMsg {
+                        PixelMatchCashierUIProvider().showToast(message: msg)
+                    }
+                }
+            }
+        }
+    }
+
+    private func restore() {
+        AudioManager.shared.play(.buttonTap)
+        IAPManager.shared.restorePurchases { [weak self] ok in
+            Task { @MainActor in
+                let provider = PixelMatchCashierUIProvider()
+                if ok {
+                    provider.showToast(message: L10n.tr("iap.restore.success",
+                                                         fallback: "Purchases restored"))
+                    self?.refreshPrices()
+                    self?.onCurrencyChanged?()
+                } else {
+                    provider.showToast(message: L10n.tr("iap.restore.failed",
+                                                         fallback: "Nothing to restore"))
+                }
+            }
+        }
+    }
+
+    /// 重渲染所有 IAP 行的价格/已购态。在异步取价完成、购买成功、Restore 成功后调用。
+    private func refreshPrices() {
+        for (product, btn) in iapPriceButtons {
+            let isOwned = (product == .noAds) && PlayerData.shared.noAds
+            if isOwned {
+                btn.setTitle(L10n.tr("iap.owned", fallback: "OWNED"))
+                btn.setEnabled(false)
+            } else {
+                btn.setTitle(IAPManager.shared.localizedPrice(for: product))
+                btn.setEnabled(true)
+            }
+        }
     }
 
     private func addShopItem(name: String, diamonds: Int, coins: Int, price: String, y: CGFloat) {

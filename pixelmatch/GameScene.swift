@@ -1,5 +1,6 @@
 import SpriteKit
 import GameplayKit
+import HKAdKit
 
 // MARK: - Game State
 
@@ -17,6 +18,8 @@ final class GameScene: SKScene {
     // Level
     var level: Level!
     var preGameBoosters: [BoosterType] = []
+    /// 失败页"continueLevel"激励视频奖励：开局额外步数。不走 booster 库存，避免污染 booster 使用埋点。
+    var bonusMovesFromAd: Int = 0
 
     // Core
     private var board: Board!
@@ -90,7 +93,7 @@ final class GameScene: SKScene {
 
         // World name
         let worldLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        worldLbl.text = world.name.uppercased()
+        worldLbl.text = L10n.upper(world.localizedName)
         worldLbl.fontSize = 12
         worldLbl.fontColor = UIColor(hex: world.themeColorHex).withAlphaComponent(0.5)
         worldLbl.verticalAlignmentMode = .center
@@ -186,6 +189,12 @@ final class GameScene: SKScene {
             }
         }
         if !preGameBoosters.isEmpty { hud.updateBoosterCounts() }
+
+        // 失败页激励视频"continueLevel"奖励：开局额外步数（独立于 booster 计数）。
+        if bonusMovesFromAd > 0 {
+            remainingMoves += bonusMovesFromAd
+            hud.updateMoves(remainingMoves)
+        }
     }
 
     private func animateIntro() {
@@ -199,9 +208,9 @@ final class GameScene: SKScene {
         bannerBg.lineWidth = 2
         intro.addChild(bannerBg)
 
-        let worldName = level.world?.name ?? "Level"
+        let worldName = level.world?.localizedName ?? L10n.tr("level.fallback", fallback: "Level")
         let lbl1 = SKLabelNode(fontNamed: "Courier-Bold")
-        lbl1.text = level.lesson?.title ?? worldName.uppercased()
+        lbl1.text = level.lesson?.title ?? L10n.upper(worldName)
         lbl1.fontSize = 14
         lbl1.fontColor = UIColor(hex: level.world?.themeColorHex ?? "#FFCC00")
         lbl1.verticalAlignmentMode = .center
@@ -209,7 +218,7 @@ final class GameScene: SKScene {
         intro.addChild(lbl1)
 
         let lbl2 = SKLabelNode(fontNamed: "Courier-Bold")
-        lbl2.text = level.displayName.uppercased()
+        lbl2.text = L10n.upper(level.displayName)
         lbl2.fontSize = 38
         lbl2.fontColor = .white
         lbl2.verticalAlignmentMode = .center
@@ -265,11 +274,11 @@ final class GameScene: SKScene {
     private func objectiveSummary() -> String {
         guard let obj = level.objectives.first else { return "" }
         switch obj.kind {
-        case .score(let t): return "Score \(t.scoreFormatted) pts"
-        case .collect(let c, let n): return "Collect \(n) \(c.name)s"
-        case .clearAllJelly: return "Clear all jelly"
-        case .breakIce(let n): return "Break \(n) ice blocks"
-        case .eliminateChocolate: return "Eliminate chocolate"
+        case .score(let t): return L10n.fmt("objective.score", t.scoreFormatted, fallback: "Score %@ pts")
+        case .collect(let c, let n): return L10n.fmt("objective.collect", n, c.name, fallback: "Collect %d %@")
+        case .clearAllJelly: return L10n.tr("objective.clear_jelly", fallback: "Clear all jelly")
+        case .breakIce(let n): return L10n.fmt("objective.break_ice", n, fallback: "Break %d ice blocks")
+        case .eliminateChocolate: return L10n.tr("objective.eliminate_chocolate", fallback: "Eliminate chocolate")
         }
     }
 
@@ -702,7 +711,7 @@ final class GameScene: SKScene {
                                               properties: ["level": "\(level.id)", "type": "hammer"])
                 isHammerMode = true
                 hud.updateBoosterCounts()
-                showBoosterIndicator("🔨 Tap a tile to remove it!")
+                showBoosterIndicator(L10n.tr("game.hammer_hint", fallback: "🔨 Tap a tile to remove it!"))
             } else {
                 showBuyBoosterPrompt(type)
             }
@@ -729,7 +738,7 @@ final class GameScene: SKScene {
                 remainingMoves += 5
                 hud.updateMoves(remainingMoves)
                 hud.updateBoosterCounts()
-                showFloatingText("+5 MOVES!", color: UIColor(hex: "#34C759"))
+                showFloatingText(L10n.tr("game.extra_moves", fallback: "+5 MOVES!"), color: UIColor(hex: "#34C759"))
             } else {
                 showBuyBoosterPrompt(type)
             }
@@ -764,7 +773,7 @@ final class GameScene: SKScene {
     }
 
     private func showBuyBoosterPrompt(_ type: BoosterType) {
-        showFloatingText("Need more \(type.name)s!\nCost: \(type.cost) 🪙",
+        showFloatingText(L10n.fmt("game.need_more_booster", type.name, type.cost, fallback: "Need more %@!\nCost: %d 🪙"),
                          color: UIColor(hex: "#FF9500"))
     }
 
@@ -812,7 +821,7 @@ final class GameScene: SKScene {
         scoreMultiplier = 2
         movesUntilNextEvent = Int.random(in: 8...15)
 
-        showFloatingText("⚡ DOUBLE POINTS!", color: UIColor(hex: "#FFCC00"))
+        showFloatingText(L10n.tr("game.double_points", fallback: "⚡ DOUBLE POINTS!"), color: UIColor(hex: "#FFCC00"))
         HapticsManager.shared.special()
 
         multiplierTimer?.invalidate()
@@ -900,7 +909,7 @@ final class GameScene: SKScene {
                 self?.state = .idle
             }
             state = .animating
-            showFloatingText("🔄 Board shuffled!", color: UIColor(hex: "#FFCC00"))
+            showFloatingText(L10n.tr("game.board_shuffled", fallback: "🔄 Board shuffled!"), color: UIColor(hex: "#FFCC00"))
         }
     }
 
@@ -1055,7 +1064,24 @@ final class GameScene: SKScene {
                 self.state = .idle
                 self.checkDeadlock()
             } else {
-                self.showFloatingText("Not enough diamonds!", color: UIColor(hex: "#FF3B30"))
+                self.showFloatingText(L10n.tr("game.not_enough_diamonds", fallback: "Not enough diamonds!"), color: UIColor(hex: "#FF3B30"))
+            }
+        }
+        // HKAdKit "extraMoves" placement：看激励视频换 +5 步，不消耗钻石。
+        // earned=false（用户关闭/SDK 失败/VIP 抑制）保留弹窗，玩家可改走钻石/退出路径。
+        dialog.onWatchAd = { [weak self, weak dialog] in
+            guard let self = self,
+                  let view = self.view,
+                  let vc = view.window?.rootViewController else { return }
+            AdManager.shared.showRewardedAd(placement: "extraMoves", from: vc) { earned in
+                DispatchQueue.main.async {
+                    guard earned else { return }
+                    self.remainingMoves += 5
+                    self.hud.updateMoves(self.remainingMoves)
+                    dialog?.dismiss()
+                    self.state = .idle
+                    self.checkDeadlock()
+                }
             }
         }
         dialog.onQuit = { [weak self] in
@@ -1128,7 +1154,13 @@ final class GameScene: SKScene {
     // 通用视觉反馈工具，包括短暂文本、连击提示和临时覆盖层。
     private func showComboText(_ combo: Int) {
         guard combo >= 2 else { return }
-        let messages = ["", "DOUBLE!", "TRIPLE!", "MEGA!", "ULTRA!"]
+        let messages = [
+            "",
+            L10n.tr("combo.double", fallback: "DOUBLE!"),
+            L10n.tr("combo.triple", fallback: "TRIPLE!"),
+            L10n.tr("combo.mega", fallback: "MEGA!"),
+            L10n.tr("combo.ultra", fallback: "ULTRA!")
+        ]
         let idx = min(combo - 1, messages.count - 1)
         let text = messages[idx]
         guard !text.isEmpty else { return }
@@ -1245,9 +1277,9 @@ final class GameScene: SKScene {
             ]))
         }
 
-        // "NEW WORLD!" header
+        // 新世界解锁标题。
         let header = SKLabelNode(fontNamed: "AvenirNext-Bold")
-        header.text = "NEW WORLD!"
+        header.text = L10n.tr("world_unlock.title", fallback: "NEW WORLD!")
         header.fontSize = 18
         header.fontColor = UIColor.white.withAlphaComponent(0.85)
         header.position = CGPoint(x: 0, y: panelH * 0.28)
@@ -1256,7 +1288,7 @@ final class GameScene: SKScene {
 
         // World name
         let nameLbl = SKLabelNode(fontNamed: "AvenirNext-Heavy")
-        nameLbl.text = world.name.uppercased()
+        nameLbl.text = L10n.upper(world.localizedName)
         nameLbl.fontSize = 26
         nameLbl.fontColor = .white
         nameLbl.position = CGPoint(x: 0, y: 0)
@@ -1265,7 +1297,7 @@ final class GameScene: SKScene {
 
         // Subtext
         let subLbl = SKLabelNode(fontNamed: "AvenirNext-Medium")
-        subLbl.text = "You've unlocked a new world!"
+        subLbl.text = L10n.tr("world_unlock.message", fallback: "You've unlocked a new world!")
         subLbl.fontSize = 13
         subLbl.fontColor = UIColor.white.withAlphaComponent(0.75)
         subLbl.position = CGPoint(x: 0, y: -panelH * 0.22)
@@ -1274,7 +1306,7 @@ final class GameScene: SKScene {
 
         // Tap to continue
         let tapLbl = SKLabelNode(fontNamed: "AvenirNext-Medium")
-        tapLbl.text = "Tap to continue"
+        tapLbl.text = L10n.tr("world_unlock.tap", fallback: "Tap to continue")
         tapLbl.fontSize = 12
         tapLbl.fontColor = UIColor.white.withAlphaComponent(0.55)
         tapLbl.position = CGPoint(x: 0, y: -panelH * 0.38)

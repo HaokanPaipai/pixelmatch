@@ -65,7 +65,7 @@ final class PauseDialogNode: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("⏸ PAUSED", y: 140)
+        addPixelTitle(L10n.tr("dialog.pause.title", fallback: "⏸ PAUSED"), y: 140)
 
         // Pixel decoration
         for i in 0...5 {
@@ -76,25 +76,25 @@ final class PauseDialogNode: DialogNode {
             addChild(sq)
         }
 
-        let resumeBtn = PixelButton(title: "▶ RESUME", size: CGSize(width: 220, height: 48),
+        let resumeBtn = PixelButton(title: L10n.tr("dialog.resume", fallback: "▶ RESUME"), size: CGSize(width: 220, height: 48),
                                     style: .primary, color: UIColor(hex: "#34C759"))
         resumeBtn.position = CGPoint(x: 0, y: 55)
         resumeBtn.onTap = { [weak self] in self?.onResume?() }
         addChild(resumeBtn)
 
-        let restartBtn = PixelButton(title: "↺ RESTART", size: CGSize(width: 220, height: 48),
+        let restartBtn = PixelButton(title: L10n.tr("dialog.restart", fallback: "↺ RESTART"), size: CGSize(width: 220, height: 48),
                                      style: .primary, color: UIColor(hex: "#FF9500"))
         restartBtn.position = CGPoint(x: 0, y: -5)
         restartBtn.onTap = { [weak self] in self?.onRestart?() }
         addChild(restartBtn)
 
-        let settingsBtn = PixelButton(title: "⚙ SETTINGS", size: CGSize(width: 220, height: 48),
+        let settingsBtn = PixelButton(title: L10n.tr("dialog.settings", fallback: "⚙ SETTINGS"), size: CGSize(width: 220, height: 48),
                                       style: .secondary)
         settingsBtn.position = CGPoint(x: 0, y: -65)
         settingsBtn.onTap = { [weak self] in self?.onSettings?() }
         addChild(settingsBtn)
 
-        let quitBtn = PixelButton(title: "✕ QUIT", size: CGSize(width: 220, height: 48),
+        let quitBtn = PixelButton(title: L10n.tr("dialog.quit", fallback: "✕ QUIT"), size: CGSize(width: 220, height: 48),
                                    style: .danger)
         quitBtn.position = CGPoint(x: 0, y: -125)
         quitBtn.onTap = { [weak self] in self?.onQuit?() }
@@ -107,20 +107,23 @@ final class PauseDialogNode: DialogNode {
 final class OutOfMovesDialog: DialogNode {
 
     var onContinue: (() -> Void)?  // spend diamonds
+    var onWatchAd: (() -> Void)?   // 看激励视频 +5 步（非 VIP 才挂载到 HKAdKit "extraMoves" placement）
     var onQuit: (() -> Void)?
 
     init(sceneSize: CGSize, movesCount: Int = 5, diamondCost: Int = 10) {
-        super.init(size: CGSize(width: 300, height: 340), sceneSize: sceneSize)
+        // 高度按"是否展示看广告按钮"动态：VIP 维持 340，非 VIP 拉到 400 留 +5 步入口。
+        let height: CGFloat = PlayerData.shared.noAds ? 340 : 400
+        super.init(size: CGSize(width: 300, height: height), sceneSize: sceneSize)
         buildUI(moves: movesCount, cost: diamondCost)
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI(moves: Int, cost: Int) {
-        addPixelTitle("OUT OF MOVES!", y: 130, color: UIColor(hex: "#FF3B30"))
+        addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"), y: 130, color: UIColor(hex: "#FF3B30"))
 
         let msgLbl = SKLabelNode(fontNamed: "Courier")
-        msgLbl.text = "Continue with +\(moves) moves?"
+        msgLbl.text = L10n.fmt("dialog.out_of_moves.message", moves, fallback: "Continue with +%d moves?")
         msgLbl.fontSize = 16
         msgLbl.fontColor = UIColor(hex: "#99BBCC")
         msgLbl.verticalAlignmentMode = .center
@@ -148,14 +151,14 @@ final class OutOfMovesDialog: DialogNode {
         addChild(costLbl)
 
         let haveLbl = SKLabelNode(fontNamed: "Courier")
-        haveLbl.text = "You have: \(diamonds) 💎"
+        haveLbl.text = L10n.fmt("dialog.you_have_diamonds", diamonds, fallback: "You have: %d 💎")
         haveLbl.fontSize = 14
         haveLbl.fontColor = UIColor(hex: "#7799CC")
         haveLbl.verticalAlignmentMode = .center
         haveLbl.position = CGPoint(x: 0, y: -20)
         addChild(haveLbl)
 
-        let continueBtn = PixelButton(title: canAfford ? "CONTINUE!" : "GET DIAMONDS",
+        let continueBtn = PixelButton(title: canAfford ? L10n.tr("dialog.continue", fallback: "CONTINUE!") : L10n.tr("dialog.get_diamonds", fallback: "GET DIAMONDS"),
                                       size: CGSize(width: 240, height: 52),
                                       style: .primary,
                                       color: canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF9500"))
@@ -163,9 +166,25 @@ final class OutOfMovesDialog: DialogNode {
         continueBtn.onTap = { [weak self] in self?.onContinue?() }
         addChild(continueBtn)
 
-        let quitBtn = PixelButton(title: "NO THANKS", size: CGSize(width: 240, height: 44),
+        // 看广告 +5 步：HKAdKit "extraMoves" placement 的承载按钮。仅非 VIP 显示。
+        var nextY: CGFloat = -130
+        if !PlayerData.shared.noAds {
+            let adBtn = PixelButton(title: L10n.tr("dialog.extra_moves_ad", fallback: "📹 WATCH AD: +5 MOVES"),
+                                    size: CGSize(width: 260, height: 46),
+                                    style: .secondary,
+                                    color: UIColor(hex: "#34C759"),
+                                    fontSize: 15)
+            adBtn.position = CGPoint(x: 0, y: nextY)
+            adBtn.onTap = { [weak self] in self?.onWatchAd?() }
+            addChild(adBtn)
+            nextY -= 55
+        } else {
+            nextY = -135
+        }
+
+        let quitBtn = PixelButton(title: L10n.tr("dialog.no_thanks", fallback: "NO THANKS"), size: CGSize(width: 240, height: 44),
                                    style: .ghost, color: UIColor(hex: "#7799CC"))
-        quitBtn.position = CGPoint(x: 0, y: -135)
+        quitBtn.position = CGPoint(x: 0, y: nextY)
         quitBtn.onTap = { [weak self] in self?.onQuit?() }
         addChild(quitBtn)
     }
@@ -176,6 +195,7 @@ final class OutOfMovesDialog: DialogNode {
 final class NoLivesDialog: DialogNode {
 
     var onRefillWithDiamonds: (() -> Void)?
+    var onRefillWithAd: (() -> Void)?
     var onWaitForFree: (() -> Void)?
     var onClose: (() -> Void)?
 
@@ -187,7 +207,7 @@ final class NoLivesDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("NO LIVES!", y: 140, color: UIColor(hex: "#FF3B30"))
+        addPixelTitle(L10n.tr("dialog.no_lives.title", fallback: "NO LIVES!"), y: 140, color: UIColor(hex: "#FF3B30"))
 
         // Broken hearts
         for i in 0..<5 {
@@ -204,7 +224,7 @@ final class NoLivesDialog: DialogNode {
 
         // Timer
         let nextLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        nextLbl.text = "Next life in: \(LivesManager.shared.timeUntilNextLifeString)"
+        nextLbl.text = L10n.fmt("dialog.next_life", LivesManager.shared.timeUntilNextLifeString, fallback: "Next life in: %@")
         nextLbl.fontSize = 16
         nextLbl.fontColor = UIColor(hex: "#7799CC")
         nextLbl.verticalAlignmentMode = .center
@@ -213,7 +233,7 @@ final class NoLivesDialog: DialogNode {
         addChild(nextLbl)
 
         // Refill button
-        let refillBtn = PixelButton(title: "REFILL (15 💎)",
+        let refillBtn = PixelButton(title: L10n.tr("dialog.refill", fallback: "REFILL (15 💎)"),
                                     size: CGSize(width: 240, height: 52),
                                     style: .primary,
                                     color: UIColor(hex: "#AF52DE"))
@@ -221,16 +241,30 @@ final class NoLivesDialog: DialogNode {
         refillBtn.onTap = { [weak self] in self?.onRefillWithDiamonds?() }
         addChild(refillBtn)
 
-        let waitBtn = PixelButton(title: "WAIT FOR FREE LIFE",
+        // 看广告补一格生命：仅非 VIP 用户显示。
+        var nextY: CGFloat = -80
+        if !PlayerData.shared.noAds {
+            let adBtn = PixelButton(title: L10n.tr("dialog.refill_ad", fallback: "📹 WATCH AD: +1 ❤"),
+                                    size: CGSize(width: 240, height: 48),
+                                    style: .secondary,
+                                    color: UIColor(hex: "#34C759"))
+            adBtn.position = CGPoint(x: 0, y: nextY)
+            adBtn.onTap = { [weak self] in self?.onRefillWithAd?() }
+            addChild(adBtn)
+            nextY -= 60
+        }
+
+        let waitBtn = PixelButton(title: L10n.tr("dialog.wait_life", fallback: "WAIT FOR FREE LIFE"),
                                    size: CGSize(width: 240, height: 48),
                                    style: .secondary)
-        waitBtn.position = CGPoint(x: 0, y: -80)
+        waitBtn.position = CGPoint(x: 0, y: nextY)
         waitBtn.onTap = { [weak self] in self?.onWaitForFree?() }
         addChild(waitBtn)
+        nextY -= 60
 
-        let closeBtn = PixelButton(title: "CLOSE", size: CGSize(width: 240, height: 44),
+        let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"), size: CGSize(width: 240, height: 44),
                                    style: .ghost, color: UIColor(hex: "#7799CC"))
-        closeBtn.position = CGPoint(x: 0, y: -140)
+        closeBtn.position = CGPoint(x: 0, y: nextY)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)
     }
@@ -250,7 +284,7 @@ final class SettingsDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle("⚙ SETTINGS", y: 130)
+        addPixelTitle(L10n.tr("dialog.settings", fallback: "⚙ SETTINGS"), y: 130)
 
         func toggle(label: String, yPos: CGFloat, value: Bool, onToggle: @escaping (Bool) -> Void) {
             let lbl = SKLabelNode(fontNamed: "Courier-Bold")
@@ -263,7 +297,7 @@ final class SettingsDialog: DialogNode {
             addChild(lbl)
 
             let state = value
-            let toggleBtn = PixelButton(title: state ? "ON" : "OFF",
+            let toggleBtn = PixelButton(title: state ? L10n.tr("common.on", fallback: "ON") : L10n.tr("common.off", fallback: "OFF"),
                                         size: CGSize(width: 70, height: 32),
                                         style: .primary,
                                         color: state ? UIColor(hex: "#34C759") : UIColor(hex: "#555"))
@@ -271,22 +305,22 @@ final class SettingsDialog: DialogNode {
             toggleBtn.onTap = {
                 let newState = !state
                 onToggle(newState)
-                toggleBtn.setTitle(newState ? "ON" : "OFF")
+                toggleBtn.setTitle(newState ? L10n.tr("common.on", fallback: "ON") : L10n.tr("common.off", fallback: "OFF"))
             }
             addChild(toggleBtn)
         }
 
-        toggle(label: "🔊 Sound", yPos: 65,
+        toggle(label: L10n.tr("settings.sound", fallback: "🔊 Sound"), yPos: 65,
                value: PlayerData.shared.soundEnabled) { PlayerData.shared.soundEnabled = $0 }
-        toggle(label: "🎵 Music", yPos: 15,
+        toggle(label: L10n.tr("settings.music", fallback: "🎵 Music"), yPos: 15,
                value: PlayerData.shared.musicEnabled) { enabled in
             PlayerData.shared.musicEnabled = enabled
             AudioManager.shared.setMusicEnabled(enabled)
         }
-        toggle(label: "📳 Vibrate", yPos: -35,
+        toggle(label: L10n.tr("settings.vibrate", fallback: "📳 Vibrate"), yPos: -35,
                value: PlayerData.shared.vibrateEnabled) { PlayerData.shared.vibrateEnabled = $0 }
 
-        let closeBtn = PixelButton(title: "CLOSE",
+        let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
                                    size: CGSize(width: 240, height: 48),
                                    style: .primary,
                                    color: UIColor(hex: "#007AFF"))
@@ -312,7 +346,7 @@ final class PreLevelDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI(level: Level) {
-        addPixelTitle("POWER UP!", y: 182, color: UIColor(hex: "#FFCC00"))
+        addPixelTitle(L10n.tr("dialog.power_up", fallback: "POWER UP!"), y: 182, color: UIColor(hex: "#FFCC00"))
 
         let subLbl = SKLabelNode(fontNamed: "Courier")
         subLbl.text = level.displayName
@@ -323,7 +357,7 @@ final class PreLevelDialog: DialogNode {
         addChild(subLbl)
 
         let descLbl = SKLabelNode(fontNamed: "Courier")
-        descLbl.text = "Select boosters before you play:"
+        descLbl.text = L10n.tr("dialog.select_boosters", fallback: "Select boosters before you play:")
         descLbl.fontSize = 13
         descLbl.fontColor = UIColor(hex: "#7799CC")
         descLbl.verticalAlignmentMode = .center
@@ -390,7 +424,7 @@ final class PreLevelDialog: DialogNode {
             addChild(btn)
         }
 
-        let playBtn = PixelButton(title: "▶ PLAY!",
+        let playBtn = PixelButton(title: L10n.tr("map.play", fallback: "▶ PLAY!"),
                                    size: CGSize(width: 240, height: 52),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),

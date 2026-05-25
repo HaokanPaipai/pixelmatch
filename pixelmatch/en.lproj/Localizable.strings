@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Loading pixels...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "The Ultimate Pixel Puzzle";
+"home.level" = "Level %d";
+"home.play" = "▶ PLAY";
+"home.daily_reward" = "🎁 DAILY REWARD!";
+"home.quests" = "📋 QUESTS";
+"home.quests_count" = "✅ QUESTS (%d)";
+"home.chest_ready" = "⭐ CHEST!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "SHOP";
+"home.settings" = "SETTINGS";
+"home.ranks" = "RANKS";
+"home.daily_streak" = "Day %d Streak!";
+"home.reward_inventory" = "Rewards added to your inventory";
+"home.booster_reward" = "+%d Hammer  +%d Shuffle";
+"home.claim" = "CLAIM!";
+"home.quest_complete_title" = "✅ QUEST COMPLETE!";
+"home.star_chest_title" = "⭐ STAR CHEST!";
+"home.chest_need" = "Collect stars to open chest: %d/%d";
+"home.gc_sign_in" = "Sign in to Game Center to view leaderboards!";
+"home.daily_quests" = "DAILY QUESTS";
+"home.quest_reward" = "+%d coins  +%d diamond";
+"home.done" = "DONE";
+"home.claim_short" = "CLAIM";
+
+"shop.title" = "🛒 SHOP";
+"shop.starter_pack" = "Starter Pack";
+"shop.small_pack" = "Small Pack";
+"shop.medium_pack" = "Medium Pack";
+"shop.large_pack" = "Large Pack";
+"shop.free_ad" = "Free → Watch Ad";
+"shop.boosters" = "──── BOOSTERS ────";
+
+"common.close" = "CLOSE";
+"common.on" = "ON";
+"common.off" = "OFF";
+
+"player.default_name" = "Pixel Hero";
+"quest.win_levels" = "Win Levels";
+"quest.make_specials" = "Make Specials";
+"quest.use_boosters" = "Use Boosters";
+
+"booster.hammer" = "Hammer";
+"booster.shuffle" = "Shuffle";
+"booster.extra_moves" = "+5 Moves";
+"booster.color_bomb" = "Color Bomb";
+
+"gem.flame" = "Flame";
+"gem.drop" = "Drop";
+"gem.leaf" = "Leaf";
+"gem.star" = "Star";
+"gem.crystal" = "Crystal";
+"gem.sun" = "Sun";
+
+"level.name" = "Level %d";
+"level.fallback" = "Level";
+"world.1" = "Pixel Forest";
+"world.2" = "Crystal Ocean";
+"world.3" = "Sky Kingdom";
+"world.4" = "Lava Desert";
+"world.5" = "Frozen Tundra";
+"world.6" = "Neon City";
+"world.7" = "Rainbow Valley";
+"world.8" = "Deep Space";
+"world.9" = "Pixel Peak";
+"world.10" = "Cosmos Core";
+
+"objective.score" = "Score %@ pts";
+"objective.collect" = "Collect %d %@";
+"objective.clear_jelly" = "Clear all jelly";
+"objective.break_ice" = "Break %d ice blocks";
+"objective.remove_chocolate" = "Remove chocolate";
+"objective.eliminate_chocolate" = "Eliminate chocolate";
+"objective.progress.jelly" = "Jelly ×%d";
+"objective.progress.ice" = "Ice: %d/%d";
+"objective.progress.chocolate" = "Choco ×%d";
+
+"lesson.swap.title" = "SWAP";
+"lesson.swap.message" = "Match 3 gems. Keep moves calm and learn the board.";
+"lesson.chain.title" = "CHAIN";
+"lesson.chain.message" = "Matches can fall into new matches for free combo score.";
+"lesson.striped.title" = "STRIPED";
+"lesson.striped.message" = "Match 4 to create a striped gem, then match it again.";
+"lesson.color_bomb.title" = "COLOR BOMB";
+"lesson.color_bomb.message" = "Match 5 to create a color bomb. Swap it with any gem.";
+"lesson.collect.title" = "COLLECT";
+"lesson.collect.message" = "Only the target color matters. Big clears help finish faster.";
+"lesson.jelly.title" = "JELLY";
+"lesson.jelly.message" = "Clear gems on jelly to remove it from the board.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Swap two special gems together for a much bigger clear.";
+"lesson.focus.title" = "FOCUS";
+"lesson.focus.message" = "Aim every move toward the objective, not only score.";
+"lesson.ice.title" = "ICE";
+"lesson.ice.message" = "Break ice by clearing the frozen tile or hitting it with specials.";
+"lesson.boss.title" = "BOSS";
+"lesson.boss.message" = "Use specials early. Saving moves creates bigger win rewards.";
+
+"hud.moves" = "MOVES";
+"hud.score" = "SCORE";
+
+"dialog.pause.title" = "⏸ PAUSED";
+"dialog.resume" = "▶ RESUME";
+"dialog.restart" = "↺ RESTART";
+"dialog.settings" = "⚙ SETTINGS";
+"dialog.quit" = "✕ QUIT";
+"dialog.out_of_moves.title" = "OUT OF MOVES!";
+"dialog.out_of_moves.message" = "Continue with +%d moves?";
+"dialog.you_have_diamonds" = "You have: %d 💎";
+"dialog.continue" = "CONTINUE!";
+"dialog.get_diamonds" = "GET DIAMONDS";
+"dialog.no_thanks" = "NO THANKS";
+"dialog.no_lives.title" = "NO LIVES!";
+"dialog.next_life" = "Next life in: %@";
+"dialog.refill" = "REFILL (15 💎)";
+"dialog.wait_life" = "WAIT FOR FREE LIFE";
+"dialog.power_up" = "POWER UP!";
+"dialog.select_boosters" = "Select boosters before you play:";
+"settings.sound" = "🔊 Sound";
+"settings.music" = "🎵 Music";
+"settings.vibrate" = "📳 Vibrate";
+
+"map.levels_range" = "Levels %d-%d";
+"map.moves" = "Moves: %d";
+"map.best" = "Best: %@";
+"map.life_timer" = "+♥ in %@";
+"map.play" = "▶ PLAY!";
+"map.no_lives" = "NO LIVES";
+
+"game.hammer_hint" = "🔨 Tap a tile to remove it!";
+"game.extra_moves" = "+5 MOVES!";
+"game.need_more_booster" = "Need more %@!\nCost: %d 🪙";
+"game.double_points" = "⚡ DOUBLE POINTS!";
+"game.board_shuffled" = "🔄 Board shuffled!";
+"game.not_enough_diamonds" = "Not enough diamonds!";
+"combo.double" = "DOUBLE!";
+"combo.triple" = "TRIPLE!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NEW WORLD!";
+"world_unlock.message" = "You've unlocked a new world!";
+"world_unlock.tap" = "Tap to continue";
+
+"tutorial.welcome.title" = "WELCOME!";
+"tutorial.welcome.message" = "Swap adjacent gems. Match 3 to clear space and build score.";
+"tutorial.make4.title" = "MAKE 4";
+"tutorial.make4.message" = "Match 4 to create a striped gem. Match it again to clear a full line.";
+"tutorial.make5.title" = "MAKE 5";
+"tutorial.make5.message" = "Match 5 to create a color bomb. Swap it with a color to clear that color.";
+"tutorial.combos.title" = "COMBOS";
+"tutorial.combos.message" = "Swap two special gems together for a bigger board-clearing effect.";
+"tutorial.objectives.title" = "OBJECTIVES";
+"tutorial.objectives.message" = "Every level has a goal. Spend each move toward that goal.";
+"tutorial.next" = "NEXT ▶";
+"tutorial.skip" = "SKIP";
+"tutorial.play" = "PLAY!";
+
+"result.level_clear" = "LEVEL CLEAR!";
+"result.streak_bonus" = "🔥 ×%d STREAK BONUS!";
+"result.new_best" = "✦ NEW BEST!";
+"result.coins" = "+%d Coins!";
+"result.next_level" = "NEXT LEVEL ▶";
+"result.level_map" = "◀ LEVEL MAP";
+"result.replay" = "↺ REPLAY";
+"result.level_failed" = "LEVEL FAILED";
+"result.score_line" = "Score: %@";
+"result.dont_give_up" = "Don't give up!";
+"result.try_again" = "↺ TRY AGAIN";
+
+"notification.lives_full.title" = "❤️ Lives Full!";
+"notification.lives_full.body" = "Your hearts are full - jump back in and beat that level!";
+"notification.daily_reward.title" = "🎁 Daily Reward Ready!";
+"notification.daily_reward.body" = "Open PixelMatch and claim your free coins and diamonds!";
+"notification.return.title" = "🎮 Still Matching?";
+"notification.return.body" = "New levels await! Your pixel gems miss you.";
+
+"iap.coins500" = "500 Coins";
+"iap.coins1500" = "1,500 Coins";
+"iap.coins5000" = "5,000 Coins";
+"iap.diamonds20" = "20 Diamonds";
+"iap.diamonds80" = "80 Diamonds";
+"iap.diamonds300" = "300 Diamonds";
+"iap.starter_pack" = "Starter Pack";
+"iap.mega_pack" = "Mega Pack";
+"iap.remove_ads" = "Remove Ads";
+"iap.error.unverified" = "Purchase could not be verified.";
+"iap.error.pending" = "Purchase is pending approval.";
+"iap.error.unknown" = "Unknown purchase result.";
+
+"ad.watch.title" = "Watch Ad";
+"ad.watch.message" = "Simulating ad view (5 seconds)...";

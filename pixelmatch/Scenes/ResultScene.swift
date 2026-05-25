@@ -1,4 +1,5 @@
 import SpriteKit
+import HKAdKit
 
 final class ResultScene: SKScene {
 
@@ -74,14 +75,14 @@ final class ResultScene: SKScene {
         let hasRewardLine = coinsEarned > 0 || hasStreakBonus
 
         // Title
-        let title = makeLargeLabel("LEVEL CLEAR!", color: UIColor(hex: "#FFCC00"), size: 36)
+        let title = makeLargeLabel(L10n.tr("result.level_clear", fallback: "LEVEL CLEAR!"), color: UIColor(hex: "#FFCC00"), size: 36)
         title.position = CGPoint(x: 0, y: size.height * 0.3)
         title.zPosition = 10
         addChild(title)
         title.popIn()
 
         // Level info
-        let levelLbl = makeLargeLabel(level.displayName.uppercased(),
+        let levelLbl = makeLargeLabel(L10n.upper(level.displayName),
                                       color: UIColor(hex: level.world?.themeColorHex ?? "#FFFFFF"),
                                       size: 18)
         levelLbl.position = CGPoint(x: 0, y: size.height * 0.22)
@@ -105,7 +106,7 @@ final class ResultScene: SKScene {
 
         // Win streak
         if hasStreakBonus {
-            let streakLbl = makeLargeLabel("🔥 ×\(winStreak) STREAK BONUS!", color: UIColor(hex: "#FF9500"), size: 15)
+            let streakLbl = makeLargeLabel(L10n.fmt("result.streak_bonus", winStreak, fallback: "🔥 ×%d STREAK BONUS!"), color: UIColor(hex: "#FF9500"), size: 15)
             let streakY = coinsEarned > 0 ? max(buttonTopY + 15, rewardY - 28) : rewardY
             streakLbl.position = CGPoint(x: 0, y: streakY)
             streakLbl.zPosition = 11
@@ -168,7 +169,7 @@ final class ResultScene: SKScene {
         panel.zPosition = 10
         addChild(panel)
 
-        let scoreTitleLbl = makeLargeLabel("SCORE", color: UIColor(hex: "#7799CC"), size: 14)
+        let scoreTitleLbl = makeLargeLabel(L10n.tr("hud.score", fallback: "SCORE"), color: UIColor(hex: "#7799CC"), size: 14)
         scoreTitleLbl.position = CGPoint(x: 0, y: y + 25)
         scoreTitleLbl.zPosition = 11
         addChild(scoreTitleLbl)
@@ -183,7 +184,7 @@ final class ResultScene: SKScene {
         addChild(scoreLbl)
 
         if isNewBest && best > 0 {
-            let bestLbl = makeLargeLabel("✦ NEW BEST!", color: UIColor(hex: "#FF9500"), size: 13)
+            let bestLbl = makeLargeLabel(L10n.tr("result.new_best", fallback: "✦ NEW BEST!"), color: UIColor(hex: "#FF9500"), size: 13)
             bestLbl.position = CGPoint(x: 0, y: y - 28)
             bestLbl.zPosition = 11
             addChild(bestLbl)
@@ -207,7 +208,7 @@ final class ResultScene: SKScene {
         coinIcon.zPosition = 11
         addChild(coinIcon)
 
-        let coinsLbl = makeLargeLabel("+\(coinsEarned) Coins!", color: UIColor(hex: "#FFCC00"), size: 22)
+        let coinsLbl = makeLargeLabel(L10n.fmt("result.coins", coinsEarned, fallback: "+%d Coins!"), color: UIColor(hex: "#FFCC00"), size: 22)
         coinsLbl.position = CGPoint(x: 20, y: y)
         coinsLbl.zPosition = 11
         addChild(coinsLbl)
@@ -225,7 +226,7 @@ final class ResultScene: SKScene {
     private func setupWinButtons(yBase: CGFloat) {
 
         // Next Level button
-        let nextBtn = PixelButton(title: "NEXT LEVEL ▶",
+        let nextBtn = PixelButton(title: L10n.tr("result.next_level", fallback: "NEXT LEVEL ▶"),
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
@@ -235,7 +236,7 @@ final class ResultScene: SKScene {
         nextBtn.onTap = { [weak self] in self?.goToNextLevel() }
         addChild(nextBtn)
 
-        let mapBtn = PixelButton(title: "◀ LEVEL MAP",
+        let mapBtn = PixelButton(title: L10n.tr("result.level_map", fallback: "◀ LEVEL MAP"),
                                   size: CGSize(width: 240, height: 46),
                                   style: .secondary,
                                   fontSize: 16)
@@ -244,7 +245,7 @@ final class ResultScene: SKScene {
         mapBtn.onTap = { [weak self] in self?.goToMap() }
         addChild(mapBtn)
 
-        let replayBtn = PixelButton(title: "↺ REPLAY",
+        let replayBtn = PixelButton(title: L10n.tr("result.replay", fallback: "↺ REPLAY"),
                                     size: CGSize(width: 240, height: 40),
                                     style: .ghost,
                                     color: UIColor(hex: "#7799CC"),
@@ -259,7 +260,7 @@ final class ResultScene: SKScene {
 
     private func setupFailUI() {
         // Title
-        let title = makeLargeLabel("LEVEL FAILED", color: UIColor(hex: "#FF3B30"), size: 36)
+        let title = makeLargeLabel(L10n.tr("result.level_failed", fallback: "LEVEL FAILED"), color: UIColor(hex: "#FF3B30"), size: 36)
         title.position = CGPoint(x: 0, y: size.height * 0.28)
         title.zPosition = 10
         addChild(title)
@@ -267,14 +268,14 @@ final class ResultScene: SKScene {
         title.shake()
 
         // Score
-        let scoreLbl = makeLargeLabel("Score: \(score.scoreFormatted)",
+        let scoreLbl = makeLargeLabel(L10n.fmt("result.score_line", score.scoreFormatted, fallback: "Score: %@"),
                                       color: UIColor(hex: "#99BBCC"), size: 22)
         scoreLbl.position = CGPoint(x: 0, y: size.height * 0.1)
         scoreLbl.zPosition = 10
         addChild(scoreLbl)
 
         // Try again message
-        let msgLbl = makeLargeLabel("Don't give up!",
+        let msgLbl = makeLargeLabel(L10n.tr("result.dont_give_up", fallback: "Don't give up!"),
                                     color: UIColor(hex: "#FFCC00"), size: 18)
         msgLbl.position = CGPoint(x: 0, y: -10)
         msgLbl.zPosition = 10
@@ -303,9 +304,13 @@ final class ResultScene: SKScene {
     }
 
     private func setupFailButtons() {
-        let yBase = max(-size.height * 0.3, safeBottomY + 99)
+        // 非 VIP 多两个广告位（continueLevel + bonusCoins），按钮组更长，基线相应抬高。
+        let hasAdButtons = !PlayerData.shared.noAds
+        let yBase = hasAdButtons
+            ? max(-size.height * 0.26, safeBottomY + 175)
+            : max(-size.height * 0.3, safeBottomY + 99)
 
-        let retryBtn = PixelButton(title: "↺ TRY AGAIN",
+        let retryBtn = PixelButton(title: L10n.tr("result.try_again", fallback: "↺ TRY AGAIN"),
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: UIColor(hex: "#FF9500"),
@@ -315,14 +320,75 @@ final class ResultScene: SKScene {
         retryBtn.onTap = { [weak self] in self?.replayLevel() }
         addChild(retryBtn)
 
-        let mapBtn = PixelButton(title: "◀ LEVEL MAP",
+        // HKAdKit "continueLevel" / "bonusCoins" placement 的承载按钮。VIP 用户不渲染。
+        var nextY = yBase - 60
+        if hasAdButtons {
+            let continueBtn = PixelButton(title: L10n.tr("result.continue_ad",
+                                                          fallback: "📹 WATCH AD: RETRY +5 MOVES"),
+                                          size: CGSize(width: 280, height: 46),
+                                          style: .secondary,
+                                          color: UIColor(hex: "#34C759"),
+                                          fontSize: 14)
+            continueBtn.position = CGPoint(x: 0, y: nextY)
+            continueBtn.zPosition = 20
+            continueBtn.onTap = { [weak self, weak continueBtn] in self?.showContinueAd(button: continueBtn) }
+            addChild(continueBtn)
+            nextY -= 54
+
+            let bonusBtn = PixelButton(title: L10n.tr("result.bonus_ad",
+                                                       fallback: "📹 WATCH AD: +50 COINS"),
+                                       size: CGSize(width: 280, height: 46),
+                                       style: .secondary,
+                                       color: UIColor(hex: "#AF52DE"),
+                                       fontSize: 14)
+            bonusBtn.position = CGPoint(x: 0, y: nextY)
+            bonusBtn.zPosition = 20
+            bonusBtn.onTap = { [weak self, weak bonusBtn] in self?.showBonusAd(button: bonusBtn) }
+            addChild(bonusBtn)
+            nextY -= 54
+        }
+
+        let mapBtn = PixelButton(title: L10n.tr("result.level_map", fallback: "◀ LEVEL MAP"),
                                   size: CGSize(width: 240, height: 46),
                                   style: .secondary,
                                   fontSize: 16)
-        mapBtn.position = CGPoint(x: 0, y: yBase - 62)
+        mapBtn.position = CGPoint(x: 0, y: nextY)
         mapBtn.zPosition = 20
         mapBtn.onTap = { [weak self] in self?.goToMap() }
         addChild(mapBtn)
+    }
+
+    /// HKAdKit "continueLevel" placement：看完激励视频免费重玩当前关，且开局 +5 步。
+    /// 与"TRY AGAIN"区别在于额外步数；reward 不走 AdRewardProvider（关卡跳转副作用绑定本 Scene）。
+    private func showContinueAd(button: PixelButton?) {
+        guard let view = view, let vc = view.window?.rootViewController else { return }
+        button?.setEnabled(false)
+        AdManager.shared.showRewardedAd(placement: "continueLevel", from: vc) { [weak self, weak button] earned in
+            DispatchQueue.main.async {
+                if earned {
+                    self?.replayLevel(bonusMoves: 5)
+                } else {
+                    button?.setEnabled(true)
+                }
+            }
+        }
+    }
+
+    private func showBonusAd(button: PixelButton?) {
+        guard let view = view, let vc = view.window?.rootViewController else { return }
+        button?.setEnabled(false)
+        AdManager.shared.showRewardedAd(placement: "bonusCoins", from: vc) { [weak button] earned in
+            DispatchQueue.main.async {
+                if earned {
+                    // PixelMatchAdRewardProvider.grantReward 已在内部加了 +50 金币。
+                    button?.setTitle(L10n.tr("result.bonus_done", fallback: "✓ +50 COINS"))
+                } else {
+                    // 失败/未发奖：恢复按钮态，玩家可重试。
+                    button?.setTitle(L10n.tr("result.bonus_ad", fallback: "📹 WATCH AD: +50 COINS"))
+                    button?.setEnabled(true)
+                }
+            }
+        }
     }
 
     // MARK: - Navigation
@@ -348,15 +414,29 @@ final class ResultScene: SKScene {
 
     private func goToMap() {
         guard let view = view else { return }
+        // 切场景前先试插屏：HKAdKit 自己有 VIP/频次/间隔 gate，不达条件立即回调 false。
+        // 不让玩家等：插屏播完或被 gate 拒绝都走同一段切场景代码。
+        if let vc = view.window?.rootViewController, !PlayerData.shared.noAds {
+            AdManager.shared.showInterstitial(from: vc) { [weak self] _ in
+                DispatchQueue.main.async { self?.transitionToMap() }
+            }
+        } else {
+            transitionToMap()
+        }
+    }
+
+    private func transitionToMap() {
+        guard let view = view else { return }
         let scene = MapScene(size: size)
         scene.scaleMode = .aspectFill
         view.presentScene(scene, transition: .fade(withDuration: 0.4))
     }
 
-    private func replayLevel() {
+    private func replayLevel(bonusMoves: Int = 0) {
         guard let view = view else { return }
         let scene = GameScene(size: size)
         scene.level = level
+        scene.bonusMovesFromAd = bonusMoves
         scene.scaleMode = .aspectFill
         view.presentScene(scene, transition: .fade(withDuration: 0.3))
     }

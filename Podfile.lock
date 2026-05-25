@@ -1,0 +1,121 @@
+PODS:
+  - Ads-CN (6.8.0.7):
+    - Ads-CN/BUAdLive-Framework (= 6.8.0.7)
+    - Ads-CN/BUAdSDK (= 6.8.0.7)
+  - Ads-CN/BUAdLive-Framework (6.8.0.7):
+    - BUTTSDKFramework/LivePull-Lite (= 1.46.2.7-premium)
+  - Ads-CN/BUAdSDK (6.8.0.7)
+  - Ads-Global (7.1.1.1):
+    - Ads-Global/BUAdSDK (= 7.1.1.1)
+  - Ads-Global/BUAdSDK (7.1.1.1)
+  - BaiduMobAdSDK (5.101)
+  - BUTTSDKFramework/Core (1.46.2.7-premium)
+  - BUTTSDKFramework/LiveBase (1.46.2.7-premium):
+    - BUTTSDKFramework/Core
+    - BUTTSDKFramework/Reachability
+  - BUTTSDKFramework/LivePlayer/Base (1.46.2.7-premium):
+    - BUTTSDKFramework/Core
+    - BUTTSDKFramework/LiveBase
+    - BUTTSDKFramework/Reachability
+  - BUTTSDKFramework/LivePlayer/Lite (1.46.2.7-premium):
+    - BUTTSDKFramework/LivePlayer/Base
+    - BUTTSDKFramework/PlayerCore/LiveLite
+  - BUTTSDKFramework/LivePull-Lite (1.46.2.7-premium):
+    - BUTTSDKFramework/LivePlayer/Lite
+    - BUTTSDKFramework/Strategy/Lite
+  - BUTTSDKFramework/PlayerCore/Base (1.46.2.7-premium):
+    - BUTTSDKFramework/Core
+    - BUTTSDKFramework/Tools
+  - BUTTSDKFramework/PlayerCore/LiveLite (1.46.2.7-premium):
+    - BUTTSDKFramework/PlayerCore/Base
+    - BUTTSDKFramework/TTFFmpeg/LiveLite
+  - BUTTSDKFramework/Reachability (1.46.2.7-premium)
+  - BUTTSDKFramework/SSL (1.46.2.7-premium)
+  - BUTTSDKFramework/Strategy/Core (1.46.2.7-premium):
+    - BUTTSDKFramework/LiveBase
+    - BUTTSDKFramework/Reachability
+  - BUTTSDKFramework/Strategy/Lite (1.46.2.7-premium):
+    - BUTTSDKFramework/LivePlayer/Lite
+    - BUTTSDKFramework/Strategy/Core
+  - BUTTSDKFramework/Tools (1.46.2.7-premium):
+    - BUTTSDKFramework/SSL
+  - BUTTSDKFramework/TTFFmpeg/Base (1.46.2.7-premium):
+    - BUTTSDKFramework/Tools
+  - BUTTSDKFramework/TTFFmpeg/LiveLite (1.46.2.7-premium):
+    - BUTTSDKFramework/TTFFmpeg/Base
+  - GDTMobSDK (4.15.10)
+  - Google-Mobile-Ads-SDK (11.10.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - HKAdvertising (1.0.0):
+    - HKAdvertising/Core (= 1.0.0)
+  - HKAdvertising/Adspot (1.0.0):
+    - HKAdvertising/Core
+  - HKAdvertising/BD (1.0.0):
+    - BaiduMobAdSDK
+    - HKAdvertising/Adspot
+    - HKAdvertising/Core
+  - HKAdvertising/Core (1.0.0)
+  - HKAdvertising/CSJ (1.0.0):
+    - Ads-CN (= 6.8.0.7)
+    - Ads-Global (= 7.1.1.1)
+    - HKAdvertising/Adspot
+    - HKAdvertising/Core
+  - HKAdvertising/GDT (1.0.0):
+    - GDTMobSDK
+    - HKAdvertising/Adspot
+    - HKAdvertising/Core
+  - HKAdvertising/KS (1.0.0):
+    - HKAdvertising/Adspot
+    - HKAdvertising/Core
+    - KSAdSDK
+  - KSAdSDK (3.3.76.5)
+
+DEPENDENCIES:
+  - Ads-CN (= 6.8.0.7)
+  - BaiduMobAdSDK (= 5.101)
+  - GDTMobSDK (= 4.15.10)
+  - Google-Mobile-Ads-SDK (= 11.10.0)
+  - GoogleUserMessagingPlatform
+  - "HKAdvertising (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - "HKAdvertising/BD (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - "HKAdvertising/CSJ (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - "HKAdvertising/GDT (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - "HKAdvertising/KS (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - KSAdSDK (= 3.3.76.5.0)
+
+SPEC REPOS:
+  trunk:
+    - Ads-CN
+    - Ads-Global
+    - BaiduMobAdSDK
+    - BUTTSDKFramework
+    - GDTMobSDK
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - KSAdSDK
+
+EXTERNAL SOURCES:
+  HKAdvertising:
+    :branch: main
+    :git: "git@github.com:HaokanPaipai/HKAds.git"
+
+CHECKOUT OPTIONS:
+  HKAdvertising:
+    :commit: 84b4b64eb76ea2dd019cdc89dee386287440e68d
+    :git: "git@github.com:HaokanPaipai/HKAds.git"
+
+SPEC CHECKSUMS:
+  Ads-CN: a6bf4bef36e1ab50d7b77611031775e960d2d04d
+  Ads-Global: b81917c405e94ad38dd45022f0fe17042429f578
+  BaiduMobAdSDK: b6256b85b452708720c0f435ac8c2d88ab5134d5
+  BUTTSDKFramework: b5d45b40003335843f05088c2373cef0b5638a9e
+  GDTMobSDK: 17a7af711cf6b7c8a3a0a4edc3916dc2467877e9
+  Google-Mobile-Ads-SDK: 13e6e98edfd78ad8d8a791edb927658cc260a56f
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  HKAdvertising: e7cf761befb2d05bfe53a2be9d285ed965c437f9
+  KSAdSDK: 209b3b1b6b392f06cb8b67966139cf6859174455
+
+PODFILE CHECKSUM: bfe8bf122074853694a0cf5dc379b21b68fa3fc4
+
+COCOAPODS: 1.16.2

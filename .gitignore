@@ -1,5 +1,10 @@
 DerivedData/
 build/
+
+# CocoaPods 生成物
+Pods/
+pixelmatch.xcworkspace/
+
 *.xcuserstate
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/

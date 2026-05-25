@@ -69,6 +69,17 @@ final class LivesManager {
         return true
     }
 
+    /// 看广告补一格生命（不消耗钻石）。HKAdKit 的 AdRewardProvider 在用户看完激励视频后调用。
+    func refillOne() {
+        syncLives()
+        guard currentLives < maxLives else { return }
+        currentLives += 1
+        // 满血时清空"上次失血时间"，避免奖励满血后还在倒计时。
+        if currentLives >= maxLives {
+            defaults.removeObject(forKey: Key.lastLostTime)
+        }
+    }
+
     // MARK: - Auto-Sync
 
     private func syncLives() {

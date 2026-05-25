@@ -1,0 +1,195 @@
+"app.name.upper" = "ピクセルマッチ";
+"loading.message" = "ピクセルを読み込み中...";
+
+"home.logo.pixel" = "ピクセル";
+"home.logo.match" = "マッチ";
+"home.tagline" = "究極のピクセルパズル";
+"home.level" = "レベル %d";
+"home.play" = "▶ プレイ";
+"home.daily_reward" = "🎁 デイリー報酬!";
+"home.quests" = "📋 クエスト";
+"home.quests_count" = "✅ クエスト (%d)";
+"home.chest_ready" = "⭐ 宝箱!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "ショップ";
+"home.settings" = "設定";
+"home.ranks" = "順位";
+"home.daily_streak" = "%d 日連続!";
+"home.reward_inventory" = "報酬を追加しました";
+"home.booster_reward" = "+%d ハンマー  +%d シャッフル";
+"home.claim" = "受け取る!";
+"home.quest_complete_title" = "✅ クエスト達成!";
+"home.star_chest_title" = "⭐ スター宝箱!";
+"home.chest_need" = "星を集めて宝箱を開ける: %d/%d";
+"home.gc_sign_in" = "Game Center にサインインしてランキングを表示!";
+"home.daily_quests" = "デイリークエスト";
+"home.quest_reward" = "+%d コイン  +%d ダイヤ";
+"home.done" = "完了";
+"home.claim_short" = "受取";
+
+"shop.title" = "🛒 ショップ";
+"shop.starter_pack" = "スターターパック";
+"shop.small_pack" = "小パック";
+"shop.medium_pack" = "中パック";
+"shop.large_pack" = "大パック";
+"shop.free_ad" = "無料 → 広告を見る";
+"shop.boosters" = "──── ブースター ────";
+
+"common.close" = "閉じる";
+"common.on" = "ON";
+"common.off" = "OFF";
+
+"player.default_name" = "ピクセルヒーロー";
+"quest.win_levels" = "レベル勝利";
+"quest.make_specials" = "特殊を作る";
+"quest.use_boosters" = "ブースター使用";
+
+"booster.hammer" = "ハンマー";
+"booster.shuffle" = "シャッフル";
+"booster.extra_moves" = "+5 手";
+"booster.color_bomb" = "カラーボム";
+
+"gem.flame" = "炎";
+"gem.drop" = "しずく";
+"gem.leaf" = "葉";
+"gem.star" = "星";
+"gem.crystal" = "クリスタル";
+"gem.sun" = "太陽";
+
+"level.name" = "レベル %d";
+"level.fallback" = "レベル";
+"world.1" = "ピクセルの森";
+"world.2" = "クリスタルの海";
+"world.3" = "空の王国";
+"world.4" = "溶岩砂漠";
+"world.5" = "氷のツンドラ";
+"world.6" = "ネオンシティ";
+"world.7" = "虹の谷";
+"world.8" = "深宇宙";
+"world.9" = "ピクセルピーク";
+"world.10" = "コスモスコア";
+
+"objective.score" = "%@ 点を獲得";
+"objective.collect" = "%d 個の%@を集める";
+"objective.clear_jelly" = "ゼリーをすべて消す";
+"objective.break_ice" = "氷を %d 個壊す";
+"objective.remove_chocolate" = "チョコを消す";
+"objective.eliminate_chocolate" = "チョコを全て消す";
+"objective.progress.jelly" = "ゼリー ×%d";
+"objective.progress.ice" = "氷: %d/%d";
+"objective.progress.chocolate" = "チョコ ×%d";
+
+"lesson.swap.title" = "交換";
+"lesson.swap.message" = "ジェムを3つそろえよう。手数を大切にして盤面に慣れよう。";
+"lesson.chain.title" = "連鎖";
+"lesson.chain.message" = "落ちたジェムが連鎖を作り、追加スコアになります。";
+"lesson.striped.title" = "ストライプ";
+"lesson.striped.message" = "4つそろえるとストライプジェム。もう一度そろえてラインを消そう。";
+"lesson.color_bomb.title" = "カラーボム";
+"lesson.color_bomb.message" = "5つそろえるとカラーボム。好きなジェムと交換しよう。";
+"lesson.collect.title" = "収集";
+"lesson.collect.message" = "必要なのは目標の色だけ。大きな消去が近道です。";
+"lesson.jelly.title" = "ゼリー";
+"lesson.jelly.message" = "ゼリー上でジェムを消すとゼリーも消えます。";
+"lesson.combo.title" = "コンボ";
+"lesson.combo.message" = "特殊ジェム同士を交換すると強力な消去が発動します。";
+"lesson.focus.title" = "集中";
+"lesson.focus.message" = "スコアだけでなく、毎手を目標へ向けよう。";
+"lesson.ice.title" = "氷";
+"lesson.ice.message" = "凍ったジェムを消すか特殊効果を当てると氷が壊れます。";
+"lesson.boss.title" = "ボス";
+"lesson.boss.message" = "特殊ジェムは早めに使おう。手数を残すと報酬が増えます。";
+
+"hud.moves" = "手数";
+"hud.score" = "スコア";
+
+"dialog.pause.title" = "⏸ 一時停止";
+"dialog.resume" = "▶ 再開";
+"dialog.restart" = "↺ リスタート";
+"dialog.settings" = "⚙ 設定";
+"dialog.quit" = "✕ 終了";
+"dialog.out_of_moves.title" = "手数切れ!";
+"dialog.out_of_moves.message" = "+%d 手で続けますか?";
+"dialog.you_have_diamonds" = "所持: %d 💎";
+"dialog.continue" = "続ける!";
+"dialog.get_diamonds" = "ダイヤ入手";
+"dialog.no_thanks" = "やめる";
+"dialog.no_lives.title" = "ライフなし!";
+"dialog.next_life" = "次のライフ: %@";
+"dialog.refill" = "回復 (15 💎)";
+"dialog.wait_life" = "無料ライフを待つ";
+"dialog.power_up" = "パワーアップ!";
+"dialog.select_boosters" = "開始前にブースターを選択:";
+"settings.sound" = "🔊 効果音";
+"settings.music" = "🎵 音楽";
+"settings.vibrate" = "📳 振動";
+
+"map.levels_range" = "レベル %d-%d";
+"map.moves" = "手数: %d";
+"map.best" = "ベスト: %@";
+"map.life_timer" = "+♥ %@";
+"map.play" = "▶ プレイ!";
+"map.no_lives" = "ライフなし";
+
+"game.hammer_hint" = "🔨 タイルをタップして消去!";
+"game.extra_moves" = "+5 手!";
+"game.need_more_booster" = "%@が足りません!\n必要: %d 🪙";
+"game.double_points" = "⚡ スコア2倍!";
+"game.board_shuffled" = "🔄 盤面をシャッフル!";
+"game.not_enough_diamonds" = "ダイヤが足りません!";
+"combo.double" = "ダブル!";
+"combo.triple" = "トリプル!";
+"combo.mega" = "メガ!";
+"combo.ultra" = "ウルトラ!";
+"world_unlock.title" = "新ワールド!";
+"world_unlock.message" = "新しいワールドを解放しました!";
+"world_unlock.tap" = "タップして続行";
+
+"tutorial.welcome.title" = "ようこそ!";
+"tutorial.welcome.message" = "隣のジェムを交換。3つそろえると消えてスコアになります。";
+"tutorial.make4.title" = "4つそろえる";
+"tutorial.make4.message" = "4つそろえるとストライプジェム。もう一度そろえてラインを消そう。";
+"tutorial.make5.title" = "5つそろえる";
+"tutorial.make5.message" = "5つそろえるとカラーボム。色つきジェムと交換して同色を消そう。";
+"tutorial.combos.title" = "コンボ";
+"tutorial.combos.message" = "特殊ジェム同士を交換すると大きな消去が起きます。";
+"tutorial.objectives.title" = "目標";
+"tutorial.objectives.message" = "各レベルには目標があります。毎手を目標に使おう。";
+"tutorial.next" = "次へ ▶";
+"tutorial.skip" = "スキップ";
+"tutorial.play" = "プレイ!";
+
+"result.level_clear" = "レベルクリア!";
+"result.streak_bonus" = "🔥 ×%d 連勝ボーナス!";
+"result.new_best" = "✦ 新記録!";
+"result.coins" = "+%d コイン!";
+"result.next_level" = "次のレベル ▶";
+"result.level_map" = "◀ マップ";
+"result.replay" = "↺ リプレイ";
+"result.level_failed" = "失敗";
+"result.score_line" = "スコア: %@";
+"result.dont_give_up" = "あきらめないで!";
+"result.try_again" = "↺ もう一度";
+
+"notification.lives_full.title" = "❤️ ライフ満タン!";
+"notification.lives_full.body" = "ライフが満タンです。戻ってレベルに挑戦しましょう!";
+"notification.daily_reward.title" = "🎁 デイリー報酬!";
+"notification.daily_reward.body" = "PixelMatch を開いて無料コインとダイヤを受け取ろう!";
+"notification.return.title" = "🎮 まだマッチする?";
+"notification.return.body" = "新しいレベルが待っています。";
+
+"iap.coins500" = "500 コイン";
+"iap.coins1500" = "1,500 コイン";
+"iap.coins5000" = "5,000 コイン";
+"iap.diamonds20" = "20 ダイヤ";
+"iap.diamonds80" = "80 ダイヤ";
+"iap.diamonds300" = "300 ダイヤ";
+"iap.starter_pack" = "スターターパック";
+"iap.mega_pack" = "メガパック";
+"iap.remove_ads" = "広告を削除";
+"iap.error.unverified" = "購入を確認できませんでした。";
+"iap.error.pending" = "購入は承認待ちです。";
+"iap.error.unknown" = "不明な購入結果です。";
+
+"ad.watch.title" = "広告を見る";
+"ad.watch.message" = "広告表示をシミュレーション中 (5秒)...";

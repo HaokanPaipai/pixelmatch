@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Pixel werden geladen...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Das ultimative Pixel-Puzzle";
+"home.level" = "Level %d";
+"home.play" = "▶ SPIELEN";
+"home.daily_reward" = "🎁 TAGESBONUS!";
+"home.quests" = "📋 QUESTS";
+"home.quests_count" = "✅ QUESTS (%d)";
+"home.chest_ready" = "⭐ TRUHE!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "SHOP";
+"home.settings" = "OPTIONEN";
+"home.ranks" = "RANGLISTE";
+"home.daily_streak" = "%d Tage Serie!";
+"home.reward_inventory" = "Belohnungen hinzugefügt";
+"home.booster_reward" = "+%d Hammer  +%d Mischen";
+"home.claim" = "ABHOLEN!";
+"home.quest_complete_title" = "✅ QUEST ERFÜLLT!";
+"home.star_chest_title" = "⭐ STERNTRUHE!";
+"home.chest_need" = "Sterne für Truhe sammeln: %d/%d";
+"home.gc_sign_in" = "Bei Game Center anmelden, um Ranglisten zu sehen!";
+"home.daily_quests" = "TAGESQUESTS";
+"home.quest_reward" = "+%d Münzen  +%d Diamant";
+"home.done" = "FERTIG";
+"home.claim_short" = "HOLEN";
+
+"shop.title" = "🛒 SHOP";
+"shop.starter_pack" = "Starterpaket";
+"shop.small_pack" = "Kleines Paket";
+"shop.medium_pack" = "Mittleres Paket";
+"shop.large_pack" = "Großes Paket";
+"shop.free_ad" = "Gratis → Werbung";
+"shop.boosters" = "──── BOOSTER ────";
+
+"common.close" = "SCHLIESSEN";
+"common.on" = "AN";
+"common.off" = "AUS";
+
+"player.default_name" = "Pixelheld";
+"quest.win_levels" = "Level gewinnen";
+"quest.make_specials" = "Spezialsteine";
+"quest.use_boosters" = "Booster nutzen";
+
+"booster.hammer" = "Hammer";
+"booster.shuffle" = "Mischen";
+"booster.extra_moves" = "+5 Züge";
+"booster.color_bomb" = "Farbbombe";
+
+"gem.flame" = "Flamme";
+"gem.drop" = "Tropfen";
+"gem.leaf" = "Blatt";
+"gem.star" = "Stern";
+"gem.crystal" = "Kristall";
+"gem.sun" = "Sonne";
+
+"level.name" = "Level %d";
+"level.fallback" = "Level";
+"world.1" = "Pixelwald";
+"world.2" = "Kristallozean";
+"world.3" = "Himmelsreich";
+"world.4" = "Lavawüste";
+"world.5" = "Frosttundra";
+"world.6" = "Neonstadt";
+"world.7" = "Regenbogental";
+"world.8" = "Tiefer Weltraum";
+"world.9" = "Pixelgipfel";
+"world.10" = "Kosmoskern";
+
+"objective.score" = "%@ Punkte";
+"objective.collect" = "%d %@ sammeln";
+"objective.clear_jelly" = "Alles Gelee entfernen";
+"objective.break_ice" = "%d Eisblöcke brechen";
+"objective.remove_chocolate" = "Schokolade entfernen";
+"objective.eliminate_chocolate" = "Schokolade beseitigen";
+"objective.progress.jelly" = "Gelee ×%d";
+"objective.progress.ice" = "Eis: %d/%d";
+"objective.progress.chocolate" = "Schoko ×%d";
+
+"lesson.swap.title" = "TAUSCHEN";
+"lesson.swap.message" = "Kombiniere 3 Steine. Spare Züge und lerne das Brett kennen.";
+"lesson.chain.title" = "KETTE";
+"lesson.chain.message" = "Fallende Steine können kostenlose Kombos auslösen.";
+"lesson.striped.title" = "GESTREIFT";
+"lesson.striped.message" = "Kombiniere 4 Steine für einen Streifenstein und spiele ihn erneut.";
+"lesson.color_bomb.title" = "FARBBOMBE";
+"lesson.color_bomb.message" = "Kombiniere 5 Steine für eine Farbbombe. Tausche sie mit einem Stein.";
+"lesson.collect.title" = "SAMMELN";
+"lesson.collect.message" = "Nur die Zielfarbe zählt. Große Clears helfen.";
+"lesson.jelly.title" = "GELEE";
+"lesson.jelly.message" = "Entferne Steine auf Gelee, um es zu löschen.";
+"lesson.combo.title" = "KOMBO";
+"lesson.combo.message" = "Tausche zwei Spezialsteine für einen stärkeren Effekt.";
+"lesson.focus.title" = "ZIEL";
+"lesson.focus.message" = "Jeder Zug sollte dem Ziel dienen, nicht nur dem Score.";
+"lesson.ice.title" = "EIS";
+"lesson.ice.message" = "Brich Eis, indem du den gefrorenen Stein löschst oder Spezialeffekte nutzt.";
+"lesson.boss.title" = "BOSS";
+"lesson.boss.message" = "Nutze Spezialsteine früh. Übrige Züge bringen bessere Belohnungen.";
+
+"hud.moves" = "ZÜGE";
+"hud.score" = "SCORE";
+
+"dialog.pause.title" = "⏸ PAUSE";
+"dialog.resume" = "▶ WEITER";
+"dialog.restart" = "↺ NEUSTART";
+"dialog.settings" = "⚙ OPTIONEN";
+"dialog.quit" = "✕ BEENDEN";
+"dialog.out_of_moves.title" = "KEINE ZÜGE!";
+"dialog.out_of_moves.message" = "Mit +%d Zügen fortfahren?";
+"dialog.you_have_diamonds" = "Du hast: %d 💎";
+"dialog.continue" = "WEITER!";
+"dialog.get_diamonds" = "DIAMANTEN";
+"dialog.no_thanks" = "NEIN DANKE";
+"dialog.no_lives.title" = "KEINE LEBEN!";
+"dialog.next_life" = "Nächstes Leben: %@";
+"dialog.refill" = "AUFFÜLLEN (15 💎)";
+"dialog.wait_life" = "GRATISLEBEN WARTEN";
+"dialog.power_up" = "POWER-UP!";
+"dialog.select_boosters" = "Booster vor dem Start wählen:";
+"settings.sound" = "🔊 Sound";
+"settings.music" = "🎵 Musik";
+"settings.vibrate" = "📳 Vibration";
+
+"map.levels_range" = "Level %d-%d";
+"map.moves" = "Züge: %d";
+"map.best" = "Bestwert: %@";
+"map.life_timer" = "+♥ in %@";
+"map.play" = "▶ SPIELEN!";
+"map.no_lives" = "KEINE LEBEN";
+
+"game.hammer_hint" = "🔨 Feld antippen!";
+"game.extra_moves" = "+5 ZÜGE!";
+"game.need_more_booster" = "Mehr %@ nötig!\nKosten: %d 🪙";
+"game.double_points" = "⚡ DOPPELTE PUNKTE!";
+"game.board_shuffled" = "🔄 Brett gemischt!";
+"game.not_enough_diamonds" = "Nicht genug Diamanten!";
+"combo.double" = "DOPPEL!";
+"combo.triple" = "DREIFACH!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NEUE WELT!";
+"world_unlock.message" = "Du hast eine neue Welt freigeschaltet!";
+"world_unlock.tap" = "Tippen zum Fortfahren";
+
+"tutorial.welcome.title" = "WILLKOMMEN!";
+"tutorial.welcome.message" = "Tausche benachbarte Steine. Kombiniere 3 zum Löschen und Punkten.";
+"tutorial.make4.title" = "VIERER";
+"tutorial.make4.message" = "Kombiniere 4 für einen Streifenstein und lösche eine Linie.";
+"tutorial.make5.title" = "FÜNFER";
+"tutorial.make5.message" = "Kombiniere 5 für eine Farbbombe und lösche eine Farbe.";
+"tutorial.combos.title" = "KOMBOS";
+"tutorial.combos.message" = "Tausche zwei Spezialsteine für größere Effekte.";
+"tutorial.objectives.title" = "ZIELE";
+"tutorial.objectives.message" = "Jedes Level hat ein Ziel. Nutze jeden Zug dafür.";
+"tutorial.next" = "WEITER ▶";
+"tutorial.skip" = "ÜBERSPR.";
+"tutorial.play" = "SPIELEN!";
+
+"result.level_clear" = "LEVEL GESCHAFFT!";
+"result.streak_bonus" = "🔥 ×%d SERIENBONUS!";
+"result.new_best" = "✦ NEUER BESTWERT!";
+"result.coins" = "+%d Münzen!";
+"result.next_level" = "NÄCHSTES LEVEL ▶";
+"result.level_map" = "◀ KARTE";
+"result.replay" = "↺ NOCHMAL";
+"result.level_failed" = "LEVEL VERLOREN";
+"result.score_line" = "Score: %@";
+"result.dont_give_up" = "Nicht aufgeben!";
+"result.try_again" = "↺ ERNEUT";
+
+"notification.lives_full.title" = "❤️ Leben voll!";
+"notification.lives_full.body" = "Deine Herzen sind voll. Komm zurück und schaff das Level!";
+"notification.daily_reward.title" = "🎁 Tagesbonus bereit!";
+"notification.daily_reward.body" = "Öffne PixelMatch und hol dir kostenlose Münzen und Diamanten!";
+"notification.return.title" = "🎮 Weiter matchen?";
+"notification.return.body" = "Neue Level warten auf dich!";
+
+"iap.coins500" = "500 Münzen";
+"iap.coins1500" = "1.500 Münzen";
+"iap.coins5000" = "5.000 Münzen";
+"iap.diamonds20" = "20 Diamanten";
+"iap.diamonds80" = "80 Diamanten";
+"iap.diamonds300" = "300 Diamanten";
+"iap.starter_pack" = "Starterpaket";
+"iap.mega_pack" = "Megapaket";
+"iap.remove_ads" = "Werbung entfernen";
+"iap.error.unverified" = "Kauf konnte nicht verifiziert werden.";
+"iap.error.pending" = "Kauf wartet auf Genehmigung.";
+"iap.error.unknown" = "Unbekanntes Kaufergebnis.";
+
+"ad.watch.title" = "Werbung ansehen";
+"ad.watch.message" = "Werbeansicht wird simuliert (5 Sekunden)...";

@@ -91,7 +91,7 @@ final class GameHUD: SKNode {
         addChild(box)
 
         let titleLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        titleLbl.text = "MOVES"
+        titleLbl.text = L10n.tr("hud.moves", fallback: "MOVES")
         titleLbl.fontSize = 10
         titleLbl.fontColor = UIColor(hex: "#7799CC")
         titleLbl.verticalAlignmentMode = .center
@@ -120,7 +120,7 @@ final class GameHUD: SKNode {
         scoreValueMaxWidth = barW
 
         let scoreLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        scoreLbl.text = "SCORE"
+        scoreLbl.text = L10n.tr("hud.score", fallback: "SCORE")
         scoreLbl.fontSize = 11
         scoreLbl.fontColor = UIColor(hex: "#7799CC")
         scoreLbl.verticalAlignmentMode = .center

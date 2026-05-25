@@ -34,6 +34,7 @@ final class PlayerData {
         static let boosterExtraMoves = "boosterExtraMoves"
         static let boosterColorBomb = "boosterColorBomb"
         static let tutorialComplete = "tutorialComplete"
+        static let agreedPrivacy    = "agreedPrivacy"
     }
 
     // MARK: - Progress
@@ -156,7 +157,7 @@ final class PlayerData {
     }
 
     var playerName: String {
-        get { defaults.string(forKey: Key.playerName) ?? "Pixel Hero" }
+        get { defaults.string(forKey: Key.playerName) ?? L10n.tr("player.default_name", fallback: "Pixel Hero") }
         set { defaults.set(newValue, forKey: Key.playerName) }
     }
 
@@ -288,6 +289,22 @@ final class PlayerData {
     func setNoAds() {
         defaults.set(true, forKey: Key.noAds)
     }
+
+    // MARK: - 隐私同意（合规：国内三方广告 SDK 必须用户同意《隐私协议》后才能初始化）
+    //
+    // PixelMatch 目前未实现首启隐私弹窗。在弹窗接入之前，默认置 true 维持基本体验；
+    // 实现弹窗后改为首启 false、点击同意后 setHasAgreedPrivacy()。
+    // TODO: 接入首启《用户协议 / 隐私政策》弹窗（参考 goodlook AgreementManager）。
+    var hasAgreedPrivacy: Bool {
+        get {
+            if defaults.object(forKey: Key.agreedPrivacy) == nil { return true } // 默认放行
+            return defaults.bool(forKey: Key.agreedPrivacy)
+        }
+    }
+
+    func setHasAgreedPrivacy(_ agreed: Bool) {
+        defaults.set(agreed, forKey: Key.agreedPrivacy)
+    }
 }
 
 enum BoosterType: CaseIterable {
@@ -295,10 +312,10 @@ enum BoosterType: CaseIterable {
 
     var name: String {
         switch self {
-        case .hammer: return "Hammer"
-        case .shuffle: return "Shuffle"
-        case .extraMoves: return "+5 Moves"
-        case .colorBomb: return "Color Bomb"
+        case .hammer: return L10n.tr("booster.hammer", fallback: "Hammer")
+        case .shuffle: return L10n.tr("booster.shuffle", fallback: "Shuffle")
+        case .extraMoves: return L10n.tr("booster.extra_moves", fallback: "+5 Moves")
+        case .colorBomb: return L10n.tr("booster.color_bomb", fallback: "Color Bomb")
         }
     }
 

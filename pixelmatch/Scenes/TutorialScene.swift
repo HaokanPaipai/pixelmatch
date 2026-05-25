@@ -11,11 +11,11 @@ final class TutorialScene: SKScene {
     private var touchStartBoardPos: (row: Int, col: Int)?
 
     private let steps: [(title: String, message: String)] = [
-        ("WELCOME!", "Swap adjacent gems. Match 3 to clear space and build score."),
-        ("MAKE 4", "Match 4 to create a striped gem. Match it again to clear a full line."),
-        ("MAKE 5", "Match 5 to create a color bomb. Swap it with a color to clear that color."),
-        ("COMBOS", "Swap two special gems together for a bigger board-clearing effect."),
-        ("OBJECTIVES", "Every level has a goal. Spend each move toward that goal.")
+        (L10n.tr("tutorial.welcome.title", fallback: "WELCOME!"), L10n.tr("tutorial.welcome.message", fallback: "Swap adjacent gems. Match 3 to clear space and build score.")),
+        (L10n.tr("tutorial.make4.title", fallback: "MAKE 4"), L10n.tr("tutorial.make4.message", fallback: "Match 4 to create a striped gem. Match it again to clear a full line.")),
+        (L10n.tr("tutorial.make5.title", fallback: "MAKE 5"), L10n.tr("tutorial.make5.message", fallback: "Match 5 to create a color bomb. Swap it with a color to clear that color.")),
+        (L10n.tr("tutorial.combos.title", fallback: "COMBOS"), L10n.tr("tutorial.combos.message", fallback: "Swap two special gems together for a bigger board-clearing effect.")),
+        (L10n.tr("tutorial.objectives.title", fallback: "OBJECTIVES"), L10n.tr("tutorial.objectives.message", fallback: "Every level has a goal. Spend each move toward that goal."))
     ]
 
     private var overlayNode: SKNode!
@@ -135,7 +135,7 @@ final class TutorialScene: SKScene {
         msgLabel.zPosition = 26
         addChild(msgLabel)
 
-        nextBtn = PixelButton(title: "NEXT ▶",
+        nextBtn = PixelButton(title: L10n.tr("tutorial.next", fallback: "NEXT ▶"),
                               size: CGSize(width: 160, height: 44),
                               style: .primary,
                               color: UIColor(hex: "#34C759"))
@@ -144,7 +144,7 @@ final class TutorialScene: SKScene {
         nextBtn.onTap = { [weak self] in self?.advance() }
         addChild(nextBtn)
 
-        skipBtn = PixelButton(title: "SKIP",
+        skipBtn = PixelButton(title: L10n.tr("tutorial.skip", fallback: "SKIP"),
                               size: CGSize(width: 100, height: 36),
                               style: .ghost,
                               color: UIColor(hex: "#7799CC"),
@@ -227,7 +227,7 @@ final class TutorialScene: SKScene {
         msgLabel.text = info.message
 
         let isLast = index == steps.count - 1
-        nextBtn.setTitle(isLast ? "PLAY!" : "NEXT ▶")
+        nextBtn.setTitle(isLast ? L10n.tr("tutorial.play", fallback: "PLAY!") : L10n.tr("tutorial.next", fallback: "NEXT ▶"))
 
         // Animate panel pop-in
         messagePanel.setScale(0.95)

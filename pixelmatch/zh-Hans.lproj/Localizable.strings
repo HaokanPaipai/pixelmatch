@@ -1,0 +1,195 @@
+"app.name.upper" = "像素消消乐";
+"loading.message" = "像素加载中...";
+
+"home.logo.pixel" = "像素";
+"home.logo.match" = "消消";
+"home.tagline" = "终极像素消除谜题";
+"home.level" = "第 %d 关";
+"home.play" = "▶ 开始";
+"home.daily_reward" = "🎁 每日奖励!";
+"home.quests" = "📋 任务";
+"home.quests_count" = "✅ 任务 (%d)";
+"home.chest_ready" = "⭐ 宝箱!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "商店";
+"home.settings" = "设置";
+"home.ranks" = "排行";
+"home.daily_streak" = "连续第 %d 天!";
+"home.reward_inventory" = "奖励已加入背包";
+"home.booster_reward" = "+%d 锤子  +%d 洗牌";
+"home.claim" = "领取!";
+"home.quest_complete_title" = "✅ 任务完成!";
+"home.star_chest_title" = "⭐ 星星宝箱!";
+"home.chest_need" = "收集星星开启宝箱: %d/%d";
+"home.gc_sign_in" = "登录 Game Center 查看排行榜!";
+"home.daily_quests" = "每日任务";
+"home.quest_reward" = "+%d 金币  +%d 钻石";
+"home.done" = "已完成";
+"home.claim_short" = "领取";
+
+"shop.title" = "🛒 商店";
+"shop.starter_pack" = "新手包";
+"shop.small_pack" = "小礼包";
+"shop.medium_pack" = "中礼包";
+"shop.large_pack" = "大礼包";
+"shop.free_ad" = "免费 → 看广告";
+"shop.boosters" = "──── 道具 ────";
+
+"common.close" = "关闭";
+"common.on" = "开";
+"common.off" = "关";
+
+"player.default_name" = "像素英雄";
+"quest.win_levels" = "通关";
+"quest.make_specials" = "制造特殊棋子";
+"quest.use_boosters" = "使用道具";
+
+"booster.hammer" = "锤子";
+"booster.shuffle" = "洗牌";
+"booster.extra_moves" = "+5 步";
+"booster.color_bomb" = "彩虹炸弹";
+
+"gem.flame" = "火焰";
+"gem.drop" = "水滴";
+"gem.leaf" = "叶子";
+"gem.star" = "星星";
+"gem.crystal" = "水晶";
+"gem.sun" = "太阳";
+
+"level.name" = "第 %d 关";
+"level.fallback" = "关卡";
+"world.1" = "像素森林";
+"world.2" = "水晶海洋";
+"world.3" = "天空王国";
+"world.4" = "熔岩沙漠";
+"world.5" = "冰封苔原";
+"world.6" = "霓虹都市";
+"world.7" = "彩虹山谷";
+"world.8" = "深空";
+"world.9" = "像素峰";
+"world.10" = "宇宙核心";
+
+"objective.score" = "获得 %@ 分";
+"objective.collect" = "收集 %d 个%@";
+"objective.clear_jelly" = "清除所有果冻";
+"objective.break_ice" = "打破 %d 块冰";
+"objective.remove_chocolate" = "清除巧克力";
+"objective.eliminate_chocolate" = "消灭巧克力";
+"objective.progress.jelly" = "果冻 ×%d";
+"objective.progress.ice" = "冰: %d/%d";
+"objective.progress.chocolate" = "巧克力 ×%d";
+
+"lesson.swap.title" = "交换";
+"lesson.swap.message" = "匹配 3 个棋子。稳住步数，熟悉棋盘。";
+"lesson.chain.title" = "连锁";
+"lesson.chain.message" = "掉落棋子可能自动继续匹配，免费获得连击分。";
+"lesson.striped.title" = "条纹";
+"lesson.striped.message" = "匹配 4 个生成条纹棋子，再次匹配即可清除整行或整列。";
+"lesson.color_bomb.title" = "彩虹炸弹";
+"lesson.color_bomb.message" = "匹配 5 个生成彩虹炸弹。与任意棋子交换即可使用。";
+"lesson.collect.title" = "收集";
+"lesson.collect.message" = "只需要目标颜色。大范围清除能更快完成。";
+"lesson.jelly.title" = "果冻";
+"lesson.jelly.message" = "在果冻格上消除棋子即可清掉果冻。";
+"lesson.combo.title" = "组合";
+"lesson.combo.message" = "交换两个特殊棋子会触发更强大的清屏效果。";
+"lesson.focus.title" = "目标";
+"lesson.focus.message" = "每一步都朝目标推进，不要只追分数。";
+"lesson.ice.title" = "冰块";
+"lesson.ice.message" = "清除被冻棋子或用特殊效果命中即可破冰。";
+"lesson.boss.title" = "挑战";
+"lesson.boss.message" = "尽早使用特殊棋子。省下步数能获得更高奖励。";
+
+"hud.moves" = "步数";
+"hud.score" = "分数";
+
+"dialog.pause.title" = "⏸ 暂停";
+"dialog.resume" = "▶ 继续";
+"dialog.restart" = "↺ 重开";
+"dialog.settings" = "⚙ 设置";
+"dialog.quit" = "✕ 退出";
+"dialog.out_of_moves.title" = "步数用完!";
+"dialog.out_of_moves.message" = "继续获得 +%d 步?";
+"dialog.you_have_diamonds" = "你有: %d 💎";
+"dialog.continue" = "继续!";
+"dialog.get_diamonds" = "获取钻石";
+"dialog.no_thanks" = "不用了";
+"dialog.no_lives.title" = "没有体力!";
+"dialog.next_life" = "下一颗体力: %@";
+"dialog.refill" = "补满 (15 💎)";
+"dialog.wait_life" = "等待免费体力";
+"dialog.power_up" = "强化!";
+"dialog.select_boosters" = "开始前选择道具:";
+"settings.sound" = "🔊 音效";
+"settings.music" = "🎵 音乐";
+"settings.vibrate" = "📳 震动";
+
+"map.levels_range" = "关卡 %d-%d";
+"map.moves" = "步数: %d";
+"map.best" = "最佳: %@";
+"map.life_timer" = "+♥ %@ 后";
+"map.play" = "▶ 开始!";
+"map.no_lives" = "无体力";
+
+"game.hammer_hint" = "🔨 点击一个格子移除!";
+"game.extra_moves" = "+5 步!";
+"game.need_more_booster" = "%@不足!\n花费: %d 🪙";
+"game.double_points" = "⚡ 双倍分数!";
+"game.board_shuffled" = "🔄 棋盘已洗牌!";
+"game.not_enough_diamonds" = "钻石不足!";
+"combo.double" = "双连!";
+"combo.triple" = "三连!";
+"combo.mega" = "超强!";
+"combo.ultra" = "究极!";
+"world_unlock.title" = "新世界!";
+"world_unlock.message" = "你解锁了一个新世界!";
+"world_unlock.tap" = "点击继续";
+
+"tutorial.welcome.title" = "欢迎!";
+"tutorial.welcome.message" = "交换相邻棋子。匹配 3 个即可清除并得分。";
+"tutorial.make4.title" = "做 4 连";
+"tutorial.make4.message" = "匹配 4 个生成条纹棋子，再匹配一次清除整条线。";
+"tutorial.make5.title" = "做 5 连";
+"tutorial.make5.message" = "匹配 5 个生成彩虹炸弹，与颜色棋子交换即可清除该颜色。";
+"tutorial.combos.title" = "组合";
+"tutorial.combos.message" = "交换两个特殊棋子会触发更大的清屏效果。";
+"tutorial.objectives.title" = "目标";
+"tutorial.objectives.message" = "每关都有目标。把每一步都用在目标上。";
+"tutorial.next" = "下一步 ▶";
+"tutorial.skip" = "跳过";
+"tutorial.play" = "开始!";
+
+"result.level_clear" = "通关成功!";
+"result.streak_bonus" = "🔥 ×%d 连胜奖励!";
+"result.new_best" = "✦ 新纪录!";
+"result.coins" = "+%d 金币!";
+"result.next_level" = "下一关 ▶";
+"result.level_map" = "◀ 关卡地图";
+"result.replay" = "↺ 重玩";
+"result.level_failed" = "闯关失败";
+"result.score_line" = "分数: %@";
+"result.dont_give_up" = "别放弃!";
+"result.try_again" = "↺ 再试一次";
+
+"notification.lives_full.title" = "❤️ 体力已满!";
+"notification.lives_full.body" = "体力已满，回来挑战下一关吧!";
+"notification.daily_reward.title" = "🎁 每日奖励可领取!";
+"notification.daily_reward.body" = "打开 PixelMatch 领取免费金币和钻石!";
+"notification.return.title" = "🎮 继续消除?";
+"notification.return.body" = "新关卡在等你，像素棋子想你了。";
+
+"iap.coins500" = "500 金币";
+"iap.coins1500" = "1,500 金币";
+"iap.coins5000" = "5,000 金币";
+"iap.diamonds20" = "20 钻石";
+"iap.diamonds80" = "80 钻石";
+"iap.diamonds300" = "300 钻石";
+"iap.starter_pack" = "新手包";
+"iap.mega_pack" = "超值包";
+"iap.remove_ads" = "移除广告";
+"iap.error.unverified" = "购买无法验证。";
+"iap.error.pending" = "购买正在等待批准。";
+"iap.error.unknown" = "未知购买结果。";
+
+"ad.watch.title" = "观看广告";
+"ad.watch.message" = "正在模拟广告播放 (5 秒)...";

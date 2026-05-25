@@ -1,0 +1,195 @@
+"app.name.upper" = "بيكسل ماتش";
+"loading.message" = "جار تحميل البكسلات...";
+
+"home.logo.pixel" = "بيكسل";
+"home.logo.match" = "ماتش";
+"home.tagline" = "لغز البكسل النهائي";
+"home.level" = "المستوى %d";
+"home.play" = "▶ العب";
+"home.daily_reward" = "🎁 مكافأة يومية!";
+"home.quests" = "📋 مهام";
+"home.quests_count" = "✅ مهام (%d)";
+"home.chest_ready" = "⭐ صندوق!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "المتجر";
+"home.settings" = "الإعدادات";
+"home.ranks" = "الترتيب";
+"home.daily_streak" = "سلسلة %d يوم!";
+"home.reward_inventory" = "تمت إضافة المكافآت";
+"home.booster_reward" = "+%d مطرقة  +%d خلط";
+"home.claim" = "استلم!";
+"home.quest_complete_title" = "✅ اكتملت المهمة!";
+"home.star_chest_title" = "⭐ صندوق النجوم!";
+"home.chest_need" = "اجمع النجوم لفتح الصندوق: %d/%d";
+"home.gc_sign_in" = "سجل في Game Center لعرض الترتيب!";
+"home.daily_quests" = "المهام اليومية";
+"home.quest_reward" = "+%d عملات  +%d ماسة";
+"home.done" = "تم";
+"home.claim_short" = "استلم";
+
+"shop.title" = "🛒 المتجر";
+"shop.starter_pack" = "حزمة البداية";
+"shop.small_pack" = "حزمة صغيرة";
+"shop.medium_pack" = "حزمة متوسطة";
+"shop.large_pack" = "حزمة كبيرة";
+"shop.free_ad" = "مجانا → إعلان";
+"shop.boosters" = "──── المعززات ────";
+
+"common.close" = "إغلاق";
+"common.on" = "تشغيل";
+"common.off" = "إيقاف";
+
+"player.default_name" = "بطل البكسل";
+"quest.win_levels" = "الفوز بالمستويات";
+"quest.make_specials" = "صنع الخاص";
+"quest.use_boosters" = "استخدام المعززات";
+
+"booster.hammer" = "مطرقة";
+"booster.shuffle" = "خلط";
+"booster.extra_moves" = "+5 حركات";
+"booster.color_bomb" = "قنبلة لون";
+
+"gem.flame" = "لهب";
+"gem.drop" = "قطرة";
+"gem.leaf" = "ورقة";
+"gem.star" = "نجمة";
+"gem.crystal" = "بلورة";
+"gem.sun" = "شمس";
+
+"level.name" = "المستوى %d";
+"level.fallback" = "مستوى";
+"world.1" = "غابة البكسل";
+"world.2" = "محيط الكريستال";
+"world.3" = "مملكة السماء";
+"world.4" = "صحراء الحمم";
+"world.5" = "التندرا الجليدية";
+"world.6" = "مدينة النيون";
+"world.7" = "وادي قوس قزح";
+"world.8" = "الفضاء العميق";
+"world.9" = "قمة البكسل";
+"world.10" = "نواة الكون";
+
+"objective.score" = "اجمع %@ نقطة";
+"objective.collect" = "اجمع %d %@";
+"objective.clear_jelly" = "أزل كل الجيلي";
+"objective.break_ice" = "اكسر %d جليد";
+"objective.remove_chocolate" = "أزل الشوكولاتة";
+"objective.eliminate_chocolate" = "تخلص من الشوكولاتة";
+"objective.progress.jelly" = "جيلي ×%d";
+"objective.progress.ice" = "جليد: %d/%d";
+"objective.progress.chocolate" = "شوكو ×%d";
+
+"lesson.swap.title" = "بدل";
+"lesson.swap.message" = "طابق 3 جواهر. احفظ حركاتك وتعلم اللوحة.";
+"lesson.chain.title" = "سلسلة";
+"lesson.chain.message" = "قد تسقط الجواهر لتصنع مطابقات مجانية.";
+"lesson.striped.title" = "مخطط";
+"lesson.striped.message" = "طابق 4 لصنع جوهرة مخططة، ثم طابقها مرة أخرى.";
+"lesson.color_bomb.title" = "قنبلة لون";
+"lesson.color_bomb.message" = "طابق 5 لصنع قنبلة لون. بدلها مع أي جوهرة.";
+"lesson.collect.title" = "اجمع";
+"lesson.collect.message" = "اللون الهدف هو المهم. الإزالات الكبيرة تساعد.";
+"lesson.jelly.title" = "جيلي";
+"lesson.jelly.message" = "أزل الجواهر فوق الجيلي لمسحه من اللوحة.";
+"lesson.combo.title" = "كومبو";
+"lesson.combo.message" = "بدل جوهرتين خاصتين لتفعيل إزالة أقوى.";
+"lesson.focus.title" = "الهدف";
+"lesson.focus.message" = "وجه كل حركة نحو الهدف، لا نحو النقاط فقط.";
+"lesson.ice.title" = "جليد";
+"lesson.ice.message" = "اكسر الجليد بإزالة البلاطة المجمدة أو بضربها بالخاص.";
+"lesson.boss.title" = "تحدي";
+"lesson.boss.message" = "استخدم الخاص مبكرا. بقاء الحركات يزيد المكافآت.";
+
+"hud.moves" = "حركات";
+"hud.score" = "النقاط";
+
+"dialog.pause.title" = "⏸ إيقاف";
+"dialog.resume" = "▶ متابعة";
+"dialog.restart" = "↺ إعادة";
+"dialog.settings" = "⚙ إعدادات";
+"dialog.quit" = "✕ خروج";
+"dialog.out_of_moves.title" = "لا حركات!";
+"dialog.out_of_moves.message" = "المتابعة مع +%d حركات?";
+"dialog.you_have_diamonds" = "لديك: %d 💎";
+"dialog.continue" = "متابعة!";
+"dialog.get_diamonds" = "احصل على ماس";
+"dialog.no_thanks" = "لا شكرا";
+"dialog.no_lives.title" = "لا قلوب!";
+"dialog.next_life" = "القلب التالي: %@";
+"dialog.refill" = "تعبئة (15 💎)";
+"dialog.wait_life" = "انتظر قلبا مجانيا";
+"dialog.power_up" = "تعزيز!";
+"dialog.select_boosters" = "اختر المعززات قبل اللعب:";
+"settings.sound" = "🔊 الصوت";
+"settings.music" = "🎵 الموسيقى";
+"settings.vibrate" = "📳 الاهتزاز";
+
+"map.levels_range" = "المستويات %d-%d";
+"map.moves" = "الحركات: %d";
+"map.best" = "الأفضل: %@";
+"map.life_timer" = "+♥ خلال %@";
+"map.play" = "▶ العب!";
+"map.no_lives" = "لا قلوب";
+
+"game.hammer_hint" = "🔨 اضغط بلاطة لإزالتها!";
+"game.extra_moves" = "+5 حركات!";
+"game.need_more_booster" = "تحتاج المزيد من %@!\nالتكلفة: %d 🪙";
+"game.double_points" = "⚡ نقاط مضاعفة!";
+"game.board_shuffled" = "🔄 تم خلط اللوحة!";
+"game.not_enough_diamonds" = "الماس غير كاف!";
+"combo.double" = "مزدوج!";
+"combo.triple" = "ثلاثي!";
+"combo.mega" = "ميغا!";
+"combo.ultra" = "ألترا!";
+"world_unlock.title" = "عالم جديد!";
+"world_unlock.message" = "لقد فتحت عالما جديدا!";
+"world_unlock.tap" = "اضغط للمتابعة";
+
+"tutorial.welcome.title" = "مرحبا!";
+"tutorial.welcome.message" = "بدل الجواهر المتجاورة. طابق 3 للإزالة وكسب النقاط.";
+"tutorial.make4.title" = "اصنع 4";
+"tutorial.make4.message" = "طابق 4 لصنع جوهرة مخططة ثم امسح خطا كاملا.";
+"tutorial.make5.title" = "اصنع 5";
+"tutorial.make5.message" = "طابق 5 لصنع قنبلة لون وامسح ذلك اللون.";
+"tutorial.combos.title" = "كومبو";
+"tutorial.combos.message" = "بدل جوهرتين خاصتين لإزالة أكبر من اللوحة.";
+"tutorial.objectives.title" = "الأهداف";
+"tutorial.objectives.message" = "لكل مستوى هدف. استخدم كل حركة نحو الهدف.";
+"tutorial.next" = "التالي ▶";
+"tutorial.skip" = "تخطي";
+"tutorial.play" = "العب!";
+
+"result.level_clear" = "اكتمل المستوى!";
+"result.streak_bonus" = "🔥 ×%d مكافأة سلسلة!";
+"result.new_best" = "✦ رقم جديد!";
+"result.coins" = "+%d عملات!";
+"result.next_level" = "المستوى التالي ▶";
+"result.level_map" = "◀ خريطة المستويات";
+"result.replay" = "↺ إعادة";
+"result.level_failed" = "فشل المستوى";
+"result.score_line" = "النقاط: %@";
+"result.dont_give_up" = "لا تستسلم!";
+"result.try_again" = "↺ حاول مجددا";
+
+"notification.lives_full.title" = "❤️ القلوب ممتلئة!";
+"notification.lives_full.body" = "قلوبك ممتلئة، عد وتغلب على المستوى!";
+"notification.daily_reward.title" = "🎁 المكافأة اليومية جاهزة!";
+"notification.daily_reward.body" = "افتح PixelMatch واستلم العملات والماس مجانا!";
+"notification.return.title" = "🎮 هل نكمل المطابقة?";
+"notification.return.body" = "مستويات جديدة في انتظارك!";
+
+"iap.coins500" = "500 عملة";
+"iap.coins1500" = "1,500 عملة";
+"iap.coins5000" = "5,000 عملة";
+"iap.diamonds20" = "20 ماسة";
+"iap.diamonds80" = "80 ماسة";
+"iap.diamonds300" = "300 ماسة";
+"iap.starter_pack" = "حزمة البداية";
+"iap.mega_pack" = "حزمة ضخمة";
+"iap.remove_ads" = "إزالة الإعلانات";
+"iap.error.unverified" = "تعذر التحقق من الشراء.";
+"iap.error.pending" = "الشراء بانتظار الموافقة.";
+"iap.error.unknown" = "نتيجة شراء غير معروفة.";
+
+"ad.watch.title" = "مشاهدة إعلان";
+"ad.watch.message" = "محاكاة مشاهدة الإعلان (5 ثوان)...";

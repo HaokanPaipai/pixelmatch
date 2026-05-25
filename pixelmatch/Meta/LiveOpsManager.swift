@@ -7,9 +7,9 @@ enum DailyQuestKind: String, Codable {
 
     var title: String {
         switch self {
-        case .completeLevels: return "Win Levels"
-        case .createSpecials: return "Make Specials"
-        case .useBoosters: return "Use Boosters"
+        case .completeLevels: return L10n.tr("quest.win_levels", fallback: "Win Levels")
+        case .createSpecials: return L10n.tr("quest.make_specials", fallback: "Make Specials")
+        case .useBoosters: return L10n.tr("quest.use_boosters", fallback: "Use Boosters")
         }
     }
 }

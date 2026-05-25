@@ -36,7 +36,7 @@ final class LoadingScene: SKScene {
 
         // Pixel MATCH logo in center
         let titleLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        titleLbl.text = "PIXEL MATCH"
+        titleLbl.text = L10n.tr("app.name.upper", fallback: "PIXEL MATCH")
         titleLbl.fontSize = 44
         titleLbl.fontColor = UIColor(hex: "#FFCC00")
         titleLbl.verticalAlignmentMode = .center
@@ -78,7 +78,7 @@ final class LoadingScene: SKScene {
         addChild(barFill)
 
         let loadLbl = SKLabelNode(fontNamed: "Courier")
-        loadLbl.text = "Loading pixels..."
+        loadLbl.text = L10n.tr("loading.message", fallback: "Loading pixels...")
         loadLbl.fontSize = 14
         loadLbl.fontColor = UIColor(hex: "#7799CC")
         loadLbl.verticalAlignmentMode = .center
