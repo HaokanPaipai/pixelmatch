@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Pixels laden...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "De ultieme pixelpuzzel";
+"home.level" = "Level %d";
+"home.play" = "▶ SPELEN";
+"home.daily_reward" = "🎁 DAGELIJKSE BELONING!";
+"home.quests" = "📋 OPDRACHTEN";
+"home.quests_count" = "✅ OPDRACHTEN (%d)";
+"home.chest_ready" = "⭐ KIST!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "WINKEL";
+"home.settings" = "INSTELLINGEN";
+"home.ranks" = "RANGLIJSTEN";
+"home.daily_streak" = "%d dagen op rij!";
+"home.reward_inventory" = "Beloningen toegevoegd aan je inventaris";
+"home.booster_reward" = "+%d Hamer  +%d Schudden";
+"home.claim" = "OPHALEN!";
+"home.quest_complete_title" = "✅ OPDRACHT VOLTOOID!";
+"home.star_chest_title" = "⭐ STERRENKIST!";
+"home.chest_need" = "Verzamel sterren om de kist te openen: %d/%d";
+"home.gc_sign_in" = "Log in bij Game Center om de ranglijsten te zien!";
+"home.daily_quests" = "DAGELIJKSE OPDRACHTEN";
+"home.quest_reward" = "+%d munten  +%d diamant";
+"home.done" = "KLAAR";
+"home.claim_short" = "OPHALEN";
+
+"shop.title" = "🛒 WINKEL";
+"shop.starter_pack" = "Starterpakket";
+"shop.small_pack" = "Klein pakket";
+"shop.medium_pack" = "Middelgroot pakket";
+"shop.large_pack" = "Groot pakket";
+"shop.free_ad" = "Gratis → Bekijk een advertentie";
+"shop.boosters" = "──── BOOSTERS ────";
+
+"common.close" = "SLUITEN";
+"common.on" = "AAN";
+"common.off" = "UIT";
+
+"player.default_name" = "Pixelheld";
+"quest.win_levels" = "Win levels";
+"quest.make_specials" = "Maak speciale";
+"quest.use_boosters" = "Gebruik boosters";
+
+"booster.hammer" = "Hamer";
+"booster.shuffle" = "Schudden";
+"booster.extra_moves" = "+5 Zetten";
+"booster.color_bomb" = "Kleurenbom";
+
+"gem.flame" = "Vlam";
+"gem.drop" = "Druppel";
+"gem.leaf" = "Blad";
+"gem.star" = "Ster";
+"gem.crystal" = "Kristal";
+"gem.sun" = "Zon";
+
+"level.name" = "Level %d";
+"level.fallback" = "Level";
+"world.1" = "Pixelbos";
+"world.2" = "Kristaloceaan";
+"world.3" = "Hemelrijk";
+"world.4" = "Lavawoestijn";
+"world.5" = "Bevroren Toendra";
+"world.6" = "Neonstad";
+"world.7" = "Regenboogvallei";
+"world.8" = "Diepe Ruimte";
+"world.9" = "Pixeltop";
+"world.10" = "Kosmoskern";
+
+"objective.score" = "Scoor %@ pnt";
+"objective.collect" = "Verzamel %d %@";
+"objective.clear_jelly" = "Verwijder alle gelei";
+"objective.break_ice" = "Breek %d ijsblokken";
+"objective.remove_chocolate" = "Verwijder de chocolade";
+"objective.eliminate_chocolate" = "Elimineer de chocolade";
+"objective.progress.jelly" = "Gelei ×%d";
+"objective.progress.ice" = "IJs: %d/%d";
+"objective.progress.chocolate" = "Choco ×%d";
+
+"lesson.swap.title" = "WISSELEN";
+"lesson.swap.message" = "Combineer 3 edelstenen. Blijf rustig en leer het bord kennen.";
+"lesson.chain.title" = "KETTING";
+"lesson.chain.message" = "Combinaties kunnen in nieuwe combinaties vallen voor gratis combopunten.";
+"lesson.striped.title" = "GESTREEPT";
+"lesson.striped.message" = "Combineer er 4 om een gestreepte edelsteen te maken en combineer hem opnieuw.";
+"lesson.color_bomb.title" = "KLEURENBOM";
+"lesson.color_bomb.message" = "Combineer er 5 om een kleurenbom te maken. Wissel hem met elke edelsteen.";
+"lesson.collect.title" = "VERZAMELEN";
+"lesson.collect.message" = "Alleen de doelkleur telt. Grote opruimingen helpen je sneller te eindigen.";
+"lesson.jelly.title" = "GELEI";
+"lesson.jelly.message" = "Ruim edelstenen op de gelei op om die van het bord te halen.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Wissel twee speciale edelstenen samen voor een veel grotere opruiming.";
+"lesson.focus.title" = "FOCUS";
+"lesson.focus.message" = "Richt elke zet op het doel, niet alleen op de score.";
+"lesson.ice.title" = "IJS";
+"lesson.ice.message" = "Breek ijs door het bevroren vakje op te ruimen of het met speciale te raken.";
+"lesson.boss.title" = "BAAS";
+"lesson.boss.message" = "Gebruik speciale vroeg. Zetten sparen levert grotere winstbeloningen op.";
+
+"hud.moves" = "ZETTEN";
+"hud.score" = "SCORE";
+
+"dialog.pause.title" = "⏸ GEPAUZEERD";
+"dialog.resume" = "▶ HERVATTEN";
+"dialog.restart" = "↺ OPNIEUW";
+"dialog.settings" = "⚙ INSTELLINGEN";
+"dialog.quit" = "✕ STOPPEN";
+"dialog.out_of_moves.title" = "GEEN ZETTEN MEER!";
+"dialog.out_of_moves.message" = "Doorgaan met +%d zetten?";
+"dialog.you_have_diamonds" = "Je hebt: %d 💎";
+"dialog.continue" = "DOORGAAN!";
+"dialog.get_diamonds" = "DIAMANTEN HALEN";
+"dialog.no_thanks" = "NEE, BEDANKT";
+"dialog.no_lives.title" = "GEEN LEVENS!";
+"dialog.next_life" = "Volgend leven over: %@";
+"dialog.refill" = "BIJVULLEN (15 💎)";
+"dialog.wait_life" = "WACHT OP GRATIS LEVEN";
+"dialog.power_up" = "POWER-UP!";
+"dialog.select_boosters" = "Kies boosters voordat je speelt:";
+"settings.sound" = "🔊 Geluid";
+"settings.music" = "🎵 Muziek";
+"settings.vibrate" = "📳 Trillen";
+
+"map.levels_range" = "Levels %d-%d";
+"map.moves" = "Zetten: %d";
+"map.best" = "Beste: %@";
+"map.life_timer" = "+♥ over %@";
+"map.play" = "▶ SPELEN!";
+"map.no_lives" = "GEEN LEVENS";
+
+"game.hammer_hint" = "🔨 Tik op een vakje om het te verwijderen!";
+"game.extra_moves" = "+5 ZETTEN!";
+"game.need_more_booster" = "Meer %@ nodig!\nKosten: %d 🪙";
+"game.double_points" = "⚡ DUBBELE PUNTEN!";
+"game.board_shuffled" = "🔄 Bord geschud!";
+"game.not_enough_diamonds" = "Niet genoeg diamanten!";
+"combo.double" = "DUBBEL!";
+"combo.triple" = "DRIEDUBBEL!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NIEUWE WERELD!";
+"world_unlock.message" = "Je hebt een nieuwe wereld ontgrendeld!";
+"world_unlock.tap" = "Tik om door te gaan";
+
+"tutorial.welcome.title" = "WELKOM!";
+"tutorial.welcome.message" = "Wissel naburige edelstenen. Combineer er 3 om ruimte te maken en punten te scoren.";
+"tutorial.make4.title" = "MAAK 4";
+"tutorial.make4.message" = "Combineer er 4 om een gestreepte edelsteen te maken. Combineer hem opnieuw om een hele lijn te wissen.";
+"tutorial.make5.title" = "MAAK 5";
+"tutorial.make5.message" = "Combineer er 5 om een kleurenbom te maken. Wissel hem met een kleur om die kleur te wissen.";
+"tutorial.combos.title" = "COMBO'S";
+"tutorial.combos.message" = "Wissel twee speciale edelstenen samen voor een groter bordopruimend effect.";
+"tutorial.objectives.title" = "DOELEN";
+"tutorial.objectives.message" = "Elk level heeft een doel. Besteed elke zet aan dat doel.";
+"tutorial.next" = "VERDER ▶";
+"tutorial.skip" = "OVERSLAAN";
+"tutorial.play" = "SPELEN!";
+
+"result.level_clear" = "LEVEL GEHAALD!";
+"result.streak_bonus" = "🔥 ×%d REEKSBONUS!";
+"result.new_best" = "✦ NIEUW RECORD!";
+"result.coins" = "+%d munten!";
+"result.next_level" = "VOLGEND LEVEL ▶";
+"result.level_map" = "◀ LEVELKAART";
+"result.replay" = "↺ OPNIEUW SPELEN";
+"result.level_failed" = "LEVEL MISLUKT";
+"result.score_line" = "Score: %@";
+"result.dont_give_up" = "Geef niet op!";
+"result.try_again" = "↺ PROBEER OPNIEUW";
+
+"notification.lives_full.title" = "❤️ Levens vol!";
+"notification.lives_full.body" = "Je harten zijn vol - kom terug en versla dat level!";
+"notification.daily_reward.title" = "🎁 Dagelijkse beloning klaar!";
+"notification.daily_reward.body" = "Open PixelMatch en haal je gratis munten en diamanten op!";
+"notification.return.title" = "🎮 Nog aan het matchen?";
+"notification.return.body" = "Nieuwe levels wachten! Je pixel-edelstenen missen je.";
+
+"iap.coins500" = "500 munten";
+"iap.coins1500" = "1.500 munten";
+"iap.coins5000" = "5.000 munten";
+"iap.diamonds20" = "20 diamanten";
+"iap.diamonds80" = "80 diamanten";
+"iap.diamonds300" = "300 diamanten";
+"iap.starter_pack" = "Starterpakket";
+"iap.mega_pack" = "Megapakket";
+"iap.remove_ads" = "Advertenties verwijderen";
+"iap.error.unverified" = "De aankoop kon niet worden geverifieerd.";
+"iap.error.pending" = "De aankoop wacht op goedkeuring.";
+"iap.error.unknown" = "Onbekend aankoopresultaat.";
+
+"ad.watch.title" = "Advertentie bekijken";
+"ad.watch.message" = "Advertentie simuleren (5 seconden)...";

@@ -47,14 +47,17 @@ PODS:
   - Google-Mobile-Ads-SDK (11.10.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (3.1.0)
-  - HKAdvertising (1.0.0):
-    - HKAdvertising/Core (= 1.0.0)
   - HKAdvertising/Adspot (1.0.0):
     - HKAdvertising/Core
   - HKAdvertising/BD (1.0.0):
     - BaiduMobAdSDK
     - HKAdvertising/Adspot
     - HKAdvertising/Core
+  - HKAdvertising/CN (1.0.0):
+    - HKAdvertising/BD
+    - HKAdvertising/CSJ
+    - HKAdvertising/GDT
+    - HKAdvertising/KS
   - HKAdvertising/Core (1.0.0)
   - HKAdvertising/CSJ (1.0.0):
     - Ads-CN (= 6.8.0.7)
@@ -72,16 +75,11 @@ PODS:
   - KSAdSDK (3.3.76.5)
 
 DEPENDENCIES:
-  - Ads-CN (= 6.8.0.7)
   - BaiduMobAdSDK (= 5.101)
   - GDTMobSDK (= 4.15.10)
   - Google-Mobile-Ads-SDK (= 11.10.0)
   - GoogleUserMessagingPlatform
-  - "HKAdvertising (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
-  - "HKAdvertising/BD (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
-  - "HKAdvertising/CSJ (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
-  - "HKAdvertising/GDT (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
-  - "HKAdvertising/KS (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
+  - "HKAdvertising/CN (from `git@github.com:HaokanPaipai/HKAds.git`, branch `main`)"
   - KSAdSDK (= 3.3.76.5.0)
 
 SPEC REPOS:
@@ -102,7 +100,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   HKAdvertising:
-    :commit: 84b4b64eb76ea2dd019cdc89dee386287440e68d
+    :commit: 5224df0fd7f5a2f8adc511f54852759318e16eed
     :git: "git@github.com:HaokanPaipai/HKAds.git"
 
 SPEC CHECKSUMS:
@@ -113,9 +111,9 @@ SPEC CHECKSUMS:
   GDTMobSDK: 17a7af711cf6b7c8a3a0a4edc3916dc2467877e9
   Google-Mobile-Ads-SDK: 13e6e98edfd78ad8d8a791edb927658cc260a56f
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
-  HKAdvertising: e7cf761befb2d05bfe53a2be9d285ed965c437f9
+  HKAdvertising: 78df22b5c2e4a5de4c7a80ef2c321018434490ac
   KSAdSDK: 209b3b1b6b392f06cb8b67966139cf6859174455
 
-PODFILE CHECKSUM: bfe8bf122074853694a0cf5dc379b21b68fa3fc4
+PODFILE CHECKSUM: 12724c0e5616824413ec1510f9f3afe5d3d3a810
 
 COCOAPODS: 1.16.2

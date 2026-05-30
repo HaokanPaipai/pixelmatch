@@ -16,14 +16,44 @@ import HKAdKit
 
 // MARK: - 用户态
 
+/// ⚠️「去广告」权益只应屏蔽**侵入式广告**（开屏 / 插屏），绝不该屏蔽**用户主动**触发的
+/// 激励视频（+5 步 / +金币 / 补体力 / 免费续关）——那是玩家自愿的价值交换，付费用户同样该用得了。
+///
+/// 但 HKAdKit 的三个 controller（OpenAdCoordinator / InterstitialController / RewardedController）
+/// 都用同一个 `isVip` 做 gate（RewardedController.swift:45 `guard !user.isVip`）。若把 isVip=true
+/// 给 noAds 用户，会**连激励视频一起屏蔽**，导致付费玩家点「看广告续关」时静默失败。
+///
+/// 因此 isVip 恒为 false，侵入式广告改由 `isOpenAdEnabled` / `isInterstitialEnabled` 按
+/// `PlayerData.noAds` 单独关闭（见下方 AdConfigProvider）。这样 noAds 用户：开屏/插屏全关、激励仍可用。
 final class PixelMatchAdUserProvider: AdUserProvider {
-    var isVip: Bool { PlayerData.shared.noAds }
+    var isVip: Bool { false }
     var hasAgreedPrivacy: Bool { PlayerData.shared.hasAgreedPrivacy }
 }
 
 // MARK: - 运行期配置
 
 final class PixelMatchAdConfigProvider: AdConfigProvider {
+
+    /// HKAdKit v1.2：Google AdMob 单元 ID 经 plist 加载（替代 #if APPSTORE 硬编码）。
+    /// 注意：plist 必须加入 Xcode target 的 Copy Bundle Resources，否则返 nil → ID 返 ""，广告不出。
+    private static let adConfig: AdConfig? = {
+        do {
+            return try AdConfigLoader.load(from: "pixelmatch-AdConfig")
+        } catch {
+            #if DEBUG
+            assertionFailure("[PixelMatchAdConfig] 加载 pixelmatch-AdConfig.plist 失败: \(error)。检查是否加入 Copy Bundle Resources。")
+            #endif
+            return nil
+        }
+    }()
+
+    private var isAppStoreBuild: Bool {
+        #if APPSTORE
+        return true
+        #else
+        return false
+        #endif
+    }
 
     // 地区策略：纯 iOS 端轻量判定（locale + 时区双保险，调试可经 UserDefaults 覆盖）。
     var region: AdRegion {
@@ -36,24 +66,24 @@ final class PixelMatchAdConfigProvider: AdConfigProvider {
         return isCN ? .china : .overseas
     }
 
-    // 开屏
-    var isOpenAdEnabled: Bool      { true }
-    var openAdDailyCap: Int        { AdConfig.openAdDailyCap }
-    var openAdMinInterval: TimeInterval { AdConfig.openAdMinInterval }
-    var openAdUnitID: String       { AdConfig.googleOpenAdUnitID }
+    // 开屏（noAds 用户关闭——侵入式广告随「去广告」权益消失，见 [[PixelMatchAdUserProvider]]）
+    var isOpenAdEnabled: Bool      { !PlayerData.shared.noAds }
+    var openAdDailyCap: Int        { AdFrequencyConfig.openAdDailyCap }
+    var openAdMinInterval: TimeInterval { AdFrequencyConfig.openAdMinInterval }
+    var openAdUnitID: String       { Self.adConfig?.openAppUnitID(isAppStore: isAppStoreBuild) ?? "" }
 
-    // 激励
+    // 激励（始终开启：用户主动触发的价值交换，noAds 用户同样可用）
     var isRewardedEnabled: Bool    { true }
-    var rewardedDailyCap: Int      { AdConfig.rewardedDailyCap }
-    var rewardedAdUnitID: String   { AdConfig.googleRewardedAdUnitID }
+    var rewardedDailyCap: Int      { AdFrequencyConfig.rewardedDailyCap }
+    var rewardedAdUnitID: String   { Self.adConfig?.rewardedUnitID(isAppStore: isAppStoreBuild) ?? "" }
 
-    // 插屏（v1.1 协议字段）
-    var isInterstitialEnabled: Bool { true }
-    var interstitialDailyCap: Int   { AdConfig.interstitialDailyCap }
-    var interstitialMinInterval: TimeInterval { AdConfig.interstitialMinInterval }
-    var interstitialAdUnitID: String { AdConfig.googleInterstitialAdUnitID }
+    // 插屏（v1.1 协议字段；noAds 用户关闭）
+    var isInterstitialEnabled: Bool { !PlayerData.shared.noAds }
+    var interstitialDailyCap: Int   { AdFrequencyConfig.interstitialDailyCap }
+    var interstitialMinInterval: TimeInterval { AdFrequencyConfig.interstitialMinInterval }
+    var interstitialAdUnitID: String { Self.adConfig?.interstitialUnitID(isAppStore: isAppStoreBuild) ?? "" }
 
-    var frequencySuiteName: String? { AdConfig.frequencySuiteName }
+    var frequencySuiteName: String? { AdFrequencyConfig.frequencySuiteName }
 
     func cnAdSlotJSON(for format: AdFormat) -> [String: Any]? {
         let name: String
@@ -102,9 +132,45 @@ final class PixelMatchAdRewardProvider: AdRewardProvider {
 
 final class PixelMatchAdAnalyticsProvider: AdAnalyticsProvider {
     func track(_ event: AdEvent) {
-        // PixelMatch 本地分析无广告事件类型，先打 log；接 Firebase/AppsFlyer 后映射到具体事件。
-        // TODO: 接入远端分析后映射为 ad_load_start / ad_loaded / ad_impression / ad_reward_earned 等。
+        switch event {
+        case let .loadStart(format, network):
+            log(.adLoadStart, format, network)
+        case let .loaded(format, network):
+            log(.adLoaded, format, network)
+        case let .loadFailed(format, network, message):
+            log(.adLoadFailed, format, network, extra: ["message": message])
+        case let .willPresent(format, network):
+            // willPresent 不单独埋点：曝光以 impression 为准，避免双计。
+            _ = (format, network)
+        case let .impression(format, network):
+            log(.adImpression, format, network)
+        case let .dismissed(format, network):
+            log(.adDismissed, format, network)
+        case let .clicked(format, network):
+            log(.adClicked, format, network)
+        case let .rewardEarned(placement, network):
+            AnalyticsManager.shared.track(.adRewardEarned,
+                                          properties: ["placement": placement.rawValue,
+                                                       "network": network.rawValue])
+        }
+        #if DEBUG
         print("[Ad] \(event)")
+        #endif
+    }
+
+    private func log(_ name: AnalyticsEventName, _ format: AdFormat, _ network: AdNetwork,
+                     extra: [String: String] = [:]) {
+        var props = ["format": Self.formatName(format), "network": network.rawValue]
+        props.merge(extra) { _, new in new }
+        AnalyticsManager.shared.track(name, properties: props)
+    }
+
+    private static func formatName(_ format: AdFormat) -> String {
+        switch format {
+        case .openApp:      return "open_app"
+        case .rewarded:     return "rewarded"
+        case .interstitial: return "interstitial"
+        }
     }
 }
 

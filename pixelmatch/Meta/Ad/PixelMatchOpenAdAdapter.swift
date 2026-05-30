@@ -41,9 +41,29 @@ final class PixelMatchOpenAdAdapter: NSObject, OpenAdAdapting {
 
     func prepareConsent(completion: @escaping (Bool) -> Void) {
         guard isOverseas else { completion(true); return } // 国内合规走《用户协议》同意，不走 UMP
-        // PixelMatch 暂未接 UMP；先直接通过。接 UMP 后改读 GoogleMobileAdsConsentManager。
-        // TODO: 接入 UMP（GoogleMobileAdsConsentManager.gatherConsent → canRequestAds）
+        #if canImport(UserMessagingPlatform)
+        // 海外 GDPR：经 UMP 拉取同意信息，必要时弹同意表单。任何环节失败都「fail open」
+        // （仍允许请求广告，由 AdMob 兜底走非个性化广告），避免合规流程把广告全堵死。
+        DispatchQueue.main.async {
+            let params = RequestParameters()
+            params.isTaggedForUnderAgeOfConsent = false
+            ConsentInformation.shared.requestConsentInfoUpdate(with: params) { error in
+                if error != nil {
+                    completion(true); return
+                }
+                let present = {
+                    let topVc = PixelMatchCashierUIProvider.topViewController()
+                    ConsentForm.loadAndPresentIfRequired(from: topVc) { _ in
+                        completion(ConsentInformation.shared.canRequestAds)
+                    }
+                }
+                if Thread.isMainThread { present() } else { DispatchQueue.main.async(execute: present) }
+            }
+        }
+        #else
+        // 未链接 GoogleUserMessagingPlatform：直接放行（非 EEA 构建或纯单机测试）。
         completion(true)
+        #endif
     }
 
     func loadAd(unitID: String, cnSlotJSON: [String: Any]?) {
@@ -86,7 +106,8 @@ final class PixelMatchOpenAdAdapter: NSObject, OpenAdAdapting {
     func showAd(placeholder: UIImage?) {
         if isOverseas {
             guard let ad = appOpenAd else { return }
-            ad.present(fromRootViewController: nil)
+            // 显式传当前顶层 VC（SpriteKit 容器层级下传 nil 可能取不到正确 root）。
+            ad.present(fromRootViewController: PixelMatchCashierUIProvider.topViewController())
         } else {
             if let placeholder { hkAdSplash?.backgroundImage = placeholder }
             hkAdSplash?.loadAndShowAd()

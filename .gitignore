@@ -5,6 +5,21 @@ build/
 Pods/
 pixelmatch.xcworkspace/
 
+# Xcode archive/export artifacts
+*.ipa
+*.dSYM.zip
+*.xcarchive
+
+# fastlane local/generated files
+fastlane/.env
+fastlane/.env.*
+!fastlane/.env.default
+!fastlane/.env.example
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
 *.xcuserstate
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/

@@ -134,6 +134,7 @@ final class IAPManager {
 
         cashier.networkProvider   = PixelMatchCashierNetworkProvider()
         cashier.userProvider      = PixelMatchCashierUserProvider()
+        cashier.premiumProvider   = PixelMatchCashierPremiumProvider()
         cashier.uiProvider        = PixelMatchCashierUIProvider()
         cashier.analyticsProvider = PixelMatchCashierAnalyticsProvider()
 
@@ -235,7 +236,10 @@ final class IAPManager {
     func restorePurchases(completion: @escaping (Bool) -> Void) {
         cashier.restorePurchases { _, result, _, state in
             // 非消耗品（去广告）的恢复发放由 CashierUserProvider.applyVerifiedPurchase 完成。
-            completion(result && (state == .success || state == .noneRestore))
+            // HKIAPKit 经 SwiftyStoreKit 回调，线程不保证；调用方（HomeScene）会刷新 SKNode/UI，
+            // 故统一切回主线程再回调。
+            let ok = result && (state == .success || state == .noneRestore)
+            DispatchQueue.main.async { completion(ok) }
         }
     }
 }

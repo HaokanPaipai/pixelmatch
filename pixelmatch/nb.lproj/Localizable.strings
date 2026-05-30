@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Laster piksler...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Det ultimate pikselpuslespillet";
+"home.level" = "Nivå %d";
+"home.play" = "▶ SPILL";
+"home.daily_reward" = "🎁 DAGLIG BELØNNING!";
+"home.quests" = "📋 OPPDRAG";
+"home.quests_count" = "✅ OPPDRAG (%d)";
+"home.chest_ready" = "⭐ KISTE!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "BUTIKK";
+"home.settings" = "INNSTILLINGER";
+"home.ranks" = "RANGERINGER";
+"home.daily_streak" = "%d dagers rekke!";
+"home.reward_inventory" = "Belønninger lagt til i beholdningen din";
+"home.booster_reward" = "+%d Hammer  +%d Stokk";
+"home.claim" = "HENT!";
+"home.quest_complete_title" = "✅ OPPDRAG FULLFØRT!";
+"home.star_chest_title" = "⭐ STJERNEKISTE!";
+"home.chest_need" = "Samle stjerner for å åpne kisten: %d/%d";
+"home.gc_sign_in" = "Logg inn på Game Center for å se rangeringene!";
+"home.daily_quests" = "DAGLIGE OPPDRAG";
+"home.quest_reward" = "+%d mynter  +%d diamant";
+"home.done" = "FERDIG";
+"home.claim_short" = "HENT";
+
+"shop.title" = "🛒 BUTIKK";
+"shop.starter_pack" = "Startpakke";
+"shop.small_pack" = "Liten pakke";
+"shop.medium_pack" = "Mellompakke";
+"shop.large_pack" = "Stor pakke";
+"shop.free_ad" = "Gratis → Se en annonse";
+"shop.boosters" = "──── BOOSTERE ────";
+
+"common.close" = "LUKK";
+"common.on" = "PÅ";
+"common.off" = "AV";
+
+"player.default_name" = "Pikselhelt";
+"quest.win_levels" = "Vinn nivåer";
+"quest.make_specials" = "Lag spesielle";
+"quest.use_boosters" = "Bruk boostere";
+
+"booster.hammer" = "Hammer";
+"booster.shuffle" = "Stokk";
+"booster.extra_moves" = "+5 Trekk";
+"booster.color_bomb" = "Fargebombe";
+
+"gem.flame" = "Flamme";
+"gem.drop" = "Dråpe";
+"gem.leaf" = "Blad";
+"gem.star" = "Stjerne";
+"gem.crystal" = "Krystall";
+"gem.sun" = "Sol";
+
+"level.name" = "Nivå %d";
+"level.fallback" = "Nivå";
+"world.1" = "Pikselskogen";
+"world.2" = "Krystallhavet";
+"world.3" = "Himmelriket";
+"world.4" = "Lavaørkenen";
+"world.5" = "Frossen Tundra";
+"world.6" = "Neonbyen";
+"world.7" = "Regnbuedalen";
+"world.8" = "Det Dype Rom";
+"world.9" = "Pikseltoppen";
+"world.10" = "Kosmoskjernen";
+
+"objective.score" = "Få %@ poeng";
+"objective.collect" = "Samle %d %@";
+"objective.clear_jelly" = "Fjern all gelé";
+"objective.break_ice" = "Knus %d isblokker";
+"objective.remove_chocolate" = "Fjern sjokoladen";
+"objective.eliminate_chocolate" = "Eliminer sjokoladen";
+"objective.progress.jelly" = "Gelé ×%d";
+"objective.progress.ice" = "Is: %d/%d";
+"objective.progress.chocolate" = "Sjoko ×%d";
+
+"lesson.swap.title" = "BYTT";
+"lesson.swap.message" = "Match 3 edelstener. Hold roen i trekkene og bli kjent med brettet.";
+"lesson.chain.title" = "KJEDE";
+"lesson.chain.message" = "Match kan falle ned i nye match og gi gratis kombopoeng.";
+"lesson.striped.title" = "STRIPETE";
+"lesson.striped.message" = "Match 4 for å lage en stripete edelsten, og match den igjen.";
+"lesson.color_bomb.title" = "FARGEBOMBE";
+"lesson.color_bomb.message" = "Match 5 for å lage en fargebombe. Bytt den med hvilken som helst edelsten.";
+"lesson.collect.title" = "SAMLE";
+"lesson.collect.message" = "Bare målfargen teller. Store fjerninger hjelper deg å fullføre raskere.";
+"lesson.jelly.title" = "GELÉ";
+"lesson.jelly.message" = "Fjern edelstener oppå gelé for å ta den bort fra brettet.";
+"lesson.combo.title" = "KOMBO";
+"lesson.combo.message" = "Bytt to spesielle edelstener sammen for en mye større fjerning.";
+"lesson.focus.title" = "FOKUS";
+"lesson.focus.message" = "Sikt hvert trekk mot målet, ikke bare mot poengene.";
+"lesson.ice.title" = "IS";
+"lesson.ice.message" = "Knus is ved å fjerne den frosne brikken eller treffe den med spesielle.";
+"lesson.boss.title" = "BOSS";
+"lesson.boss.message" = "Bruk de spesielle tidlig. Å spare trekk gir større seiersbelønninger.";
+
+"hud.moves" = "TREKK";
+"hud.score" = "POENG";
+
+"dialog.pause.title" = "⏸ PÅ PAUSE";
+"dialog.resume" = "▶ FORTSETT";
+"dialog.restart" = "↺ START PÅ NYTT";
+"dialog.settings" = "⚙ INNSTILLINGER";
+"dialog.quit" = "✕ AVSLUTT";
+"dialog.out_of_moves.title" = "TOM FOR TREKK!";
+"dialog.out_of_moves.message" = "Fortsette med +%d trekk?";
+"dialog.you_have_diamonds" = "Du har: %d 💎";
+"dialog.continue" = "FORTSETT!";
+"dialog.get_diamonds" = "FÅ DIAMANTER";
+"dialog.no_thanks" = "NEI TAKK";
+"dialog.no_lives.title" = "INGEN LIV!";
+"dialog.next_life" = "Neste liv om: %@";
+"dialog.refill" = "FYLL OPP (15 💎)";
+"dialog.wait_life" = "VENT PÅ GRATIS LIV";
+"dialog.power_up" = "POWER-UP!";
+"dialog.select_boosters" = "Velg boostere før du spiller:";
+"settings.sound" = "🔊 Lyd";
+"settings.music" = "🎵 Musikk";
+"settings.vibrate" = "📳 Vibrasjon";
+
+"map.levels_range" = "Nivå %d-%d";
+"map.moves" = "Trekk: %d";
+"map.best" = "Beste: %@";
+"map.life_timer" = "+♥ om %@";
+"map.play" = "▶ SPILL!";
+"map.no_lives" = "INGEN LIV";
+
+"game.hammer_hint" = "🔨 Trykk på en brikke for å fjerne den!";
+"game.extra_moves" = "+5 TREKK!";
+"game.need_more_booster" = "Trenger mer %@!\nPris: %d 🪙";
+"game.double_points" = "⚡ DOBLE POENG!";
+"game.board_shuffled" = "🔄 Brettet er stokket!";
+"game.not_enough_diamonds" = "Ikke nok diamanter!";
+"combo.double" = "DOBBEL!";
+"combo.triple" = "TREDOBBEL!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NY VERDEN!";
+"world_unlock.message" = "Du har låst opp en ny verden!";
+"world_unlock.tap" = "Trykk for å fortsette";
+
+"tutorial.welcome.title" = "VELKOMMEN!";
+"tutorial.welcome.message" = "Bytt nabo-edelstener. Match 3 for å rydde plass og samle poeng.";
+"tutorial.make4.title" = "LAG 4";
+"tutorial.make4.message" = "Match 4 for å lage en stripete edelsten. Match den igjen for å rydde en hel linje.";
+"tutorial.make5.title" = "LAG 5";
+"tutorial.make5.message" = "Match 5 for å lage en fargebombe. Bytt den med en farge for å rydde den fargen.";
+"tutorial.combos.title" = "KOMBOER";
+"tutorial.combos.message" = "Bytt to spesielle edelstener sammen for en større effekt som rydder brettet.";
+"tutorial.objectives.title" = "MÅL";
+"tutorial.objectives.message" = "Hvert nivå har et mål. Bruk hvert trekk mot det målet.";
+"tutorial.next" = "NESTE ▶";
+"tutorial.skip" = "HOPP OVER";
+"tutorial.play" = "SPILL!";
+
+"result.level_clear" = "NIVÅ KLART!";
+"result.streak_bonus" = "🔥 ×%d REKKEBONUS!";
+"result.new_best" = "✦ NY REKORD!";
+"result.coins" = "+%d mynter!";
+"result.next_level" = "NESTE NIVÅ ▶";
+"result.level_map" = "◀ NIVÅKART";
+"result.replay" = "↺ SPILL IGJEN";
+"result.level_failed" = "NIVÅ MISLYKKET";
+"result.score_line" = "Poeng: %@";
+"result.dont_give_up" = "Ikke gi opp!";
+"result.try_again" = "↺ PRØV IGJEN";
+
+"notification.lives_full.title" = "❤️ Liv fylt opp!";
+"notification.lives_full.body" = "Hjertene dine er fulle - kom tilbake og slå det nivået!";
+"notification.daily_reward.title" = "🎁 Daglig belønning klar!";
+"notification.daily_reward.body" = "Åpne PixelMatch og hent dine gratis mynter og diamanter!";
+"notification.return.title" = "🎮 Fortsatt på saken?";
+"notification.return.body" = "Nye nivåer venter! Pikseledelstenene dine savner deg.";
+
+"iap.coins500" = "500 mynter";
+"iap.coins1500" = "1 500 mynter";
+"iap.coins5000" = "5 000 mynter";
+"iap.diamonds20" = "20 diamanter";
+"iap.diamonds80" = "80 diamanter";
+"iap.diamonds300" = "300 diamanter";
+"iap.starter_pack" = "Startpakke";
+"iap.mega_pack" = "Megapakke";
+"iap.remove_ads" = "Fjern annonser";
+"iap.error.unverified" = "Kjøpet kunne ikke bekreftes.";
+"iap.error.pending" = "Kjøpet venter på godkjenning.";
+"iap.error.unknown" = "Ukjent kjøpsresultat.";
+
+"ad.watch.title" = "Se annonse";
+"ad.watch.message" = "Simulerer annonse (5 sekunder)...";

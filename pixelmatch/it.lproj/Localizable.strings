@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Caricamento pixel...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Il puzzle pixel definitivo";
+"home.level" = "Livello %d";
+"home.play" = "▶ GIOCA";
+"home.daily_reward" = "🎁 PREMIO GIORNALIERO!";
+"home.quests" = "📋 MISSIONI";
+"home.quests_count" = "✅ MISSIONI (%d)";
+"home.chest_ready" = "⭐ FORZIERE!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "NEGOZIO";
+"home.settings" = "IMPOSTAZIONI";
+"home.ranks" = "CLASSIFICHE";
+"home.daily_streak" = "Serie di %d giorni!";
+"home.reward_inventory" = "Premi aggiunti al tuo inventario";
+"home.booster_reward" = "+%d Martello  +%d Mescola";
+"home.claim" = "RISCUOTI!";
+"home.quest_complete_title" = "✅ MISSIONE COMPLETATA!";
+"home.star_chest_title" = "⭐ FORZIERE STELLA!";
+"home.chest_need" = "Raccogli stelle per aprire il forziere: %d/%d";
+"home.gc_sign_in" = "Accedi a Game Center per vedere le classifiche!";
+"home.daily_quests" = "MISSIONI GIORNALIERE";
+"home.quest_reward" = "+%d monete  +%d diamante";
+"home.done" = "FATTO";
+"home.claim_short" = "RISCUOTI";
+
+"shop.title" = "🛒 NEGOZIO";
+"shop.starter_pack" = "Pacchetto Iniziale";
+"shop.small_pack" = "Pacchetto Piccolo";
+"shop.medium_pack" = "Pacchetto Medio";
+"shop.large_pack" = "Pacchetto Grande";
+"shop.free_ad" = "Gratis → Guarda un annuncio";
+"shop.boosters" = "──── POTENZIAMENTI ────";
+
+"common.close" = "CHIUDI";
+"common.on" = "ON";
+"common.off" = "OFF";
+
+"player.default_name" = "Eroe Pixel";
+"quest.win_levels" = "Vinci livelli";
+"quest.make_specials" = "Crea speciali";
+"quest.use_boosters" = "Usa potenziamenti";
+
+"booster.hammer" = "Martello";
+"booster.shuffle" = "Mescola";
+"booster.extra_moves" = "+5 Mosse";
+"booster.color_bomb" = "Bomba Colore";
+
+"gem.flame" = "Fiamma";
+"gem.drop" = "Goccia";
+"gem.leaf" = "Foglia";
+"gem.star" = "Stella";
+"gem.crystal" = "Cristallo";
+"gem.sun" = "Sole";
+
+"level.name" = "Livello %d";
+"level.fallback" = "Livello";
+"world.1" = "Foresta Pixel";
+"world.2" = "Oceano di Cristallo";
+"world.3" = "Regno del Cielo";
+"world.4" = "Deserto di Lava";
+"world.5" = "Tundra Gelata";
+"world.6" = "Città al Neon";
+"world.7" = "Valle Arcobaleno";
+"world.8" = "Spazio Profondo";
+"world.9" = "Vetta Pixel";
+"world.10" = "Nucleo del Cosmo";
+
+"objective.score" = "Punteggio %@ pt";
+"objective.collect" = "Raccogli %d %@";
+"objective.clear_jelly" = "Elimina tutta la gelatina";
+"objective.break_ice" = "Rompi %d blocchi di ghiaccio";
+"objective.remove_chocolate" = "Rimuovi il cioccolato";
+"objective.eliminate_chocolate" = "Elimina il cioccolato";
+"objective.progress.jelly" = "Gelatina ×%d";
+"objective.progress.ice" = "Ghiaccio: %d/%d";
+"objective.progress.chocolate" = "Cioccolato ×%d";
+
+"lesson.swap.title" = "SCAMBIA";
+"lesson.swap.message" = "Abbina 3 gemme. Muoviti con calma e studia il tabellone.";
+"lesson.chain.title" = "CATENA";
+"lesson.chain.message" = "Le combinazioni possono cadere in nuove combinazioni per punti combo gratis.";
+"lesson.striped.title" = "RIGATA";
+"lesson.striped.message" = "Abbina 4 per creare una gemma rigata, poi abbinala di nuovo.";
+"lesson.color_bomb.title" = "BOMBA COLORE";
+"lesson.color_bomb.message" = "Abbina 5 per creare una bomba colore. Scambiala con qualsiasi gemma.";
+"lesson.collect.title" = "RACCOGLI";
+"lesson.collect.message" = "Conta solo il colore obiettivo. Le grandi eliminazioni aiutano a finire prima.";
+"lesson.jelly.title" = "GELATINA";
+"lesson.jelly.message" = "Elimina le gemme sulla gelatina per rimuoverla dal tabellone.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Scambia due gemme speciali insieme per un'eliminazione molto più grande.";
+"lesson.focus.title" = "CONCENTRAZIONE";
+"lesson.focus.message" = "Indirizza ogni mossa verso l'obiettivo, non solo al punteggio.";
+"lesson.ice.title" = "GHIACCIO";
+"lesson.ice.message" = "Rompi il ghiaccio eliminando la tessera congelata o colpendola con gli speciali.";
+"lesson.boss.title" = "BOSS";
+"lesson.boss.message" = "Usa gli speciali presto. Risparmiare mosse crea premi di vittoria più grandi.";
+
+"hud.moves" = "MOSSE";
+"hud.score" = "PUNTEGGIO";
+
+"dialog.pause.title" = "⏸ IN PAUSA";
+"dialog.resume" = "▶ RIPRENDI";
+"dialog.restart" = "↺ RICOMINCIA";
+"dialog.settings" = "⚙ IMPOSTAZIONI";
+"dialog.quit" = "✕ ESCI";
+"dialog.out_of_moves.title" = "MOSSE FINITE!";
+"dialog.out_of_moves.message" = "Continuare con +%d mosse?";
+"dialog.you_have_diamonds" = "Hai: %d 💎";
+"dialog.continue" = "CONTINUA!";
+"dialog.get_diamonds" = "OTTIENI DIAMANTI";
+"dialog.no_thanks" = "NO, GRAZIE";
+"dialog.no_lives.title" = "NIENTE VITE!";
+"dialog.next_life" = "Prossima vita tra: %@";
+"dialog.refill" = "RICARICA (15 💎)";
+"dialog.wait_life" = "ASPETTA UNA VITA GRATIS";
+"dialog.power_up" = "POTENZIA!";
+"dialog.select_boosters" = "Scegli i potenziamenti prima di giocare:";
+"settings.sound" = "🔊 Suono";
+"settings.music" = "🎵 Musica";
+"settings.vibrate" = "📳 Vibrazione";
+
+"map.levels_range" = "Livelli %d-%d";
+"map.moves" = "Mosse: %d";
+"map.best" = "Migliore: %@";
+"map.life_timer" = "+♥ tra %@";
+"map.play" = "▶ GIOCA!";
+"map.no_lives" = "NIENTE VITE";
+
+"game.hammer_hint" = "🔨 Tocca una tessera per rimuoverla!";
+"game.extra_moves" = "+5 MOSSE!";
+"game.need_more_booster" = "Servono più %@!\nCosto: %d 🪙";
+"game.double_points" = "⚡ PUNTI DOPPI!";
+"game.board_shuffled" = "🔄 Tabellone mescolato!";
+"game.not_enough_diamonds" = "Diamanti insufficienti!";
+"combo.double" = "DOPPIO!";
+"combo.triple" = "TRIPLO!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NUOVO MONDO!";
+"world_unlock.message" = "Hai sbloccato un nuovo mondo!";
+"world_unlock.tap" = "Tocca per continuare";
+
+"tutorial.welcome.title" = "BENVENUTO!";
+"tutorial.welcome.message" = "Scambia gemme adiacenti. Abbina 3 per liberare spazio e fare punti.";
+"tutorial.make4.title" = "FAI 4";
+"tutorial.make4.message" = "Abbina 4 per creare una gemma rigata. Riabbinala per eliminare un'intera linea.";
+"tutorial.make5.title" = "FAI 5";
+"tutorial.make5.message" = "Abbina 5 per creare una bomba colore. Scambiala con un colore per eliminarlo.";
+"tutorial.combos.title" = "COMBO";
+"tutorial.combos.message" = "Scambia due gemme speciali insieme per un effetto più ampio sul tabellone.";
+"tutorial.objectives.title" = "OBIETTIVI";
+"tutorial.objectives.message" = "Ogni livello ha un obiettivo. Usa ogni mossa per raggiungerlo.";
+"tutorial.next" = "AVANTI ▶";
+"tutorial.skip" = "SALTA";
+"tutorial.play" = "GIOCA!";
+
+"result.level_clear" = "LIVELLO SUPERATO!";
+"result.streak_bonus" = "🔥 BONUS SERIE ×%d!";
+"result.new_best" = "✦ NUOVO RECORD!";
+"result.coins" = "+%d Monete!";
+"result.next_level" = "LIVELLO SUCCESSIVO ▶";
+"result.level_map" = "◀ MAPPA LIVELLI";
+"result.replay" = "↺ RIGIOCA";
+"result.level_failed" = "LIVELLO FALLITO";
+"result.score_line" = "Punteggio: %@";
+"result.dont_give_up" = "Non mollare!";
+"result.try_again" = "↺ RIPROVA";
+
+"notification.lives_full.title" = "❤️ Vite piene!";
+"notification.lives_full.body" = "I tuoi cuori sono pieni: torna a giocare e supera quel livello!";
+"notification.daily_reward.title" = "🎁 Premio giornaliero pronto!";
+"notification.daily_reward.body" = "Apri PixelMatch e riscuoti monete e diamanti gratis!";
+"notification.return.title" = "🎮 Ancora in gioco?";
+"notification.return.body" = "Ti aspettano nuovi livelli! Le tue gemme pixel ti pensano.";
+
+"iap.coins500" = "500 Monete";
+"iap.coins1500" = "1.500 Monete";
+"iap.coins5000" = "5.000 Monete";
+"iap.diamonds20" = "20 Diamanti";
+"iap.diamonds80" = "80 Diamanti";
+"iap.diamonds300" = "300 Diamanti";
+"iap.starter_pack" = "Pacchetto Iniziale";
+"iap.mega_pack" = "Mega Pacchetto";
+"iap.remove_ads" = "Rimuovi gli annunci";
+"iap.error.unverified" = "Impossibile verificare l'acquisto.";
+"iap.error.pending" = "L'acquisto è in attesa di approvazione.";
+"iap.error.unknown" = "Risultato dell'acquisto sconosciuto.";
+
+"ad.watch.title" = "Guarda un annuncio";
+"ad.watch.message" = "Simulazione annuncio (5 secondi)...";

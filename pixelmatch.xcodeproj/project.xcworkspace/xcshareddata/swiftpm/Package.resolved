@@ -1,6 +1,24 @@
 {
-  "originHash" : "95d92970800cec76104a80c8932216f9435d3e56e0776e24b840152a82197231",
+  "originHash" : "f23d9278f7f94a3fdfd68cc457a4941bb88169825d1405c65f2a33a66dcd2919",
   "pins" : [
+    {
+      "identity" : "hkadkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HaokanPaipai/HKAdKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e8241a2e67ce40e108b9167e40ddb4729a51d0b7"
+      }
+    },
+    {
+      "identity" : "hkiapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HaokanPaipai/HKIAPKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "216fa7c361383720d5c53fc85375585ac311800d"
+      }
+    },
     {
       "identity" : "swiftyjson",
       "kind" : "remoteSourceControl",

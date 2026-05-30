@@ -16,6 +16,14 @@ enum AnalyticsEventName: String {
     case iapPurchaseSuccess = "iap_purchase_success"
     case iapPurchaseFail = "iap_purchase_fail"
     case iapRestore = "iap_restore"
+    // 广告生命周期（由 PixelMatchAdAnalyticsProvider 映射 HKAdKit 的 AdEvent）
+    case adLoadStart = "ad_load_start"
+    case adLoaded = "ad_loaded"
+    case adLoadFailed = "ad_load_failed"
+    case adImpression = "ad_impression"
+    case adDismissed = "ad_dismissed"
+    case adClicked = "ad_clicked"
+    case adRewardEarned = "ad_reward_earned"
 }
 
 struct AnalyticsEvent: Codable {

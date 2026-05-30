@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Laddar pixlar...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Det ultimata pixelpusslet";
+"home.level" = "Nivå %d";
+"home.play" = "▶ SPELA";
+"home.daily_reward" = "🎁 DAGLIG BELÖNING!";
+"home.quests" = "📋 UPPDRAG";
+"home.quests_count" = "✅ UPPDRAG (%d)";
+"home.chest_ready" = "⭐ KISTA!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "BUTIK";
+"home.settings" = "INSTÄLLNINGAR";
+"home.ranks" = "RANKNINGAR";
+"home.daily_streak" = "%d dagars svit!";
+"home.reward_inventory" = "Belöningar tillagda i ditt förråd";
+"home.booster_reward" = "+%d Hammare  +%d Blanda";
+"home.claim" = "HÄMTA!";
+"home.quest_complete_title" = "✅ UPPDRAG KLART!";
+"home.star_chest_title" = "⭐ STJÄRNKISTA!";
+"home.chest_need" = "Samla stjärnor för att öppna kistan: %d/%d";
+"home.gc_sign_in" = "Logga in på Game Center för att se rankningarna!";
+"home.daily_quests" = "DAGLIGA UPPDRAG";
+"home.quest_reward" = "+%d mynt  +%d diamant";
+"home.done" = "KLAR";
+"home.claim_short" = "HÄMTA";
+
+"shop.title" = "🛒 BUTIK";
+"shop.starter_pack" = "Startpaket";
+"shop.small_pack" = "Litet paket";
+"shop.medium_pack" = "Mellanpaket";
+"shop.large_pack" = "Stort paket";
+"shop.free_ad" = "Gratis → Se en annons";
+"shop.boosters" = "──── BOOSTRAR ────";
+
+"common.close" = "STÄNG";
+"common.on" = "PÅ";
+"common.off" = "AV";
+
+"player.default_name" = "Pixelhjälte";
+"quest.win_levels" = "Vinn nivåer";
+"quest.make_specials" = "Skapa speciella";
+"quest.use_boosters" = "Använd boostrar";
+
+"booster.hammer" = "Hammare";
+"booster.shuffle" = "Blanda";
+"booster.extra_moves" = "+5 Drag";
+"booster.color_bomb" = "Färgbomb";
+
+"gem.flame" = "Låga";
+"gem.drop" = "Droppe";
+"gem.leaf" = "Löv";
+"gem.star" = "Stjärna";
+"gem.crystal" = "Kristall";
+"gem.sun" = "Sol";
+
+"level.name" = "Nivå %d";
+"level.fallback" = "Nivå";
+"world.1" = "Pixelskogen";
+"world.2" = "Kristallhavet";
+"world.3" = "Himmelriket";
+"world.4" = "Lavaöknen";
+"world.5" = "Frusen Tundra";
+"world.6" = "Neonstaden";
+"world.7" = "Regnbågsdalen";
+"world.8" = "Djupa Rymden";
+"world.9" = "Pixeltoppen";
+"world.10" = "Kosmoskärnan";
+
+"objective.score" = "Få %@ poäng";
+"objective.collect" = "Samla %d %@";
+"objective.clear_jelly" = "Rensa all gelé";
+"objective.break_ice" = "Krossa %d isblock";
+"objective.remove_chocolate" = "Ta bort chokladen";
+"objective.eliminate_chocolate" = "Eliminera chokladen";
+"objective.progress.jelly" = "Gelé ×%d";
+"objective.progress.ice" = "Is: %d/%d";
+"objective.progress.chocolate" = "Choklad ×%d";
+
+"lesson.swap.title" = "BYT";
+"lesson.swap.message" = "Matcha 3 ädelstenar. Ta det lugnt och lär känna brädet.";
+"lesson.chain.title" = "KEDJA";
+"lesson.chain.message" = "Matchningar kan falla ner i nya matchningar för gratis combopoäng.";
+"lesson.striped.title" = "RANDIG";
+"lesson.striped.message" = "Matcha 4 för att skapa en randig ädelsten, matcha den sedan igen.";
+"lesson.color_bomb.title" = "FÄRGBOMB";
+"lesson.color_bomb.message" = "Matcha 5 för att skapa en färgbomb. Byt den med vilken ädelsten som helst.";
+"lesson.collect.title" = "SAMLA";
+"lesson.collect.message" = "Bara målfärgen räknas. Stora rensningar hjälper dig att bli klar snabbare.";
+"lesson.jelly.title" = "GELÉ";
+"lesson.jelly.message" = "Rensa ädelstenar ovanpå gelé för att ta bort den från brädet.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Byt två speciella ädelstenar tillsammans för en mycket större rensning.";
+"lesson.focus.title" = "FOKUS";
+"lesson.focus.message" = "Sikta varje drag mot målet, inte bara mot poängen.";
+"lesson.ice.title" = "IS";
+"lesson.ice.message" = "Krossa is genom att rensa den frusna brickan eller träffa den med speciella.";
+"lesson.boss.title" = "BOSS";
+"lesson.boss.message" = "Använd de speciella tidigt. Att spara drag ger större segerbelöningar.";
+
+"hud.moves" = "DRAG";
+"hud.score" = "POÄNG";
+
+"dialog.pause.title" = "⏸ PAUSAT";
+"dialog.resume" = "▶ FORTSÄTT";
+"dialog.restart" = "↺ STARTA OM";
+"dialog.settings" = "⚙ INSTÄLLNINGAR";
+"dialog.quit" = "✕ AVSLUTA";
+"dialog.out_of_moves.title" = "SLUT PÅ DRAG!";
+"dialog.out_of_moves.message" = "Fortsätta med +%d drag?";
+"dialog.you_have_diamonds" = "Du har: %d 💎";
+"dialog.continue" = "FORTSÄTT!";
+"dialog.get_diamonds" = "SKAFFA DIAMANTER";
+"dialog.no_thanks" = "NEJ TACK";
+"dialog.no_lives.title" = "INGA LIV!";
+"dialog.next_life" = "Nästa liv om: %@";
+"dialog.refill" = "FYLL PÅ (15 💎)";
+"dialog.wait_life" = "VÄNTA PÅ GRATIS LIV";
+"dialog.power_up" = "POWER-UP!";
+"dialog.select_boosters" = "Välj boostrar innan du spelar:";
+"settings.sound" = "🔊 Ljud";
+"settings.music" = "🎵 Musik";
+"settings.vibrate" = "📳 Vibration";
+
+"map.levels_range" = "Nivå %d-%d";
+"map.moves" = "Drag: %d";
+"map.best" = "Bästa: %@";
+"map.life_timer" = "+♥ om %@";
+"map.play" = "▶ SPELA!";
+"map.no_lives" = "INGA LIV";
+
+"game.hammer_hint" = "🔨 Tryck på en bricka för att ta bort den!";
+"game.extra_moves" = "+5 DRAG!";
+"game.need_more_booster" = "Behöver mer %@!\nKostnad: %d 🪙";
+"game.double_points" = "⚡ DUBBLA POÄNG!";
+"game.board_shuffled" = "🔄 Brädet blandat!";
+"game.not_enough_diamonds" = "Inte tillräckligt med diamanter!";
+"combo.double" = "DUBBEL!";
+"combo.triple" = "TREDUBBEL!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NY VÄRLD!";
+"world_unlock.message" = "Du har låst upp en ny värld!";
+"world_unlock.tap" = "Tryck för att fortsätta";
+
+"tutorial.welcome.title" = "VÄLKOMMEN!";
+"tutorial.welcome.message" = "Byt intilliggande ädelstenar. Matcha 3 för att rensa plats och samla poäng.";
+"tutorial.make4.title" = "GÖR 4";
+"tutorial.make4.message" = "Matcha 4 för att skapa en randig ädelsten. Matcha den igen för att rensa en hel linje.";
+"tutorial.make5.title" = "GÖR 5";
+"tutorial.make5.message" = "Matcha 5 för att skapa en färgbomb. Byt den med en färg för att rensa den färgen.";
+"tutorial.combos.title" = "COMBOS";
+"tutorial.combos.message" = "Byt två speciella ädelstenar tillsammans för en större bräd-rensande effekt.";
+"tutorial.objectives.title" = "MÅL";
+"tutorial.objectives.message" = "Varje nivå har ett mål. Lägg varje drag mot det målet.";
+"tutorial.next" = "NÄSTA ▶";
+"tutorial.skip" = "HOPPA ÖVER";
+"tutorial.play" = "SPELA!";
+
+"result.level_clear" = "NIVÅ KLAR!";
+"result.streak_bonus" = "🔥 ×%d SVITBONUS!";
+"result.new_best" = "✦ NYTT REKORD!";
+"result.coins" = "+%d mynt!";
+"result.next_level" = "NÄSTA NIVÅ ▶";
+"result.level_map" = "◀ NIVÅKARTA";
+"result.replay" = "↺ SPELA IGEN";
+"result.level_failed" = "NIVÅ MISSLYCKAD";
+"result.score_line" = "Poäng: %@";
+"result.dont_give_up" = "Ge inte upp!";
+"result.try_again" = "↺ FÖRSÖK IGEN";
+
+"notification.lives_full.title" = "❤️ Liv fyllda!";
+"notification.lives_full.body" = "Dina hjärtan är fulla - kom tillbaka och klara den nivån!";
+"notification.daily_reward.title" = "🎁 Daglig belöning klar!";
+"notification.daily_reward.body" = "Öppna PixelMatch och hämta dina gratis mynt och diamanter!";
+"notification.return.title" = "🎮 Fortfarande på gång?";
+"notification.return.body" = "Nya nivåer väntar! Dina pixelädelstenar saknar dig.";
+
+"iap.coins500" = "500 mynt";
+"iap.coins1500" = "1 500 mynt";
+"iap.coins5000" = "5 000 mynt";
+"iap.diamonds20" = "20 diamanter";
+"iap.diamonds80" = "80 diamanter";
+"iap.diamonds300" = "300 diamanter";
+"iap.starter_pack" = "Startpaket";
+"iap.mega_pack" = "Megapaket";
+"iap.remove_ads" = "Ta bort annonser";
+"iap.error.unverified" = "Köpet kunde inte verifieras.";
+"iap.error.pending" = "Köpet väntar på godkännande.";
+"iap.error.unknown" = "Okänt köpresultat.";
+
+"ad.watch.title" = "Se annons";
+"ad.watch.message" = "Simulerar annons (5 sekunder)...";

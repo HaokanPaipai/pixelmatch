@@ -22,14 +22,12 @@ target 'pixelmatch' do
   pod 'Google-Mobile-Ads-SDK', '11.10.0'
   pod 'GoogleUserMessagingPlatform'
 
-  # ---- 国内网盟（HKAdvertising 适配层 + 4 家原生 SDK）----
-  pod 'HKAdvertising',     hk_advertising_source
-  pod 'HKAdvertising/CSJ', hk_advertising_source
-  pod 'HKAdvertising/GDT', hk_advertising_source
-  pod 'HKAdvertising/KS',  hk_advertising_source
-  pod 'HKAdvertising/BD',  hk_advertising_source
+  # ---- 国内网盟（HKAdvertising 聚合 subspec，一次性带齐 CSJ/GDT/KS/BD 4 家适配层 + SDK 依赖）----
+  # HKAdvertising/CN（abb8cb1+ 引入）= CSJ + GDT + KS + BD 全套，替代原先单列 4 个 subspec。
+  pod 'HKAdvertising/CN', hk_advertising_source
 
-  pod 'Ads-CN',        '6.8.0.7'
+  # podspec 内部对 Ads-CN 做了版本固定（6.8.0.7），但 GDT/KS/BD 未 pin，会自动取最新。
+  # PixelMatch 沿用与 goodlook 同版本，避免 SDK 浮版本带来回归风险。
   pod 'GDTMobSDK',     '4.15.10'
   pod 'KSAdSDK',       '3.3.76.5.0'
   pod 'BaiduMobAdSDK', '5.101'

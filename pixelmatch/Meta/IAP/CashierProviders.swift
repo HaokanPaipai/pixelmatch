@@ -40,13 +40,28 @@ final class PixelMatchCashierUserProvider: CashierUserProvider {
     var currentPurchase: CashierPurchaseSnapshot? { nil }
 
     /// 服务端验票/恢复成功后回写。只处理**单次解锁**（去广告）这类幂等权益——
-    /// 消耗品（金币/钻石）的发放在 IAPManager 购买成功路径里一次性完成，
-    /// 不能放这里（updateReceipt 在每次启动都会触发，会重复发放）。
+    /// 消耗品（金币/钻石）的发放走 `applyConsumablePurchase`，靠 transactionID 去重，
+    /// 这里不再处理（避免 updateReceipt 每次启动重复发放）。
     func applyVerifiedPurchase(_ data: VerifyTransactionDataModel) {
         guard let pid = data.productId, !pid.isEmpty,
               let product = IAPProduct(rawValue: pid),
               product == .noAds else { return }
         PlayerData.shared.setNoAds()
+    }
+
+    /// HKIAPKit v1.1 新增钩子：消耗品入账。按 transactionID 去重，保证补单 / restore
+    /// 时不会双发。amount 由 HKIAPKit 经 ProductBundle.consumableAmount 推断，PixelMatch
+    /// 没用 ProductBundle plist（IAPProduct enum 自带 apply() 逻辑），所以这里仍按 productID
+    /// 路由到 IAPProduct.apply()，仅做幂等。
+    func applyConsumablePurchase(productID: String, amount: Int, transactionID: String) {
+        guard let product = IAPProduct(rawValue: productID), product != .noAds else { return }
+
+        let key = "iap_consumed_tx_\(transactionID)"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key) else { return }
+        defaults.set(true, forKey: key)
+
+        product.apply()
     }
 
     func refreshUserInfo() { /* 单机无远端用户模型，无需刷新 */ }
@@ -129,6 +144,28 @@ final class PixelMatchCashierUIProvider: CashierUIProvider {
                           height: s.height + inset.top + inset.bottom)
         }
     }
+}
+
+// MARK: - Premium
+
+/// PixelMatch 没有订阅，只有「去广告」单次解锁。所以：
+/// · isPremium  = noAds 标志（IAP 唯一付费层级）
+/// · currentTier = "noads"（用 App 自定义字符串，nil 表未付费）
+/// · premiumExpiresAt = noAds 时返回 .distantFuture（单次解锁无到期）
+/// · tierIncludes 固定返回 isPremium（无细粒度特权矩阵）
+///
+/// 该 Provider 是 HKIAPKit v1.1 引入的第 5 个 Provider（INTEGRATION.md Step 5）；
+/// HKAdKit 经由 CashierManager.shared.isPremium 复用此判断（[[PixelMatchAdUserProvider]]），
+/// 避免 noAds 状态出现两套真相。
+final class PixelMatchCashierPremiumProvider: CashierPremiumProvider {
+
+    var isPremium: Bool { PlayerData.shared.noAds }
+
+    var currentTier: String? { PlayerData.shared.noAds ? "noads" : nil }
+
+    var premiumExpiresAt: Date? { PlayerData.shared.noAds ? .distantFuture : nil }
+
+    func tierIncludes(_ feature: String) -> Bool { isPremium }
 }
 
 // MARK: - Analytics

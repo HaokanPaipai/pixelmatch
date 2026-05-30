@@ -2,7 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>pixelmatch</string>
+			</array>
+		</dict>
+	</array>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-8471055942691930~1210114236</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Pixel Match does not use your location. The bundled advertising SDKs may request approximate location to improve ad relevance. Declining has no effect on gameplay.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Allow tracking so Pixel Match can show ads that are more relevant to you. Declining still shows ads, just less personalized.</string>
+	<key>UIFileSharingEnabled</key>
+	<false/>
 </dict>
 </plist>

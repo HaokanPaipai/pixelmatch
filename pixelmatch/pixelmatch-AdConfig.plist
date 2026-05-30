@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  pixelmatch-AdConfig.plist
+  PixelMatch 的 Google AdMob 单元 ID 配置（HKAdKit v1.2 接入范式，替代 #if DEBUG 硬编码）。
+
+  - prod = AppStore 发布；test = Debug 配置（保留 Google 官方测试位，避免审核违规）。
+  - 加载经 AdConfigLoader.load(from: "pixelmatch-AdConfig")。
+  - 必须在 Xcode target 的 Copy Bundle Resources 内（否则运行时返空 ID，广告不出）。
+  - AdMob App ID（GADApplicationIdentifier，对应 Info.plist）：ca-app-pub-8471055942691930~1210114236
+-->
+<plist version="1.0">
+<dict>
+    <!-- 开屏（App Open Ad）-->
+    <key>google_open_app_unit_id_prod</key>
+    <string>ca-app-pub-8471055942691930/8126190610</string>
+    <key>google_open_app_unit_id_test</key>
+    <string>ca-app-pub-3940256099942544/5575463023</string>
+
+    <!-- 激励视频（Rewarded）-->
+    <key>google_rewarded_unit_id_prod</key>
+    <string>ca-app-pub-8471055942691930/1560782268</string>
+    <key>google_rewarded_unit_id_test</key>
+    <string>ca-app-pub-3940256099942544/1712485313</string>
+
+    <!-- 插屏（Interstitial）-->
+    <key>google_interstitial_unit_id_prod</key>
+    <string>ca-app-pub-8471055942691930/5338729802</string>
+    <key>google_interstitial_unit_id_test</key>
+    <string>ca-app-pub-3940256099942544/4411468910</string>
+</dict>
+</plist>

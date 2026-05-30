@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4FA7B9D52ACBB085DE474819 /* Pods_pixelmatch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F884EF846462993FF58ED858 /* Pods_pixelmatch.framework */; };
 		5C6CAF3B0F35CAA368294CE5 /* Pods_pixelmatchTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E4C8CA18D95B7A18310ED93 /* Pods_pixelmatchTests.framework */; };
+		820A89C42FC7DCF000E752E4 /* HKAdKit in Frameworks */ = {isa = PBXBuildFile; productRef = 820A89C32FC7DCF000E752E4 /* HKAdKit */; };
+		820A89C72FC7DD1E00E752E4 /* HKIAPKit in Frameworks */ = {isa = PBXBuildFile; productRef = 820A89C62FC7DD1E00E752E4 /* HKIAPKit */; };
 		8291DD342FBC04CD00EEB142 /* HKIAPKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8291DD332FBC04CD00EEB142 /* HKIAPKit */; };
 		8291DD372FBC04DB00EEB142 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 8291DD362FBC04DB00EEB142 /* SwiftyJSON */; };
 		AD000003AD000003AD000003 /* HKAdKit in Frameworks */ = {isa = PBXBuildFile; productRef = AD000002AD000002AD000002 /* HKAdKit */; };
@@ -88,9 +90,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8291DD372FBC04DB00EEB142 /* SwiftyJSON in Frameworks */,
+				820A89C42FC7DCF000E752E4 /* HKAdKit in Frameworks */,
 				8291DD342FBC04CD00EEB142 /* HKIAPKit in Frameworks */,
 				AD000003AD000003AD000003 /* HKAdKit in Frameworks */,
 				4FA7B9D52ACBB085DE474819 /* Pods_pixelmatch.framework in Frameworks */,
+				820A89C72FC7DD1E00E752E4 /* HKIAPKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +188,8 @@
 				8291DD332FBC04CD00EEB142 /* HKIAPKit */,
 				AD000002AD000002AD000002 /* HKAdKit */,
 				8291DD362FBC04DB00EEB142 /* SwiftyJSON */,
+				820A89C32FC7DCF000E752E4 /* HKAdKit */,
+				820A89C62FC7DD1E00E752E4 /* HKIAPKit */,
 			);
 			productName = pixelmatch;
 			productReference = 8225E6062FACD1320055BB7F /* pixelmatch.app */;
@@ -269,13 +275,23 @@
 				ja,
 				ko,
 				ar,
+				it,
+				es,
+				"pt-BR",
+				"pt-PT",
+				da,
+				nl,
+				nb,
+				sv,
+				vi,
+				tr,
 			);
 			mainGroup = 8225E5FD2FACD1320055BB7F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				8291DD322FBC04CD00EEB142 /* XCLocalSwiftPackageReference "HKIAPKit" */,
-				AD000001AD000001AD000001 /* XCLocalSwiftPackageReference "HKAdKit" */,
 				8291DD352FBC04DB00EEB142 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+				820A89C22FC7DCF000E752E4 /* XCRemoteSwiftPackageReference "HKAdKit" */,
+				820A89C52FC7DD1E00E752E4 /* XCRemoteSwiftPackageReference "HKIAPKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8225E6072FACD1320055BB7F /* Products */;
@@ -583,8 +599,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = pixelmatch/pixelmatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = pixelmatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Pixel Match";
@@ -599,7 +616,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodloook.pixelmatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -621,8 +638,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = pixelmatch/pixelmatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = pixelmatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Pixel Match";
@@ -637,10 +655,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodloook.pixelmatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "APPSTORE $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -657,8 +676,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
@@ -680,8 +700,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
@@ -702,8 +723,9 @@
 			baseConfigurationReference = 627E6D78E2E03946702167F0 /* Pods-pixelmatchUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodloook.pixelmatchUITests;
@@ -723,8 +745,9 @@
 			baseConfigurationReference = EA9719D0B1990A7DDF5A6B9A /* Pods-pixelmatchUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = X43383F6CJ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodloook.pixelmatchUITests;
@@ -780,18 +803,23 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		8291DD322FBC04CD00EEB142 /* XCLocalSwiftPackageReference "HKIAPKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../iOS/HKIAPKit;
-		};
-		AD000001AD000001AD000001 /* XCLocalSwiftPackageReference "HKAdKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../iOS/HKAdKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
+		820A89C22FC7DCF000E752E4 /* XCRemoteSwiftPackageReference "HKAdKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/HaokanPaipai/HKAdKit.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		820A89C52FC7DD1E00E752E4 /* XCRemoteSwiftPackageReference "HKIAPKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/HaokanPaipai/HKIAPKit.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		8291DD352FBC04DB00EEB142 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON";
@@ -803,6 +831,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		820A89C32FC7DCF000E752E4 /* HKAdKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 820A89C22FC7DCF000E752E4 /* XCRemoteSwiftPackageReference "HKAdKit" */;
+			productName = HKAdKit;
+		};
+		820A89C62FC7DD1E00E752E4 /* HKIAPKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 820A89C52FC7DD1E00E752E4 /* XCRemoteSwiftPackageReference "HKIAPKit" */;
+			productName = HKIAPKit;
+		};
 		8291DD332FBC04CD00EEB142 /* HKIAPKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HKIAPKit;

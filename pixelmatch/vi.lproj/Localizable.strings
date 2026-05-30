@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Đang tải pixel...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Trò chơi xếp pixel đỉnh cao";
+"home.level" = "Màn %d";
+"home.play" = "▶ CHƠI";
+"home.daily_reward" = "🎁 THƯỞNG HÀNG NGÀY!";
+"home.quests" = "📋 NHIỆM VỤ";
+"home.quests_count" = "✅ NHIỆM VỤ (%d)";
+"home.chest_ready" = "⭐ RƯƠNG!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "CỬA HÀNG";
+"home.settings" = "CÀI ĐẶT";
+"home.ranks" = "XẾP HẠNG";
+"home.daily_streak" = "Chuỗi %d ngày!";
+"home.reward_inventory" = "Phần thưởng đã thêm vào kho của bạn";
+"home.booster_reward" = "+%d Búa  +%d Xáo trộn";
+"home.claim" = "NHẬN!";
+"home.quest_complete_title" = "✅ HOÀN THÀNH NHIỆM VỤ!";
+"home.star_chest_title" = "⭐ RƯƠNG SAO!";
+"home.chest_need" = "Thu thập sao để mở rương: %d/%d";
+"home.gc_sign_in" = "Đăng nhập Game Center để xem bảng xếp hạng!";
+"home.daily_quests" = "NHIỆM VỤ HÀNG NGÀY";
+"home.quest_reward" = "+%d xu  +%d kim cương";
+"home.done" = "XONG";
+"home.claim_short" = "NHẬN";
+
+"shop.title" = "🛒 CỬA HÀNG";
+"shop.starter_pack" = "Gói Khởi Đầu";
+"shop.small_pack" = "Gói Nhỏ";
+"shop.medium_pack" = "Gói Vừa";
+"shop.large_pack" = "Gói Lớn";
+"shop.free_ad" = "Miễn phí → Xem quảng cáo";
+"shop.boosters" = "──── VẬT PHẨM HỖ TRỢ ────";
+
+"common.close" = "ĐÓNG";
+"common.on" = "BẬT";
+"common.off" = "TẮT";
+
+"player.default_name" = "Anh Hùng Pixel";
+"quest.win_levels" = "Thắng màn";
+"quest.make_specials" = "Tạo viên đặc biệt";
+"quest.use_boosters" = "Dùng vật phẩm hỗ trợ";
+
+"booster.hammer" = "Búa";
+"booster.shuffle" = "Xáo trộn";
+"booster.extra_moves" = "+5 Lượt";
+"booster.color_bomb" = "Bom Màu";
+
+"gem.flame" = "Ngọn lửa";
+"gem.drop" = "Giọt nước";
+"gem.leaf" = "Lá";
+"gem.star" = "Ngôi sao";
+"gem.crystal" = "Pha lê";
+"gem.sun" = "Mặt trời";
+
+"level.name" = "Màn %d";
+"level.fallback" = "Màn";
+"world.1" = "Rừng Pixel";
+"world.2" = "Đại Dương Pha Lê";
+"world.3" = "Vương Quốc Bầu Trời";
+"world.4" = "Sa Mạc Dung Nham";
+"world.5" = "Lãnh Nguyên Băng Giá";
+"world.6" = "Thành Phố Neon";
+"world.7" = "Thung Lũng Cầu Vồng";
+"world.8" = "Vũ Trụ Sâu Thẳm";
+"world.9" = "Đỉnh Pixel";
+"world.10" = "Lõi Vũ Trụ";
+
+"objective.score" = "Đạt %@ điểm";
+"objective.collect" = "Thu thập %d %@";
+"objective.clear_jelly" = "Dọn hết thạch";
+"objective.break_ice" = "Phá %d khối băng";
+"objective.remove_chocolate" = "Loại bỏ sô-cô-la";
+"objective.eliminate_chocolate" = "Tiêu diệt sô-cô-la";
+"objective.progress.jelly" = "Thạch ×%d";
+"objective.progress.ice" = "Băng: %d/%d";
+"objective.progress.chocolate" = "Sô-cô-la ×%d";
+
+"lesson.swap.title" = "HOÁN ĐỔI";
+"lesson.swap.message" = "Ghép 3 viên ngọc. Đi thật bình tĩnh và làm quen với bàn cờ.";
+"lesson.chain.title" = "CHUỖI";
+"lesson.chain.message" = "Các viên ghép có thể rơi xuống tạo ghép mới, ghi điểm combo miễn phí.";
+"lesson.striped.title" = "SỌC";
+"lesson.striped.message" = "Ghép 4 để tạo viên ngọc sọc, rồi ghép nó lần nữa.";
+"lesson.color_bomb.title" = "BOM MÀU";
+"lesson.color_bomb.message" = "Ghép 5 để tạo bom màu. Hoán đổi nó với bất kỳ viên ngọc nào.";
+"lesson.collect.title" = "THU THẬP";
+"lesson.collect.message" = "Chỉ màu mục tiêu mới quan trọng. Dọn lớn giúp hoàn thành nhanh hơn.";
+"lesson.jelly.title" = "THẠCH";
+"lesson.jelly.message" = "Dọn các viên ngọc trên thạch để xóa nó khỏi bàn cờ.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Hoán đổi hai viên ngọc đặc biệt với nhau để dọn được nhiều hơn hẳn.";
+"lesson.focus.title" = "TẬP TRUNG";
+"lesson.focus.message" = "Hướng mỗi nước đi tới mục tiêu, không chỉ để ghi điểm.";
+"lesson.ice.title" = "BĂNG";
+"lesson.ice.message" = "Phá băng bằng cách dọn ô bị đóng băng hoặc đánh trúng nó bằng viên đặc biệt.";
+"lesson.boss.title" = "TRÙM";
+"lesson.boss.message" = "Dùng viên đặc biệt sớm. Tiết kiệm lượt đi tạo phần thưởng chiến thắng lớn hơn.";
+
+"hud.moves" = "LƯỢT";
+"hud.score" = "ĐIỂM";
+
+"dialog.pause.title" = "⏸ TẠM DỪNG";
+"dialog.resume" = "▶ TIẾP TỤC";
+"dialog.restart" = "↺ CHƠI LẠI";
+"dialog.settings" = "⚙ CÀI ĐẶT";
+"dialog.quit" = "✕ THOÁT";
+"dialog.out_of_moves.title" = "HẾT LƯỢT!";
+"dialog.out_of_moves.message" = "Tiếp tục với +%d lượt?";
+"dialog.you_have_diamonds" = "Bạn có: %d 💎";
+"dialog.continue" = "TIẾP TỤC!";
+"dialog.get_diamonds" = "NHẬN KIM CƯƠNG";
+"dialog.no_thanks" = "KHÔNG, CẢM ƠN";
+"dialog.no_lives.title" = "HẾT MẠNG!";
+"dialog.next_life" = "Mạng kế tiếp sau: %@";
+"dialog.refill" = "NẠP ĐẦY (15 💎)";
+"dialog.wait_life" = "CHỜ MẠNG MIỄN PHÍ";
+"dialog.power_up" = "TĂNG SỨC MẠNH!";
+"dialog.select_boosters" = "Chọn vật phẩm hỗ trợ trước khi chơi:";
+"settings.sound" = "🔊 Âm thanh";
+"settings.music" = "🎵 Nhạc";
+"settings.vibrate" = "📳 Rung";
+
+"map.levels_range" = "Màn %d-%d";
+"map.moves" = "Lượt: %d";
+"map.best" = "Tốt nhất: %@";
+"map.life_timer" = "+♥ sau %@";
+"map.play" = "▶ CHƠI!";
+"map.no_lives" = "HẾT MẠNG";
+
+"game.hammer_hint" = "🔨 Chạm vào một ô để xóa nó!";
+"game.extra_moves" = "+5 LƯỢT!";
+"game.need_more_booster" = "Cần thêm %@!\nGiá: %d 🪙";
+"game.double_points" = "⚡ ĐIỂM NHÂN ĐÔI!";
+"game.board_shuffled" = "🔄 Đã xáo trộn bàn cờ!";
+"game.not_enough_diamonds" = "Không đủ kim cương!";
+"combo.double" = "GẤP ĐÔI!";
+"combo.triple" = "GẤP BA!";
+"combo.mega" = "CỰC ĐẠI!";
+"combo.ultra" = "SIÊU CẤP!";
+"world_unlock.title" = "THẾ GIỚI MỚI!";
+"world_unlock.message" = "Bạn đã mở khóa một thế giới mới!";
+"world_unlock.tap" = "Chạm để tiếp tục";
+
+"tutorial.welcome.title" = "CHÀO MỪNG!";
+"tutorial.welcome.message" = "Hoán đổi các viên ngọc kề nhau. Ghép 3 để dọn chỗ và ghi điểm.";
+"tutorial.make4.title" = "TẠO 4";
+"tutorial.make4.message" = "Ghép 4 để tạo viên ngọc sọc. Ghép lại để dọn sạch cả một hàng.";
+"tutorial.make5.title" = "TẠO 5";
+"tutorial.make5.message" = "Ghép 5 để tạo bom màu. Hoán đổi với một màu để dọn sạch màu đó.";
+"tutorial.combos.title" = "COMBO";
+"tutorial.combos.message" = "Hoán đổi hai viên ngọc đặc biệt với nhau để có hiệu ứng dọn bàn lớn hơn.";
+"tutorial.objectives.title" = "MỤC TIÊU";
+"tutorial.objectives.message" = "Mỗi màn có một mục tiêu. Dùng mỗi lượt đi hướng tới mục tiêu đó.";
+"tutorial.next" = "TIẾP ▶";
+"tutorial.skip" = "BỎ QUA";
+"tutorial.play" = "CHƠI!";
+
+"result.level_clear" = "QUA MÀN!";
+"result.streak_bonus" = "🔥 THƯỞNG CHUỖI ×%d!";
+"result.new_best" = "✦ KỶ LỤC MỚI!";
+"result.coins" = "+%d Xu!";
+"result.next_level" = "MÀN TIẾP THEO ▶";
+"result.level_map" = "◀ BẢN ĐỒ MÀN";
+"result.replay" = "↺ CHƠI LẠI";
+"result.level_failed" = "THẤT BẠI";
+"result.score_line" = "Điểm: %@";
+"result.dont_give_up" = "Đừng bỏ cuộc!";
+"result.try_again" = "↺ THỬ LẠI";
+
+"notification.lives_full.title" = "❤️ Đầy mạng!";
+"notification.lives_full.body" = "Tim của bạn đã đầy - quay lại và chinh phục màn đó nào!";
+"notification.daily_reward.title" = "🎁 Phần thưởng hàng ngày đã sẵn sàng!";
+"notification.daily_reward.body" = "Mở PixelMatch và nhận xu cùng kim cương miễn phí!";
+"notification.return.title" = "🎮 Vẫn đang xếp ghép chứ?";
+"notification.return.body" = "Nhiều màn mới đang chờ! Những viên ngọc pixel nhớ bạn lắm.";
+
+"iap.coins500" = "500 Xu";
+"iap.coins1500" = "1.500 Xu";
+"iap.coins5000" = "5.000 Xu";
+"iap.diamonds20" = "20 Kim cương";
+"iap.diamonds80" = "80 Kim cương";
+"iap.diamonds300" = "300 Kim cương";
+"iap.starter_pack" = "Gói Khởi Đầu";
+"iap.mega_pack" = "Gói Khổng Lồ";
+"iap.remove_ads" = "Gỡ quảng cáo";
+"iap.error.unverified" = "Không thể xác minh giao dịch mua.";
+"iap.error.pending" = "Giao dịch mua đang chờ phê duyệt.";
+"iap.error.unknown" = "Kết quả mua không xác định.";
+
+"ad.watch.title" = "Xem quảng cáo";
+"ad.watch.message" = "Đang mô phỏng quảng cáo (5 giây)...";

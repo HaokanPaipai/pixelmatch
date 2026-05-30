@@ -2,6 +2,7 @@ import UIKit
 import UserNotifications
 import GameKit
 import HKAdKit
+import AppTrackingTransparency
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -25,10 +26,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         GameCenterManager.shared.authenticate()
         AnalyticsManager.shared.track(.appLaunch)
 
-        // 广告：先注入 provider/adapter，再触发冷启动开屏编排（先后顺序要紧）。
-        PixelMatchAdBootstrap.bootstrap()
-        AdManager.shared.startOnColdLaunch()
+        // 启动顺序按 HKIAPKit/INTEGRATION.md Step 5：IAP 先 → ATT 授权 → Ad 初始化 → 冷启动编排。
+        IAPManager.shared.start()
+        requestTrackingThenStartAds()
         return true
+    }
+
+    /// 先请求 ATT 授权再初始化广告：AdMob 据 IDFA 授权状态决定个性化程度，
+    /// 也满足苹果「使用 IDFA 须经 ATT 同意」的审核要求。iOS 15+ 下若 App 尚未 active，
+    /// 系统会自动把弹窗推迟到 active 后展示；回调一定会触发，故广告初始化挂在回调里不会丢。
+    private func requestTrackingThenStartAds() {
+        let startAds = {
+            PixelMatchAdBootstrap.bootstrap()
+            AdManager.shared.startOnColdLaunch()
+        }
+        if #available(iOS 14, *) {
+            ATTrackingManager.requestTrackingAuthorization { _ in
+                DispatchQueue.main.async(execute: startAds)
+            }
+        } else {
+            startAds()
+        }
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {

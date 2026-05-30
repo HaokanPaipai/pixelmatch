@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "A carregar pixels...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "O puzzle de pixels definitivo";
+"home.level" = "Nível %d";
+"home.play" = "▶ JOGAR";
+"home.daily_reward" = "🎁 RECOMPENSA DIÁRIA!";
+"home.quests" = "📋 MISSÕES";
+"home.quests_count" = "✅ MISSÕES (%d)";
+"home.chest_ready" = "⭐ BAÚ!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "LOJA";
+"home.settings" = "DEFINIÇÕES";
+"home.ranks" = "CLASSIFICAÇÕES";
+"home.daily_streak" = "Sequência de %d dias!";
+"home.reward_inventory" = "Recompensas adicionadas ao teu inventário";
+"home.booster_reward" = "+%d Martelo  +%d Baralhar";
+"home.claim" = "RECEBER!";
+"home.quest_complete_title" = "✅ MISSÃO CONCLUÍDA!";
+"home.star_chest_title" = "⭐ BAÚ DE ESTRELAS!";
+"home.chest_need" = "Junta estrelas para abrir o baú: %d/%d";
+"home.gc_sign_in" = "Inicia sessão no Game Center para ver as classificações!";
+"home.daily_quests" = "MISSÕES DIÁRIAS";
+"home.quest_reward" = "+%d moedas  +%d diamante";
+"home.done" = "CONCLUÍDO";
+"home.claim_short" = "RECEBER";
+
+"shop.title" = "🛒 LOJA";
+"shop.starter_pack" = "Pacote Inicial";
+"shop.small_pack" = "Pacote Pequeno";
+"shop.medium_pack" = "Pacote Médio";
+"shop.large_pack" = "Pacote Grande";
+"shop.free_ad" = "Grátis → Vê um anúncio";
+"shop.boosters" = "──── REFORÇOS ────";
+
+"common.close" = "FECHAR";
+"common.on" = "LIG";
+"common.off" = "DESL";
+
+"player.default_name" = "Herói Pixel";
+"quest.win_levels" = "Vence níveis";
+"quest.make_specials" = "Cria especiais";
+"quest.use_boosters" = "Usa reforços";
+
+"booster.hammer" = "Martelo";
+"booster.shuffle" = "Baralhar";
+"booster.extra_moves" = "+5 Movimentos";
+"booster.color_bomb" = "Bomba de Cor";
+
+"gem.flame" = "Chama";
+"gem.drop" = "Gota";
+"gem.leaf" = "Folha";
+"gem.star" = "Estrela";
+"gem.crystal" = "Cristal";
+"gem.sun" = "Sol";
+
+"level.name" = "Nível %d";
+"level.fallback" = "Nível";
+"world.1" = "Floresta Pixel";
+"world.2" = "Oceano de Cristal";
+"world.3" = "Reino do Céu";
+"world.4" = "Deserto de Lava";
+"world.5" = "Tundra Gelada";
+"world.6" = "Cidade Néon";
+"world.7" = "Vale Arco-íris";
+"world.8" = "Espaço Profundo";
+"world.9" = "Pico Pixel";
+"world.10" = "Núcleo do Cosmos";
+
+"objective.score" = "Faz %@ pts";
+"objective.collect" = "Recolhe %d %@";
+"objective.clear_jelly" = "Limpa toda a geleia";
+"objective.break_ice" = "Parte %d blocos de gelo";
+"objective.remove_chocolate" = "Remove o chocolate";
+"objective.eliminate_chocolate" = "Elimina o chocolate";
+"objective.progress.jelly" = "Geleia ×%d";
+"objective.progress.ice" = "Gelo: %d/%d";
+"objective.progress.chocolate" = "Choco ×%d";
+
+"lesson.swap.title" = "TROCAR";
+"lesson.swap.message" = "Combina 3 gemas. Joga com calma e analisa o tabuleiro.";
+"lesson.chain.title" = "CADEIA";
+"lesson.chain.message" = "As combinações podem cair em novas combinações para pontos de combo grátis.";
+"lesson.striped.title" = "RISCADA";
+"lesson.striped.message" = "Combina 4 para criar uma gema riscada e combina-a outra vez.";
+"lesson.color_bomb.title" = "BOMBA DE COR";
+"lesson.color_bomb.message" = "Combina 5 para criar uma bomba de cor. Troca-a com qualquer gema.";
+"lesson.collect.title" = "RECOLHER";
+"lesson.collect.message" = "Só a cor-alvo importa. Limpezas grandes ajudam a terminar mais depressa.";
+"lesson.jelly.title" = "GELEIA";
+"lesson.jelly.message" = "Limpa as gemas sobre a geleia para a remover do tabuleiro.";
+"lesson.combo.title" = "COMBO";
+"lesson.combo.message" = "Troca duas gemas especiais juntas para uma limpeza muito maior.";
+"lesson.focus.title" = "FOCO";
+"lesson.focus.message" = "Aponta cada jogada ao objetivo, não só à pontuação.";
+"lesson.ice.title" = "GELO";
+"lesson.ice.message" = "Parte o gelo limpando a peça congelada ou atingindo-a com especiais.";
+"lesson.boss.title" = "CHEFE";
+"lesson.boss.message" = "Usa os especiais cedo. Poupar jogadas gera recompensas de vitória maiores.";
+
+"hud.moves" = "MOVIMENTOS";
+"hud.score" = "PONTOS";
+
+"dialog.pause.title" = "⏸ EM PAUSA";
+"dialog.resume" = "▶ RETOMAR";
+"dialog.restart" = "↺ REINICIAR";
+"dialog.settings" = "⚙ DEFINIÇÕES";
+"dialog.quit" = "✕ SAIR";
+"dialog.out_of_moves.title" = "SEM MOVIMENTOS!";
+"dialog.out_of_moves.message" = "Continuar com +%d movimentos?";
+"dialog.you_have_diamonds" = "Tens: %d 💎";
+"dialog.continue" = "CONTINUAR!";
+"dialog.get_diamonds" = "OBTER DIAMANTES";
+"dialog.no_thanks" = "NÃO, OBRIGADO";
+"dialog.no_lives.title" = "SEM VIDAS!";
+"dialog.next_life" = "Próxima vida em: %@";
+"dialog.refill" = "REABASTECER (15 💎)";
+"dialog.wait_life" = "ESPERAR POR VIDA GRÁTIS";
+"dialog.power_up" = "REFORÇA!";
+"dialog.select_boosters" = "Escolhe os reforços antes de jogar:";
+"settings.sound" = "🔊 Som";
+"settings.music" = "🎵 Música";
+"settings.vibrate" = "📳 Vibração";
+
+"map.levels_range" = "Níveis %d-%d";
+"map.moves" = "Movimentos: %d";
+"map.best" = "Melhor: %@";
+"map.life_timer" = "+♥ em %@";
+"map.play" = "▶ JOGAR!";
+"map.no_lives" = "SEM VIDAS";
+
+"game.hammer_hint" = "🔨 Toca numa peça para a remover!";
+"game.extra_moves" = "+5 MOVIMENTOS!";
+"game.need_more_booster" = "Precisas de mais %@!\nCusto: %d 🪙";
+"game.double_points" = "⚡ PONTOS A DOBRAR!";
+"game.board_shuffled" = "🔄 Tabuleiro baralhado!";
+"game.not_enough_diamonds" = "Diamantes insuficientes!";
+"combo.double" = "DOBRO!";
+"combo.triple" = "TRIPLO!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "NOVO MUNDO!";
+"world_unlock.message" = "Desbloqueaste um novo mundo!";
+"world_unlock.tap" = "Toca para continuar";
+
+"tutorial.welcome.title" = "BEM-VINDO!";
+"tutorial.welcome.message" = "Troca gemas adjacentes. Combina 3 para abrir espaço e somar pontos.";
+"tutorial.make4.title" = "FAZ 4";
+"tutorial.make4.message" = "Combina 4 para criar uma gema riscada. Combina-a outra vez para limpar uma linha inteira.";
+"tutorial.make5.title" = "FAZ 5";
+"tutorial.make5.message" = "Combina 5 para criar uma bomba de cor. Troca-a com uma cor para limpar essa cor.";
+"tutorial.combos.title" = "COMBOS";
+"tutorial.combos.message" = "Troca duas gemas especiais juntas para um maior efeito de limpeza do tabuleiro.";
+"tutorial.objectives.title" = "OBJETIVOS";
+"tutorial.objectives.message" = "Cada nível tem uma meta. Usa cada jogada rumo a essa meta.";
+"tutorial.next" = "SEGUINTE ▶";
+"tutorial.skip" = "SALTAR";
+"tutorial.play" = "JOGAR!";
+
+"result.level_clear" = "NÍVEL CONCLUÍDO!";
+"result.streak_bonus" = "🔥 BÓNUS DE SEQUÊNCIA ×%d!";
+"result.new_best" = "✦ NOVO RECORDE!";
+"result.coins" = "+%d Moedas!";
+"result.next_level" = "NÍVEL SEGUINTE ▶";
+"result.level_map" = "◀ MAPA DE NÍVEIS";
+"result.replay" = "↺ REPETIR";
+"result.level_failed" = "NÍVEL FALHADO";
+"result.score_line" = "Pontos: %@";
+"result.dont_give_up" = "Não desistas!";
+"result.try_again" = "↺ TENTAR DE NOVO";
+
+"notification.lives_full.title" = "❤️ Vidas cheias!";
+"notification.lives_full.body" = "Os teus corações estão cheios - volta e vence esse nível!";
+"notification.daily_reward.title" = "🎁 Recompensa diária pronta!";
+"notification.daily_reward.body" = "Abre o PixelMatch e recebe as tuas moedas e diamantes grátis!";
+"notification.return.title" = "🎮 Ainda a combinar?";
+"notification.return.body" = "Novos níveis esperam por ti! As tuas gemas pixel têm saudades tuas.";
+
+"iap.coins500" = "500 Moedas";
+"iap.coins1500" = "1.500 Moedas";
+"iap.coins5000" = "5.000 Moedas";
+"iap.diamonds20" = "20 Diamantes";
+"iap.diamonds80" = "80 Diamantes";
+"iap.diamonds300" = "300 Diamantes";
+"iap.starter_pack" = "Pacote Inicial";
+"iap.mega_pack" = "Mega Pacote";
+"iap.remove_ads" = "Remover anúncios";
+"iap.error.unverified" = "Não foi possível verificar a compra.";
+"iap.error.pending" = "A compra está a aguardar aprovação.";
+"iap.error.unknown" = "Resultado de compra desconhecido.";
+
+"ad.watch.title" = "Ver anúncio";
+"ad.watch.message" = "A simular anúncio (5 segundos)...";

@@ -60,13 +60,14 @@ struct EconomyConfig {
     }
 }
 
-// MARK: - 广告配置（由 PixelMatchAdConfigProvider 读取）
+// MARK: - 广告频次配置（由 PixelMatchAdConfigProvider 读取）
 
-/// 广告位与频次常量。PixelMatch 暂未接云控，集中在此调参；上线前云控接入后改 provider 即可。
+/// 广告频次常量。Google 单元 ID 已迁出到 pixelmatch-AdConfig.plist（HKAdKit v1.2 范式）。
+/// 命名 `AdFrequencyConfig` 避开 HKAdKit 导出的 public struct AdConfig 名字冲突。
+/// PixelMatch 暂未接云控，集中在此调参；上线前云控接入后改 provider 即可。
 /// TODO: 接入云控（cloud-control key 命名参照 goodlook 的 i18n_show_* 系列）。
-enum AdConfig {
+enum AdFrequencyConfig {
 
-    // MARK: 频次
     static let openAdDailyCap        = 10
     static let openAdMinInterval     : TimeInterval = 300   // 5min
     static let rewardedDailyCap      = 10
@@ -76,20 +77,4 @@ enum AdConfig {
 
     /// 频次存储用的 UserDefaults suite 名（多 App 隔离）。
     static let frequencySuiteName    = "com.goodloook.pixelmatch.ads"
-
-    // MARK: Google 广告位 ID
-    // Debug 走官方测试 unit id（必须用，否则审核会标违规）；Release 用 PixelMatch 自己 AdMob 账号正式 id。
-    // AdMob App ID（GADApplicationIdentifier，对应 Info.plist）：ca-app-pub-8471055942691930~1210114236
-
-    #if DEBUG
-    static let googleOpenAdUnitID        = "ca-app-pub-3940256099942544/5575463023"
-    static let googleRewardedAdUnitID    = "ca-app-pub-3940256099942544/1712485313"
-    static let googleInterstitialAdUnitID = "ca-app-pub-3940256099942544/4411468910"
-    #else
-    static let googleOpenAdUnitID        = "ca-app-pub-8471055942691930/8126190610"
-    static let googleRewardedAdUnitID    = "ca-app-pub-8471055942691930/1560782268"
-    static let googleInterstitialAdUnitID = "ca-app-pub-8471055942691930/5338729802"
-    // 备注：暂未接入"插页式激励广告 (Rewarded Interstitial)"——它是独立广告类型 (GADRewardedInterstitialAd)。
-    // 若后续要做，需在 HKAdKit 加 RewardedInterstitialAdAdapting 协议 + adapter 实现并新增 unit id。
-    #endif
 }

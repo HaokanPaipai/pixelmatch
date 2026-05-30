@@ -1,0 +1,195 @@
+"app.name.upper" = "PIXEL MATCH";
+"loading.message" = "Pikseller yükleniyor...";
+
+"home.logo.pixel" = "PIXEL";
+"home.logo.match" = "MATCH";
+"home.tagline" = "Eşsiz piksel bulmacası";
+"home.level" = "Seviye %d";
+"home.play" = "▶ OYNA";
+"home.daily_reward" = "🎁 GÜNLÜK ÖDÜL!";
+"home.quests" = "📋 GÖREVLER";
+"home.quests_count" = "✅ GÖREVLER (%d)";
+"home.chest_ready" = "⭐ SANDIK!";
+"home.chest_progress" = "⭐ %d/%d";
+"home.shop" = "MAĞAZA";
+"home.settings" = "AYARLAR";
+"home.ranks" = "SIRALAMA";
+"home.daily_streak" = "%d günlük seri!";
+"home.reward_inventory" = "Ödüller envanterine eklendi";
+"home.booster_reward" = "+%d Çekiç  +%d Karıştır";
+"home.claim" = "AL!";
+"home.quest_complete_title" = "✅ GÖREV TAMAMLANDI!";
+"home.star_chest_title" = "⭐ YILDIZ SANDIĞI!";
+"home.chest_need" = "Sandığı açmak için yıldız topla: %d/%d";
+"home.gc_sign_in" = "Sıralamaları görmek için Game Center'a giriş yap!";
+"home.daily_quests" = "GÜNLÜK GÖREVLER";
+"home.quest_reward" = "+%d jeton  +%d elmas";
+"home.done" = "TAMAM";
+"home.claim_short" = "AL";
+
+"shop.title" = "🛒 MAĞAZA";
+"shop.starter_pack" = "Başlangıç Paketi";
+"shop.small_pack" = "Küçük Paket";
+"shop.medium_pack" = "Orta Paket";
+"shop.large_pack" = "Büyük Paket";
+"shop.free_ad" = "Ücretsiz → Reklam izle";
+"shop.boosters" = "──── GÜÇLENDİRİCİLER ────";
+
+"common.close" = "KAPAT";
+"common.on" = "AÇIK";
+"common.off" = "KAPALI";
+
+"player.default_name" = "Piksel Kahraman";
+"quest.win_levels" = "Seviye kazan";
+"quest.make_specials" = "Özel taş oluştur";
+"quest.use_boosters" = "Güçlendirici kullan";
+
+"booster.hammer" = "Çekiç";
+"booster.shuffle" = "Karıştır";
+"booster.extra_moves" = "+5 Hamle";
+"booster.color_bomb" = "Renk Bombası";
+
+"gem.flame" = "Alev";
+"gem.drop" = "Damla";
+"gem.leaf" = "Yaprak";
+"gem.star" = "Yıldız";
+"gem.crystal" = "Kristal";
+"gem.sun" = "Güneş";
+
+"level.name" = "Seviye %d";
+"level.fallback" = "Seviye";
+"world.1" = "Piksel Ormanı";
+"world.2" = "Kristal Okyanus";
+"world.3" = "Gökyüzü Krallığı";
+"world.4" = "Lav Çölü";
+"world.5" = "Donmuş Tundra";
+"world.6" = "Neon Şehir";
+"world.7" = "Gökkuşağı Vadisi";
+"world.8" = "Derin Uzay";
+"world.9" = "Piksel Zirvesi";
+"world.10" = "Kozmos Çekirdeği";
+
+"objective.score" = "%@ puan yap";
+"objective.collect" = "%d %@ topla";
+"objective.clear_jelly" = "Tüm jöleyi temizle";
+"objective.break_ice" = "%d buz bloğu kır";
+"objective.remove_chocolate" = "Çikolatayı kaldır";
+"objective.eliminate_chocolate" = "Çikolatayı yok et";
+"objective.progress.jelly" = "Jöle ×%d";
+"objective.progress.ice" = "Buz: %d/%d";
+"objective.progress.chocolate" = "Çikolata ×%d";
+
+"lesson.swap.title" = "DEĞİŞTİR";
+"lesson.swap.message" = "3 mücevher eşle. Hamlelerinde sakin ol ve tahtayı tanı.";
+"lesson.chain.title" = "ZİNCİR";
+"lesson.chain.message" = "Eşleşmeler yeni eşleşmelere düşerek bedava kombo puanı verebilir.";
+"lesson.striped.title" = "ÇİZGİLİ";
+"lesson.striped.message" = "Çizgili mücevher oluşturmak için 4 eşle, sonra onu tekrar eşle.";
+"lesson.color_bomb.title" = "RENK BOMBASI";
+"lesson.color_bomb.message" = "Renk bombası oluşturmak için 5 eşle. Onu herhangi bir mücevherle değiştir.";
+"lesson.collect.title" = "TOPLA";
+"lesson.collect.message" = "Yalnızca hedef renk önemli. Büyük temizlemeler daha hızlı bitirmene yardım eder.";
+"lesson.jelly.title" = "JÖLE";
+"lesson.jelly.message" = "Jölenin üzerindeki mücevherleri temizleyerek onu tahtadan kaldır.";
+"lesson.combo.title" = "KOMBO";
+"lesson.combo.message" = "İki özel mücevheri birlikte değiştirerek çok daha büyük bir temizleme yap.";
+"lesson.focus.title" = "ODAK";
+"lesson.focus.message" = "Her hamleni yalnızca puana değil hedefe yönelt.";
+"lesson.ice.title" = "BUZ";
+"lesson.ice.message" = "Donmuş kareyi temizleyerek ya da ona özel taşlarla vurarak buzu kır.";
+"lesson.boss.title" = "PATRON";
+"lesson.boss.message" = "Özel taşları erken kullan. Hamle biriktirmek daha büyük zafer ödülleri yaratır.";
+
+"hud.moves" = "HAMLE";
+"hud.score" = "PUAN";
+
+"dialog.pause.title" = "⏸ DURAKLATILDI";
+"dialog.resume" = "▶ DEVAM ET";
+"dialog.restart" = "↺ YENİDEN BAŞLAT";
+"dialog.settings" = "⚙ AYARLAR";
+"dialog.quit" = "✕ ÇIK";
+"dialog.out_of_moves.title" = "HAMLE KALMADI!";
+"dialog.out_of_moves.message" = "+%d hamleyle devam edilsin mi?";
+"dialog.you_have_diamonds" = "Sahip olduğun: %d 💎";
+"dialog.continue" = "DEVAM ET!";
+"dialog.get_diamonds" = "ELMAS AL";
+"dialog.no_thanks" = "HAYIR, TEŞEKKÜRLER";
+"dialog.no_lives.title" = "CAN YOK!";
+"dialog.next_life" = "Sonraki can: %@";
+"dialog.refill" = "DOLDUR (15 💎)";
+"dialog.wait_life" = "ÜCRETSİZ CANI BEKLE";
+"dialog.power_up" = "GÜÇLEN!";
+"dialog.select_boosters" = "Oynamadan önce güçlendiricileri seç:";
+"settings.sound" = "🔊 Ses";
+"settings.music" = "🎵 Müzik";
+"settings.vibrate" = "📳 Titreşim";
+
+"map.levels_range" = "Seviye %d-%d";
+"map.moves" = "Hamle: %d";
+"map.best" = "En iyi: %@";
+"map.life_timer" = "+♥ %@ sonra";
+"map.play" = "▶ OYNA!";
+"map.no_lives" = "CAN YOK";
+
+"game.hammer_hint" = "🔨 Kaldırmak için bir kareye dokun!";
+"game.extra_moves" = "+5 HAMLE!";
+"game.need_more_booster" = "Daha fazla %@ gerek!\nMaliyet: %d 🪙";
+"game.double_points" = "⚡ ÇİFT PUAN!";
+"game.board_shuffled" = "🔄 Tahta karıştırıldı!";
+"game.not_enough_diamonds" = "Yeterli elmas yok!";
+"combo.double" = "İKİLİ!";
+"combo.triple" = "ÜÇLÜ!";
+"combo.mega" = "MEGA!";
+"combo.ultra" = "ULTRA!";
+"world_unlock.title" = "YENİ DÜNYA!";
+"world_unlock.message" = "Yeni bir dünya açtın!";
+"world_unlock.tap" = "Devam etmek için dokun";
+
+"tutorial.welcome.title" = "HOŞ GELDİN!";
+"tutorial.welcome.message" = "Komşu mücevherleri değiştir. Yer açmak ve puan kazanmak için 3 eşle.";
+"tutorial.make4.title" = "4 YAP";
+"tutorial.make4.message" = "Çizgili mücevher oluşturmak için 4 eşle. Bütün bir sırayı temizlemek için tekrar eşle.";
+"tutorial.make5.title" = "5 YAP";
+"tutorial.make5.message" = "Renk bombası oluşturmak için 5 eşle. Bir renkle değiştirerek o rengi temizle.";
+"tutorial.combos.title" = "KOMBOLAR";
+"tutorial.combos.message" = "İki özel mücevheri birlikte değiştirerek daha büyük bir tahta temizleme etkisi yarat.";
+"tutorial.objectives.title" = "HEDEFLER";
+"tutorial.objectives.message" = "Her seviyenin bir hedefi var. Her hamleni o hedef için kullan.";
+"tutorial.next" = "İLERİ ▶";
+"tutorial.skip" = "ATLA";
+"tutorial.play" = "OYNA!";
+
+"result.level_clear" = "SEVİYE GEÇİLDİ!";
+"result.streak_bonus" = "🔥 ×%d SERİ BONUSU!";
+"result.new_best" = "✦ YENİ REKOR!";
+"result.coins" = "+%d Jeton!";
+"result.next_level" = "SONRAKİ SEVİYE ▶";
+"result.level_map" = "◀ SEVİYE HARİTASI";
+"result.replay" = "↺ TEKRAR OYNA";
+"result.level_failed" = "SEVİYE BAŞARISIZ";
+"result.score_line" = "Puan: %@";
+"result.dont_give_up" = "Pes etme!";
+"result.try_again" = "↺ TEKRAR DENE";
+
+"notification.lives_full.title" = "❤️ Canlar doldu!";
+"notification.lives_full.body" = "Kalpler doldu - geri dön ve o seviyeyi geç!";
+"notification.daily_reward.title" = "🎁 Günlük ödül hazır!";
+"notification.daily_reward.body" = "PixelMatch'i aç ve ücretsiz jetonlarınla elmaslarını al!";
+"notification.return.title" = "🎮 Hâlâ eşliyor musun?";
+"notification.return.body" = "Yeni seviyeler seni bekliyor! Piksel mücevherlerin seni özledi.";
+
+"iap.coins500" = "500 Jeton";
+"iap.coins1500" = "1.500 Jeton";
+"iap.coins5000" = "5.000 Jeton";
+"iap.diamonds20" = "20 Elmas";
+"iap.diamonds80" = "80 Elmas";
+"iap.diamonds300" = "300 Elmas";
+"iap.starter_pack" = "Başlangıç Paketi";
+"iap.mega_pack" = "Mega Paket";
+"iap.remove_ads" = "Reklamları kaldır";
+"iap.error.unverified" = "Satın alma doğrulanamadı.";
+"iap.error.pending" = "Satın alma onay bekliyor.";
+"iap.error.unknown" = "Bilinmeyen satın alma sonucu.";
+
+"ad.watch.title" = "Reklam izle";
+"ad.watch.message" = "Reklam simüle ediliyor (5 saniye)...";

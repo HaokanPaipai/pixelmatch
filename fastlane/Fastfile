@@ -1,0 +1,129 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  # =======================================
+   # ======= Refresh Certificates ==========
+   # =======================================
+   desc "Refresh Certificates And Profiles"
+   lane :refresh_profiles do
+     refresh_my_appstore_profiles
+   end
+
+   desc "Refresh AdHoc Profiles"
+   lane :refresh_adhoc_profiles do
+     match(type: "adhoc")
+   end
+
+   private_lane :refresh_my_appstore_profiles do
+    match(type: "appstore")
+  end
+# =======================================
+  # ======= Download Certificates =========
+  # =======================================
+  desc "Download Certificates And Profiles"
+  lane :download_certificates do
+    download_my_appstore_certificates
+  end
+  private_lane :download_my_appstore_certificates do
+    match(type: "appstore", readonly: true)
+  end
+  desc "Get Push Certificates"
+    lane :download_push_certificate do |options|
+      get_push_certificate(
+        force: false, # create a new profile, even if the old one is still valid
+        app_identifier: "com.goodloook.pixelmatch", # optional app identifier,
+        save_private_key: true,
+        p12_password: ENV["PUSH_P12_PW"]
+      )
+      get_push_certificate(
+        development:true,
+        force: false, # create a new profile, even if the old one is still valid
+        app_identifier: "com.goodloook.pixelmatch", # optional app identifier,
+        save_private_key: true,
+        p12_password: ENV["PUSH_P12_PW"]
+      )
+
+    end
+desc "Build Appstore"
+  lane :build_appstore do |options|
+    download_my_appstore_certificates
+    cocoapods(
+      repo_update:false
+    )
+    new_build_version(build_number:options[:VERSION_CODE])
+  #  update_groups_enti(identifiers: "group.com.goodloook.pixelmatch.iphone")
+    set_info_plist_value(path: "./pixelmatch/Info.plist",
+                        key: "UIFileSharingEnabled",
+                        value: false)
+    build_app(
+      xcargs: "-UseModernBuildSystem=YES -jobs 8",
+      export_method: "app-store",
+      output_name: options[:OUTPUT_FILE_NAME],
+      configuration: "Release",
+      output_directory: options[:OUTPUT_DIR],
+      scheme: "pixelmatch",
+      workspace: "pixelmatch.xcworkspace",
+      clean: true,
+      export_options: {
+      provisioningProfiles: {
+          "com.goodloook.pixelmatch" => "match AppStore com.goodloook.pixelmatch",
+        }
+    })
+     # upload .ipa to testflight
+     upload_to_testflight
+  end
+ # =======================================
+  # ======= Release =======================
+  # =======================================
+
+  desc "Upload to iTunes Connect"
+  lane :upload_to_itunes_connect do |options|
+    upload_to_testflight(
+        ipa: options[:IPA_PATH],
+        app_identifier: "com.goodloook.pixelmatch",
+        apple_id: ENV["APP_APPLE_ID"],
+        itc_provider: ENV["APPLE_TEAMID"], #Apple_ID for app in iTunes Connect
+	  		skip_waiting_for_build_processing: true,
+	  		skip_submission: true
+	  )
+  end
+
+  desc "Upload to Firebase Crashlytics"
+  lane :upload_to_firebase_crashlytics do |options|
+    # upload_to_firebase
+    upload_symbols_to_crashlytics(
+      gsp_path: options[:GSP_PATH], 
+      dsym_path: options[:DSYM_PATH] ##"./build/*.dSYM.zip"
+    )
+  end
+
+  desc "Change marketing_version"
+  lane :new_version do |options|
+    increment_version_number_in_xcodeproj(
+      version_number: options[:VERSION] # Set a specific version number
+    )
+  end
+
+  desc "Change currnt_project_version"
+  lane :new_build_version do |options|
+    increment_build_number_in_xcodeproj(
+      build_number:options[:build_number]
+    )
+  end
+
+end

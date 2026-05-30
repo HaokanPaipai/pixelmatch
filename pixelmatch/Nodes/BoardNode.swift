@@ -79,10 +79,16 @@ final class BoardNode: SKNode {
         let boardW = CGFloat(cols) * tileStep - GameConstants.tileGap
         let boardH = CGFloat(rows) * tileStep - GameConstants.tileGap
         let localX = point.x + boardW / 2 - tileSize / 2
-        let localY = -(point.y - boardH / 2 - tileSize / 2)
+        // tilePos 的 y 带外层负号：y = -(row*tileStep - boardH/2 + tileSize/2)，
+        // 反算时 tileSize/2 必须随之变号，否则整盘行命中会下移约一行
+        // （按住某格却命中下一行），即“拖到的不是手指按住的那个”。
+        let localY = -(point.y - boardH / 2 + tileSize / 2)
 
-        let col = Int(localX / tileStep)
-        let row = Int(localY / tileStep)
+        // localX/localY 此时分别等于 col*tileStep / row*tileStep；
+        // 命中检测取“离触点最近的中心”，即四舍五入（Int() 向下取整会把
+        // 左半/上半判到相邻格）。
+        let col = Int((localX / tileStep).rounded())
+        let row = Int((localY / tileStep).rounded())
 
         guard row >= 0 && row < rows && col >= 0 && col < cols else { return nil }
         guard let t = board.grid[row][col], !t.isHole else { return nil }
