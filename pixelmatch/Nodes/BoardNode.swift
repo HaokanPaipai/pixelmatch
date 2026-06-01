@@ -2,10 +2,14 @@ import SpriteKit
 
 final class BoardNode: SKNode {
 
+    static let visualPadding: CGFloat = 8
+
     private var board: Board
     var tileNodes: [[TileNode?]] = []
     private var cellBg: SKNode!
+    private var tileLayer: SKCropNode!
     private var isAnimating = false
+    private let world: World?
 
     var onTileTapped: ((Int, Int) -> Void)?
     var onSwapAttempt: ((Int, Int, Int, Int) -> Void)?
@@ -15,12 +19,14 @@ final class BoardNode: SKNode {
     let tileStep = GameConstants.tileStep
     let tileSize = GameConstants.tileSize
 
-    init(board: Board) {
+    init(board: Board, world: World? = nil) {
         self.board = board
+        self.world = world
         self.rows = board.rows
         self.cols = board.cols
         super.init()
         setupCellBackgrounds()
+        setupTileLayer()
         setupTileNodes()
     }
 
@@ -31,11 +37,15 @@ final class BoardNode: SKNode {
     private func setupCellBackgrounds() {
         cellBg = SKNode()
         addChild(cellBg)
+        addBoardBackplate()
 
         for r in 0..<rows {
             for c in 0..<cols {
                 let isHole = board.grid[r][c]?.isHole ?? false
-                let tex = PixelArt.shared.cellTexture(size: tileSize, isHole: isHole)
+                let tex = PixelArt.shared.cellTexture(size: tileSize,
+                                                      isHole: isHole,
+                                                      world: world,
+                                                      variant: (r + c) % 2)
                 let cell = SKSpriteNode(texture: tex, size: CGSize(width: tileSize, height: tileSize))
                 cell.position = tilePos(row: r, col: c)
                 cell.zPosition = 0
@@ -47,6 +57,29 @@ final class BoardNode: SKNode {
                 }
             }
         }
+    }
+
+    private func addBoardBackplate() {
+        let size = CGSize(width: boardSize.width + 10, height: boardSize.height + 10)
+        let plate = SKShapeNode(rectOf: size, cornerRadius: 12)
+        let base = world?.bgColor ?? UIColor(hex: "#0A1628")
+        let theme = world?.themeColor ?? UIColor(hex: "#2255AA")
+        plate.fillColor = base.darker(by: 0.12).withAlphaComponent(0.32)
+        plate.strokeColor = theme.withAlphaComponent(0.22)
+        plate.lineWidth = 1.5
+        plate.zPosition = -0.3
+        cellBg.addChild(plate)
+    }
+
+    private func setupTileLayer() {
+        tileLayer = SKCropNode()
+        tileLayer.zPosition = 1
+
+        let mask = SKSpriteNode(color: .white, size: layoutSize)
+        mask.position = .zero
+        tileLayer.maskNode = mask
+
+        addChild(tileLayer)
     }
 
     private func addPortalMarkerIfNeeded(row: Int, col: Int) {
@@ -78,7 +111,7 @@ final class BoardNode: SKNode {
                 let node = TileNode(tile: tile)
                 node.position = tilePos(row: r, col: c)
                 node.zPosition = 1
-                addChild(node)
+                tileLayer.addChild(node)
                 tileNodes[r][c] = node
             }
         }
@@ -185,7 +218,7 @@ final class BoardNode: SKNode {
 
             // Burst particles
             if let s = scene {
-                node.burstParticles(in: s, count: 6)
+                node.burstParticles(in: s, count: VisualComfort.isReducedMotionEnabled ? 3 : 5)
             }
 
             node.animateMatch { }
@@ -227,63 +260,73 @@ final class BoardNode: SKNode {
     }
 
     private func flashRow(_ row: Int) {
-        let boardW = CGFloat(cols) * tileStep
-        let beam = SKSpriteNode(color: UIColor.white.withAlphaComponent(0.7),
-                                size: CGSize(width: boardW, height: tileSize * 0.6))
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+        let boardW = boardSize.width
+        let beam = SKShapeNode(rectOf: CGSize(width: boardW, height: tileSize * 0.34), cornerRadius: tileSize * 0.17)
+        beam.fillColor = UIColor.white.withAlphaComponent(VisualComfort.flashAlpha)
+        beam.strokeColor = UIColor(hex: "#BEEBFF").withAlphaComponent(reducedMotion ? 0.26 : 0.42)
+        beam.lineWidth = 1.5
         beam.position = tilePos(row: row, col: cols / 2)
         beam.zPosition = 10
-        addChild(beam)
+        tileLayer.addChild(beam)
         beam.run(.sequence([
-            .scaleX(to: 1.1, y: 1, duration: 0.05),
-            .fadeOut(withDuration: 0.25),
+            .scaleX(to: reducedMotion ? 1.0 : 1.02, y: reducedMotion ? 0.96 : 0.82, duration: reducedMotion ? 0.04 : 0.06),
+            .fadeOut(withDuration: reducedMotion ? 0.14 : 0.22),
             .removeFromParent()
         ]))
     }
 
     private func flashCol(_ col: Int) {
-        let boardH = CGFloat(rows) * tileStep
-        let beam = SKSpriteNode(color: UIColor.white.withAlphaComponent(0.7),
-                                size: CGSize(width: tileSize * 0.6, height: boardH))
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+        let boardH = boardSize.height
+        let beam = SKShapeNode(rectOf: CGSize(width: tileSize * 0.34, height: boardH), cornerRadius: tileSize * 0.17)
+        beam.fillColor = UIColor.white.withAlphaComponent(VisualComfort.flashAlpha)
+        beam.strokeColor = UIColor(hex: "#BEEBFF").withAlphaComponent(reducedMotion ? 0.26 : 0.42)
+        beam.lineWidth = 1.5
         beam.position = tilePos(row: rows / 2, col: col)
         beam.zPosition = 10
-        addChild(beam)
+        tileLayer.addChild(beam)
         beam.run(.sequence([
-            .scaleX(to: 1, y: 1.1, duration: 0.05),
-            .fadeOut(withDuration: 0.25),
+            .scaleX(to: reducedMotion ? 0.96 : 0.82, y: reducedMotion ? 1.0 : 1.02, duration: reducedMotion ? 0.04 : 0.06),
+            .fadeOut(withDuration: reducedMotion ? 0.14 : 0.22),
             .removeFromParent()
         ]))
     }
 
     private func flashExplosion(at pos: (row: Int, col: Int)) {
-        let ring = SKShapeNode(circleOfRadius: tileSize * 1.5)
-        ring.strokeColor = UIColor.white.withAlphaComponent(0.8)
-        ring.lineWidth = 4
-        ring.fillColor = UIColor.white.withAlphaComponent(0.1)
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+        let ring = SKShapeNode(circleOfRadius: tileSize * (reducedMotion ? 1.05 : 1.35))
+        ring.strokeColor = UIColor.white.withAlphaComponent(reducedMotion ? 0.30 : 0.54)
+        ring.lineWidth = reducedMotion ? 2 : 3
+        ring.fillColor = UIColor(hex: "#BEEBFF").withAlphaComponent(reducedMotion ? 0.04 : 0.08)
         ring.position = tilePos(row: pos.row, col: pos.col)
         ring.zPosition = 10
-        ring.setScale(0.1)
-        addChild(ring)
+        ring.setScale(reducedMotion ? 0.74 : 0.1)
+        tileLayer.addChild(ring)
         ring.run(.sequence([
-            .scale(to: 2.5, duration: 0.3),
-            .fadeOut(withDuration: 0.1),
+            .scale(to: reducedMotion ? 1.18 : 2.15, duration: reducedMotion ? 0.14 : 0.28),
+            .fadeOut(withDuration: reducedMotion ? 0.10 : 0.12),
             .removeFromParent()
         ]))
     }
 
     private func flashColorBomb(at pos: (row: Int, col: Int)) {
-        for i in 0..<6 {
-            let ring = SKShapeNode(circleOfRadius: tileSize * CGFloat(i + 1))
-            ring.strokeColor = GemColor(rawValue: i)!.primary.withAlphaComponent(0.6)
-            ring.lineWidth = 3
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+        let ringCount = reducedMotion ? 3 : 6
+        for i in 0..<ringCount {
+            let colorIndex = reducedMotion ? i * 2 : i
+            let ring = SKShapeNode(circleOfRadius: tileSize * CGFloat(i + 1) * (reducedMotion ? 0.64 : 0.78))
+            ring.strokeColor = GemColor(rawValue: colorIndex)!.primary.withAlphaComponent(reducedMotion ? 0.30 : 0.42)
+            ring.lineWidth = reducedMotion ? 1.5 : 2
             ring.fillColor = .clear
             ring.position = tilePos(row: pos.row, col: pos.col)
             ring.zPosition = 10
-            ring.setScale(0.1)
-            addChild(ring)
+            ring.setScale(reducedMotion ? 0.55 : 0.1)
+            tileLayer.addChild(ring)
             ring.run(.sequence([
-                .wait(forDuration: Double(i) * 0.04),
-                .scale(to: 3, duration: 0.4),
-                .fadeOut(withDuration: 0.15),
+                .wait(forDuration: Double(i) * (reducedMotion ? 0.025 : 0.04)),
+                .scale(to: reducedMotion ? 1.55 : 2.45, duration: reducedMotion ? 0.20 : 0.36),
+                .fadeOut(withDuration: reducedMotion ? 0.12 : 0.16),
                 .removeFromParent()
             ]))
         }
@@ -325,14 +368,17 @@ final class BoardNode: SKNode {
                 node.position = fromPos
                 let distance = hypot(fromPos.x - toPos.x, fromPos.y - toPos.y)
                 let duration = min(0.42, max(0.16, distance / 560))
-                node.run(.sequence([
-                    .scale(to: 0.72, duration: 0.06),
-                    .group([
-                        .move(to: toPos, duration: duration),
-                        .rotate(byAngle: CGFloat.pi * 2, duration: duration)
-                    ]),
-                    .scale(to: 1.0, duration: 0.08)
-                ])) {
+                let action: SKAction = VisualComfort.isReducedMotionEnabled
+                    ? .move(to: toPos, duration: duration * 0.72)
+                    : .sequence([
+                        .scale(to: 0.72, duration: 0.06),
+                        .group([
+                            .move(to: toPos, duration: duration),
+                            .rotate(byAngle: CGFloat.pi * 2, duration: duration)
+                        ]),
+                        .scale(to: 1.0, duration: 0.08)
+                    ])
+                node.run(action) {
                     completedCount += 1
                     if completedCount == total { completion() }
                 }
@@ -355,21 +401,24 @@ final class BoardNode: SKNode {
             let node = TileNode(tile: tile)
             node.position = startPos
             node.zPosition = 1
-            addChild(node)
+            tileLayer.addChild(node)
             tileNodes[tile.row][tile.col] = node
 
-            let delay = Double(-info.spawnRowOffset - 1) * 0.04
-            maxDelay = max(maxDelay, delay + 0.35)
+            let reducedMotion = VisualComfort.isReducedMotionEnabled
+            let delay = Double(-info.spawnRowOffset - 1) * (reducedMotion ? 0.02 : 0.04)
+            maxDelay = max(maxDelay, delay + (reducedMotion ? 0.22 : 0.35))
 
             node.run(.wait(forDuration: delay)) {
                 node.position = startPos
                 let fallDist = abs(startPos.y - destPos.y)
                 let fallDur = min(0.35, max(0.12, fallDist / 500))
-                node.run(.sequence([
-                    .moveTo(y: destPos.y - 4, duration: fallDur * 0.85),
-                    .moveTo(y: destPos.y + 2, duration: 0.05),
-                    .moveTo(y: destPos.y, duration: 0.04)
-                ]))
+                node.run(reducedMotion
+                    ? .moveTo(y: destPos.y, duration: fallDur * 0.72)
+                    : .sequence([
+                        .moveTo(y: destPos.y - 4, duration: fallDur * 0.85),
+                        .moveTo(y: destPos.y + 2, duration: 0.05),
+                        .moveTo(y: destPos.y, duration: 0.04)
+                    ]))
             }
         }
 
@@ -412,7 +461,7 @@ final class BoardNode: SKNode {
                 let node = TileNode(tile: tile)
                 node.position = tilePos(row: r, col: c)
                 node.zPosition = 1
-                addChild(node)
+                tileLayer.addChild(node)
                 tileNodes[r][c] = node
             }
         }
@@ -438,7 +487,7 @@ final class BoardNode: SKNode {
                     let node = TileNode(tile: tile)
                     node.position = tilePos(row: r, col: c)
                     node.zPosition = 1
-                    addChild(node)
+                    tileLayer.addChild(node)
                     tileNodes[r][c] = node
                 }
             }
@@ -475,14 +524,19 @@ final class BoardNode: SKNode {
 
     private func makeHintRing() -> SKShapeNode {
         let ring = SKShapeNode(rectOf: CGSize(width: tileSize + 6, height: tileSize + 6), cornerRadius: 10)
-        ring.strokeColor = UIColor(hex: "#FFCC00").withAlphaComponent(0.8)
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+        ring.strokeColor = UIColor(hex: "#FFCC00").withAlphaComponent(reducedMotion ? 0.45 : 0.8)
         ring.fillColor = .clear
-        ring.lineWidth = 2
+        ring.lineWidth = reducedMotion ? 1.5 : 2
         ring.zPosition = 8
-        ring.run(.repeatForever(.sequence([
-            .fadeAlpha(to: 0.3, duration: 0.4),
-            .fadeAlpha(to: 0.9, duration: 0.4)
-        ])))
+        if reducedMotion {
+            ring.alpha = 0.62
+        } else {
+            ring.run(.repeatForever(.sequence([
+                .fadeAlpha(to: 0.3, duration: 0.4),
+                .fadeAlpha(to: 0.9, duration: 0.4)
+            ])))
+        }
         return ring
     }
 
@@ -506,5 +560,10 @@ final class BoardNode: SKNode {
     var boardSize: CGSize {
         CGSize(width: CGFloat(cols) * tileStep - GameConstants.tileGap,
                height: CGFloat(rows) * tileStep - GameConstants.tileGap)
+    }
+
+    var layoutSize: CGSize {
+        CGSize(width: boardSize.width + Self.visualPadding * 2,
+               height: boardSize.height + Self.visualPadding * 2)
     }
 }

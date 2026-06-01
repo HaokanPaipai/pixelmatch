@@ -166,6 +166,7 @@
 "settings.sound" = "🔊 音效";
 "settings.music" = "🎵 音樂";
 "settings.vibrate" = "📳 震動";
+"settings.reduce_motion" = "◌ 舒適動效";
 
 "map.levels_range" = "關卡 %d-%d";
 "map.moves" = "步數: %d";
@@ -224,6 +225,9 @@
 "result.streak_bonus" = "🔥 ×%d 連勝獎勵!";
 "result.new_best" = "✦ 新紀錄!";
 "result.coins" = "+%d 金幣!";
+"result.world_repair" = "世界修復";
+"result.world_restored" = "已修復";
+"result.world_repair_percent" = "%d%%";
 "result.next_level" = "下一關 ▶";
 "result.level_map" = "◀ 關卡地圖";
 "result.replay" = "↺ 重玩";

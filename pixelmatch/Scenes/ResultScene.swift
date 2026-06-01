@@ -74,9 +74,14 @@ final class ResultScene: SKScene {
         let hasStreakBonus = winStreak >= 3
         let hasRewardLine = coinsEarned > 0 || hasStreakBonus
 
+        let titleY = size.height * 0.30
+        let levelY = size.height * 0.225
+        let repairY = size.height * 0.155
+        let starsY = size.height * 0.075
+
         // Title
         let title = makeLargeLabel(L10n.tr("result.level_clear", fallback: "LEVEL CLEAR!"), color: UIColor(hex: "#FFCC00"), size: 36)
-        title.position = CGPoint(x: 0, y: size.height * 0.3)
+        title.position = CGPoint(x: 0, y: titleY)
         title.zPosition = 10
         addChild(title)
         title.popIn()
@@ -85,12 +90,14 @@ final class ResultScene: SKScene {
         let levelLbl = makeLargeLabel(L10n.upper(level.displayName),
                                       color: UIColor(hex: level.world?.themeColorHex ?? "#FFFFFF"),
                                       size: 18)
-        levelLbl.position = CGPoint(x: 0, y: size.height * 0.22)
+        levelLbl.position = CGPoint(x: 0, y: levelY)
         levelLbl.zPosition = 10
         addChild(levelLbl)
 
+        setupWorldRepairRibbon(y: repairY)
+
         // Stars
-        setupStars(y: size.height * 0.1)
+        setupStars(y: starsY)
 
         // Score panel
         let scoreY = max(-size.height * 0.08, buttonTopY + (hasRewardLine ? 92 : 72))
@@ -119,6 +126,112 @@ final class ResultScene: SKScene {
 
         // Buttons
         setupWinButtons(yBase: buttonBaseY)
+    }
+
+    private func setupWorldRepairRibbon(y: CGFloat) {
+        guard let world = level.world else { return }
+
+        let repair = WorldRepairManager.shared.snapshot(for: world)
+        let panelWidth = min(size.width * 0.78, 310)
+        let panelHeight: CGFloat = 44
+        let panel = SKShapeNode(rectOf: CGSize(width: panelWidth, height: panelHeight), cornerRadius: 8)
+        panel.fillColor = world.bgColor.darker(by: 0.12).withAlphaComponent(0.80)
+        panel.strokeColor = world.themeColor.withAlphaComponent(0.48)
+        panel.lineWidth = 1.4
+        panel.position = CGPoint(x: 0, y: y)
+        panel.zPosition = 10
+        addChild(panel)
+
+        let title = SKLabelNode(fontNamed: "Courier-Bold")
+        title.text = L10n.tr("result.world_repair", fallback: "WORLD REPAIR")
+        title.fontSize = 10
+        title.fontColor = world.themeColor
+        title.verticalAlignmentMode = .center
+        title.horizontalAlignmentMode = .left
+        title.position = CGPoint(x: -panelWidth / 2 + 14, y: y + 10)
+        title.zPosition = 11
+        addChild(title)
+        fitLabel(title, maxWidth: panelWidth * 0.46, minScale: 0.72)
+
+        let status = SKLabelNode(fontNamed: "Courier-Bold")
+        status.text = repair.isComplete
+            ? L10n.tr("result.world_restored", fallback: "RESTORED")
+            : L10n.fmt("result.world_repair_percent", repair.percent, fallback: "%d%%")
+        status.fontSize = 12
+        status.fontColor = UIColor(hex: repair.isComplete ? "#FFCC00" : world.themeColorHex)
+        status.verticalAlignmentMode = .center
+        status.horizontalAlignmentMode = .right
+        status.position = CGPoint(x: panelWidth / 2 - 14, y: y + 10)
+        status.zPosition = 11
+        addChild(status)
+        fitLabel(status, maxWidth: panelWidth * 0.30, minScale: 0.72)
+
+        addRepairPixels(repair, panelWidth: panelWidth, y: y - 11)
+
+        panel.setScale(0.96)
+        panel.alpha = 0
+        panel.run(.group([
+            .fadeIn(withDuration: 0.18),
+            .scale(to: 1, duration: 0.18)
+        ]))
+    }
+
+    private func addRepairPixels(_ repair: WorldRepairSnapshot, panelWidth: CGFloat, y: CGFloat) {
+        let gap: CGFloat = 4
+        let pixelCount = max(1, repair.totalPieces)
+        let availableWidth = panelWidth - 34
+        let pixelWidth = min(36, (availableWidth - CGFloat(pixelCount - 1) * gap) / CGFloat(pixelCount))
+        let totalWidth = CGFloat(pixelCount) * pixelWidth + CGFloat(pixelCount - 1) * gap
+        let startX = -totalWidth / 2 + pixelWidth / 2
+
+        for index in 0..<pixelCount {
+            let filled = index < repair.unlockedPieces
+            let pixel = SKShapeNode(rectOf: CGSize(width: pixelWidth, height: 8), cornerRadius: 2)
+            pixel.fillColor = filled
+                ? repair.world.themeColor.withAlphaComponent(0.88)
+                : UIColor(hex: "#07101D").withAlphaComponent(0.82)
+            pixel.strokeColor = repair.world.themeColor.withAlphaComponent(filled ? 0.85 : 0.28)
+            pixel.lineWidth = 1
+            pixel.position = CGPoint(x: startX + CGFloat(index) * (pixelWidth + gap), y: y)
+            pixel.zPosition = 11
+            addChild(pixel)
+
+            guard filled else { continue }
+            pixel.setScale(0)
+            pixel.run(.sequence([
+                .wait(forDuration: 0.48 + Double(index) * 0.08),
+                .scale(to: 1.18, duration: 0.10),
+                .scale(to: 1.0, duration: 0.08)
+            ]))
+            if index == repair.unlockedPieces - 1 {
+                addRepairSparkle(at: pixel.position, delay: 0.64 + Double(index) * 0.08, color: repair.world.themeColor)
+            }
+        }
+    }
+
+    private func addRepairSparkle(at position: CGPoint, delay: TimeInterval, color: UIColor) {
+        let sparkle = SKShapeNode(rectOf: CGSize(width: 10, height: 10), cornerRadius: 2)
+        sparkle.fillColor = color.withAlphaComponent(0.72)
+        sparkle.strokeColor = UIColor.white.withAlphaComponent(0.74)
+        sparkle.lineWidth = 1
+        sparkle.position = position
+        sparkle.zPosition = 12
+        sparkle.alpha = 0
+        sparkle.setScale(0.2)
+        addChild(sparkle)
+        sparkle.run(.sequence([
+            .wait(forDuration: delay),
+            .group([
+                .fadeAlpha(to: 0.88, duration: 0.08),
+                .scale(to: 1.4, duration: 0.12),
+                .rotate(byAngle: .pi / 4, duration: 0.12)
+            ]),
+            .group([
+                .fadeOut(withDuration: 0.18),
+                .scale(to: 0.2, duration: 0.18)
+            ]),
+            .removeFromParent()
+        ]))
     }
 
     private func setupStars(y: CGFloat) {
@@ -451,5 +564,13 @@ final class ResultScene: SKScene {
         lbl.verticalAlignmentMode = .center
         lbl.horizontalAlignmentMode = .center
         return lbl
+    }
+
+    private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat = 0.68) {
+        label.setScale(1)
+        let width = max(label.frame.width, 1)
+        if width > maxWidth {
+            label.setScale(max(minScale, maxWidth / width))
+        }
     }
 }

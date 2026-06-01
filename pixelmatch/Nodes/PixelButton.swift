@@ -168,6 +168,15 @@ final class PixelButton: SKNode {
         label?.text = title
         fitTitleIfNeeded()
     }
+
+    func setColor(_ color: UIColor) {
+        bg.fillColor = color
+        bg.strokeColor = style == .ghost ? color : .clear
+        for child in bg.children {
+            (child as? SKShapeNode)?.fillColor = color.darker(by: 0.3)
+        }
+    }
+
     func setEnabled(_ enabled: Bool) { alpha = enabled ? 1.0 : 0.4; isUserInteractionEnabled = enabled }
 
     private func isPointInsideButton(_ point: CGPoint, padding: CGFloat) -> Bool {

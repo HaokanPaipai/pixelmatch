@@ -59,8 +59,7 @@ final class LevelDataTests: XCTestCase {
 
     func testNineByNineBoardFitsSmallPhonePlayArea() {
         let level13 = LevelData.level(13)!
-        let boardSize = CGSize(width: CGFloat(level13.cols) * GameConstants.tileStep - GameConstants.tileGap,
-                               height: CGFloat(level13.rows) * GameConstants.tileStep - GameConstants.tileGap)
+        let boardSize = boardVisualSize(for: level13)
         let sceneSize = CGSize(width: 320, height: 568)
         let layout = BoardLayoutCalculator.metrics(sceneSize: sceneSize,
                                                    safeAreaInsets: .zero,
@@ -72,6 +71,44 @@ final class LevelDataTests: XCTestCase {
                                     layout.playableBottom - 0.001)
         XCTAssertLessThanOrEqual(layout.centerY + boardSize.height * layout.scale / 2,
                                  layout.playableTop + 0.001)
+    }
+
+    func testAllLevelBoardsFitSmallPhonePlayArea() {
+        let sidePadding: CGFloat = 14
+        let verticalPadding: CGFloat = 8
+        let profiles: [(name: String, size: CGSize, safeAreaInsets: UIEdgeInsets)] = [
+            ("iPhone SE 1st gen", CGSize(width: 320, height: 568), .zero),
+            ("iPhone SE 3rd gen", CGSize(width: 375, height: 667), .zero),
+            ("iPhone 12 mini", CGSize(width: 375, height: 812), UIEdgeInsets(top: 50, left: 0, bottom: 34, right: 0))
+        ]
+
+        for level in LevelData.all {
+            let boardSize = boardVisualSize(for: level)
+
+            for profile in profiles {
+                let layout = BoardLayoutCalculator.metrics(sceneSize: profile.size,
+                                                           safeAreaInsets: profile.safeAreaInsets,
+                                                           boardSize: boardSize,
+                                                           sidePadding: sidePadding,
+                                                           verticalPadding: verticalPadding)
+                let renderedWidth = boardSize.width * layout.scale
+                let renderedHeight = boardSize.height * layout.scale
+                let availableWidth = profile.size.width
+                    - profile.safeAreaInsets.left
+                    - profile.safeAreaInsets.right
+                    - sidePadding * 2
+
+                XCTAssertLessThanOrEqual(renderedWidth,
+                                         availableWidth + 0.001,
+                                         "Level \(level.id) should fit width on \(profile.name)")
+                XCTAssertGreaterThanOrEqual(layout.centerY - renderedHeight / 2,
+                                            layout.playableBottom + verticalPadding - 0.001,
+                                            "Level \(level.id) should stay above boosters on \(profile.name)")
+                XCTAssertLessThanOrEqual(layout.centerY + renderedHeight / 2,
+                                         layout.playableTop - verticalPadding + 0.001,
+                                         "Level \(level.id) should stay below HUD on \(profile.name)")
+            }
+        }
     }
 
     func testChocolateObjectiveLevelsContainChocolateObstacles() {
@@ -195,6 +232,13 @@ final class LevelDataTests: XCTestCase {
     private func isValid(_ position: (row: Int, col: Int), in level: Level) -> Bool {
         position.row >= 0 && position.row < level.rows
             && position.col >= 0 && position.col < level.cols
+    }
+
+    private func boardVisualSize(for level: Level) -> CGSize {
+        let boardSize = CGSize(width: CGFloat(level.cols) * GameConstants.tileStep - GameConstants.tileGap,
+                               height: CGFloat(level.rows) * GameConstants.tileStep - GameConstants.tileGap)
+        return CGSize(width: boardSize.width + BoardNode.visualPadding * 2,
+                      height: boardSize.height + BoardNode.visualPadding * 2)
     }
 
     private func contains(_ positions: [(row: Int, col: Int)], _ position: (row: Int, col: Int)) -> Bool {

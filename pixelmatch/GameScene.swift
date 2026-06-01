@@ -168,13 +168,13 @@ final class GameScene: SKScene {
         board = Board(rows: level.rows, cols: level.cols, availableColors: level.availableColors)
         board.setup(from: level)
 
-        boardNode = BoardNode(board: board)
+        boardNode = BoardNode(board: board, world: level.world)
 
         // 9x9 starts at level 13. Small devices cannot fit the raw 430pt board,
         // so scale to the space between HUD and boosters while preserving touch math.
         let layout = BoardLayoutCalculator.metrics(sceneSize: size,
                                                    safeAreaInsets: safeAreaInsets,
-                                                   boardSize: boardNode.boardSize)
+                                                   boardSize: boardNode.layoutSize)
         boardNode.setScale(layout.scale)
 
         boardNode.position = CGPoint(x: 0, y: layout.centerY)
@@ -1270,7 +1270,8 @@ final class GameScene: SKScene {
     // 管理延迟提示。玩家输入后会重置提示，只在棋盘空闲时显示。
     private func startHintTimer() {
         hintTimer?.invalidate()
-        hintTimer = Timer.scheduledTimer(withTimeInterval: 3.5, repeats: false) { [weak self] _ in
+        let interval: TimeInterval = VisualComfort.isReducedMotionEnabled ? 5.5 : 3.5
+        hintTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             self?.showHint()
         }
     }

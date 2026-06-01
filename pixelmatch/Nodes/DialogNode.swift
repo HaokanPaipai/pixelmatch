@@ -297,7 +297,7 @@ final class SettingsDialog: DialogNode {
     var onClose: (() -> Void)?
 
     init(sceneSize: CGSize) {
-        super.init(size: CGSize(width: 300, height: 320), sceneSize: sceneSize)
+        super.init(size: CGSize(width: 300, height: 370), sceneSize: sceneSize)
         buildUI()
     }
 
@@ -316,16 +316,17 @@ final class SettingsDialog: DialogNode {
             lbl.position = CGPoint(x: -120, y: yPos)
             addChild(lbl)
 
-            let state = value
+            var state = value
             let toggleBtn = PixelButton(title: state ? L10n.tr("common.on", fallback: "ON") : L10n.tr("common.off", fallback: "OFF"),
                                         size: CGSize(width: 70, height: 32),
                                         style: .primary,
                                         color: state ? UIColor(hex: "#34C759") : UIColor(hex: "#555"))
             toggleBtn.position = CGPoint(x: 90, y: yPos)
             toggleBtn.onTap = {
-                let newState = !state
-                onToggle(newState)
-                toggleBtn.setTitle(newState ? L10n.tr("common.on", fallback: "ON") : L10n.tr("common.off", fallback: "OFF"))
+                state.toggle()
+                onToggle(state)
+                toggleBtn.setTitle(state ? L10n.tr("common.on", fallback: "ON") : L10n.tr("common.off", fallback: "OFF"))
+                toggleBtn.setColor(state ? UIColor(hex: "#34C759") : UIColor(hex: "#555"))
             }
             addChild(toggleBtn)
         }
@@ -339,12 +340,14 @@ final class SettingsDialog: DialogNode {
         }
         toggle(label: L10n.tr("settings.vibrate", fallback: "📳 Vibrate"), yPos: -35,
                value: PlayerData.shared.vibrateEnabled) { PlayerData.shared.vibrateEnabled = $0 }
+        toggle(label: L10n.tr("settings.reduce_motion", fallback: "◌ Comfort FX"), yPos: -85,
+               value: PlayerData.shared.reduceMotionEnabled) { PlayerData.shared.reduceMotionEnabled = $0 }
 
         let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
                                    size: CGSize(width: 240, height: 48),
                                    style: .primary,
                                    color: UIColor(hex: "#007AFF"))
-        closeBtn.position = CGPoint(x: 0, y: -120)
+        closeBtn.position = CGPoint(x: 0, y: -145)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)
     }

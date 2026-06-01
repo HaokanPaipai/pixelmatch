@@ -500,10 +500,11 @@ struct LevelData {
                                        lesson: introLesson))
                     } else {
                         let holes = i > 10 ? cornerHoles4(rows: 9, cols: 9) : []
+                        let filteredCages = excluding(cages, blocked: holes)
                         l.append(score(id, world: w, rows: 9, cols: 9, moves: cageMoves, colors: 6,
                                        target: baseScore,
                                        holes: holes,
-                                       obstacles: cageObstacles,
+                                       obstacles: obstacles(filteredCages, .cage),
                                        lesson: introLesson))
                     }
                     id += 1

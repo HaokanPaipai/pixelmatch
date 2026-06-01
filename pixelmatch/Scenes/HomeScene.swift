@@ -35,6 +35,7 @@ final class HomeScene: SKScene {
 
     private func setupBackground() {
         backgroundColor = UIColor(hex: "#050D1A")
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
 
         // Deep space gradient
         let grad = SKShapeNode(rectOf: size)
@@ -53,16 +54,18 @@ final class HomeScene: SKScene {
                                    y: CGFloat.random(in: -size.height/2...size.height/2))
             dot.zPosition = -9
             addChild(dot)
-            dot.run(.repeatForever(.sequence([
-                .fadeAlpha(to: CGFloat.random(in: 0.05...0.3), duration: Double.random(in: 0.8...3)),
-                .fadeAlpha(to: 0.9, duration: Double.random(in: 0.8...3))
-            ])))
+            if !reducedMotion {
+                dot.run(.repeatForever(.sequence([
+                    .fadeAlpha(to: CGFloat.random(in: 0.05...0.3), duration: Double.random(in: 0.8...3)),
+                    .fadeAlpha(to: 0.9, duration: Double.random(in: 0.8...3))
+                ])))
+            }
         }
 
         // Floating pixel squares
-        for i in 0..<12 {
+        for i in 0..<(reducedMotion ? 8 : 12) {
             let sqSize = CGFloat.random(in: 6...20)
-            let color = GemColor(rawValue: i % 6)!.primary.withAlphaComponent(0.15)
+            let color = GemColor(rawValue: i % 6)!.primary.withAlphaComponent(reducedMotion ? 0.10 : 0.15)
             let sq = SKShapeNode(rectOf: CGSize(width: sqSize, height: sqSize))
             sq.fillColor = color
             sq.strokeColor = color.withAlphaComponent(0.3)
@@ -73,6 +76,7 @@ final class HomeScene: SKScene {
             addChild(sq)
             bgParticles.append(sq)
 
+            guard !reducedMotion else { continue }
             let floatY = CGFloat.random(in: 20...60)
             sq.run(.repeatForever(.sequence([
                 .group([
@@ -122,12 +126,14 @@ final class HomeScene: SKScene {
             dot.position = CGPoint(x: (CGFloat(i) - 2.5) * 22, y: -60)
             logoNode.addChild(dot)
 
-            dot.run(.repeatForever(.sequence([
-                .wait(forDuration: Double(i) * 0.12),
-                .scale(to: 1.4, duration: 0.2),
-                .scale(to: 1.0, duration: 0.2),
-                .wait(forDuration: 0.8)
-            ])))
+            if !VisualComfort.isReducedMotionEnabled {
+                dot.run(.repeatForever(.sequence([
+                    .wait(forDuration: Double(i) * 0.12),
+                    .scale(to: 1.4, duration: 0.2),
+                    .scale(to: 1.0, duration: 0.2),
+                    .wait(forDuration: 0.8)
+                ])))
+            }
         }
 
         // Tagline
@@ -140,10 +146,12 @@ final class HomeScene: SKScene {
         logoNode.addChild(tagLbl)
 
         // Subtle logo float
-        logoNode.run(.repeatForever(.sequence([
-            .moveBy(x: 0, y: 6, duration: 2.0),
-            .moveBy(x: 0, y: -6, duration: 2.0)
-        ])))
+        if !VisualComfort.isReducedMotionEnabled {
+            logoNode.run(.repeatForever(.sequence([
+                .moveBy(x: 0, y: 6, duration: 2.0),
+                .moveBy(x: 0, y: -6, duration: 2.0)
+            ])))
+        }
     }
 
     // MARK: - Gems Decoration
@@ -164,13 +172,15 @@ final class HomeScene: SKScene {
             addChild(gem)
 
             let delay = Double(i) * 0.1
-            gem.run(.repeatForever(.sequence([
-                .wait(forDuration: delay),
-                .scale(to: 1.2, duration: 0.3),
-                .scale(to: 0.9, duration: 0.3),
-                .scale(to: 1.0, duration: 0.2),
-                .wait(forDuration: 1.5)
-            ])))
+            if !VisualComfort.isReducedMotionEnabled {
+                gem.run(.repeatForever(.sequence([
+                    .wait(forDuration: delay),
+                    .scale(to: 1.2, duration: 0.3),
+                    .scale(to: 0.9, duration: 0.3),
+                    .scale(to: 1.0, duration: 0.2),
+                    .wait(forDuration: 1.5)
+                ])))
+            }
         }
     }
 

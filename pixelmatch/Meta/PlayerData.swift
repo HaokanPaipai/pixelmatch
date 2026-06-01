@@ -26,6 +26,7 @@ final class PlayerData {
         static let soundEnabled     = "soundEnabled"
         static let musicEnabled     = "musicEnabled"
         static let vibrateEnabled   = "vibrateEnabled"
+        static let reduceMotionEnabled = "reduceMotionEnabled"
         static let playerName       = "playerName"
         static let firstLaunch      = "firstLaunch"
         static let totalPlayTime    = "totalPlayTime"
@@ -154,6 +155,11 @@ final class PlayerData {
     var vibrateEnabled: Bool {
         get { defaults.object(forKey: Key.vibrateEnabled) as? Bool ?? true }
         set { defaults.set(newValue, forKey: Key.vibrateEnabled) }
+    }
+
+    var reduceMotionEnabled: Bool {
+        get { defaults.object(forKey: Key.reduceMotionEnabled) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Key.reduceMotionEnabled) }
     }
 
     var playerName: String {

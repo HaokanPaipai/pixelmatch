@@ -166,6 +166,7 @@
 "settings.sound" = "🔊 Sound";
 "settings.music" = "🎵 Music";
 "settings.vibrate" = "📳 Vibrate";
+"settings.reduce_motion" = "◌ Comfort FX";
 
 "map.levels_range" = "Levels %d-%d";
 "map.moves" = "Moves: %d";
@@ -224,6 +225,9 @@
 "result.streak_bonus" = "🔥 ×%d STREAK BONUS!";
 "result.new_best" = "✦ NEW BEST!";
 "result.coins" = "+%d Coins!";
+"result.world_repair" = "WORLD REPAIR";
+"result.world_restored" = "RESTORED";
+"result.world_repair_percent" = "%d%%";
 "result.next_level" = "NEXT LEVEL ▶";
 "result.level_map" = "◀ LEVEL MAP";
 "result.replay" = "↺ REPLAY";

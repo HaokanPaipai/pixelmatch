@@ -75,7 +75,7 @@ final class TutorialScene: SKScene {
         board = Board(rows: 5, cols: 5, availableColors: [.red, .blue, .green, .yellow, .purple])
         board.setup(from: level)
 
-        boardNode = BoardNode(board: board)
+        boardNode = BoardNode(board: board, world: level.world)
         let panelTop = safeBottomY + 222
         let playableTop = safeTopY - 24
         boardNode.position = CGPoint(x: 0, y: (playableTop + panelTop) / 2)
