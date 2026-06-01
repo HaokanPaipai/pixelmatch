@@ -113,6 +113,37 @@ struct PixelIcons {
         [0,0,1,1,1,0,0,0],
     ]
 
+    static let album: [[UInt8]] = [
+        [0,1,1,1,1,1,1,0],
+        [1,2,2,2,2,2,2,1],
+        [1,2,4,2,2,3,2,1],
+        [1,2,2,2,3,3,2,1],
+        [1,2,2,3,3,2,2,1],
+        [1,2,4,2,2,2,2,1],
+        [1,2,2,2,2,2,2,1],
+        [0,1,1,1,1,1,1,0],
+    ]
+    static let settings: [[UInt8]] = [
+        [0,0,1,1,0,1,1,0],
+        [0,1,2,1,1,1,2,1],
+        [1,2,0,3,3,0,2,1],
+        [1,1,3,4,4,3,1,1],
+        [0,1,3,4,4,3,1,0],
+        [1,2,0,3,3,0,2,1],
+        [0,1,2,1,1,1,2,1],
+        [0,0,1,1,0,1,1,0],
+    ]
+    static let leaderboard: [[UInt8]] = [
+        [0,0,0,2,2,0,0,0],
+        [0,0,2,1,1,2,0,0],
+        [0,2,1,1,1,1,2,0],
+        [2,1,1,4,4,1,1,2],
+        [0,0,1,1,1,1,0,0],
+        [0,0,0,3,3,0,0,0],
+        [0,1,1,1,1,1,1,0],
+        [0,3,3,3,3,3,3,0],
+    ]
+
     // Obstacle Icons
     static let jelly: [[UInt8]] = [
         [0,0,1,1,1,1,0,0],
@@ -259,6 +290,33 @@ struct PixelIcons {
     ]
 }
 
+enum PixelArtIcon: String, CaseIterable {
+    case play
+    case pause
+    case back
+    case close
+    case restart
+    case settings
+    case album
+    case leaderboard
+    case coin
+    case diamond
+    case gift
+    case quest
+    case check
+    case chest
+    case video
+    case hammer
+    case shuffle
+    case extraMoves
+    case colorBomb
+    case heart
+    case sound
+    case music
+    case vibrate
+    case reduceMotion
+}
+
 // MARK: - PixelArt Renderer
 
 final class PixelArt {
@@ -310,11 +368,129 @@ final class PixelArt {
                      size: CGFloat = 40) -> SKTexture {
         let sz = CGSize(width: size, height: size)
         let img = render(size: sz) { ctx in
+            drawIconAura(ctx, pixels: pixels, primary: primary, dark: dark, size: sz)
             drawPixels(ctx, pixels: pixels, primary: primary, light: light,
                        dark: dark, white: .white, size: sz)
         }
         let tex = SKTexture(image: img)
         tex.filteringMode = .linear
+        return tex
+    }
+
+    func heartBadgeTexture(filled: Bool = true, size: CGFloat = 24) -> SKTexture {
+        let key = "badge_heart_\(filled ? "f" : "e")_\(Int(size))"
+        if let cached = cache[key] { return cached }
+
+        let sz = CGSize(width: size, height: size)
+        let img = render(size: sz) { ctx in
+            let primary = filled ? UIColor(hex: "#FF3B30") : UIColor(hex: "#445066")
+            let light = filled ? UIColor(hex: "#FF9A9A") : UIColor(hex: "#667188")
+            let dark = filled ? UIColor(hex: "#9E1018") : UIColor(hex: "#1B2638")
+            let rect = CGRect(x: size * 0.12, y: size * 0.15,
+                              width: size * 0.76, height: size * 0.70)
+            drawSoftHalo(ctx, rect: rect.insetBy(dx: -size * 0.07, dy: -size * 0.07),
+                         color: primary.withAlphaComponent(filled ? 0.28 : 0.14))
+            let path = heartPath(in: rect)
+            drawGlossyBadgePath(ctx, path: path, rect: rect, primary: primary, light: light, dark: dark)
+            UIColor.white.withAlphaComponent(filled ? 0.22 : 0.10).setFill()
+            ctx.addPath(UIBezierPath(ovalIn: CGRect(x: rect.minX + rect.width * 0.22,
+                                                    y: rect.minY + rect.height * 0.18,
+                                                    width: rect.width * 0.20,
+                                                    height: rect.height * 0.14)).cgPath)
+            ctx.fillPath()
+        }
+        let tex = SKTexture(image: img)
+        tex.filteringMode = .linear
+        cache[key] = tex
+        return tex
+    }
+
+    func starBadgeTexture(lit: Bool = true, size: CGFloat = 24) -> SKTexture {
+        let key = "badge_star_\(lit ? "l" : "d")_\(Int(size))"
+        if let cached = cache[key] { return cached }
+
+        let sz = CGSize(width: size, height: size)
+        let img = render(size: sz) { ctx in
+            let primary = lit ? UIColor(hex: "#FFCC00") : UIColor(hex: "#3B465C")
+            let light = lit ? UIColor(hex: "#FFF4A8") : UIColor(hex: "#657086")
+            let dark = lit ? UIColor(hex: "#B26B00") : UIColor(hex: "#18243A")
+            let center = CGPoint(x: size / 2, y: size / 2)
+            let outer = size * 0.42
+            let path = starPath(center: center, outerRadius: outer, innerRadius: outer * 0.46, points: 5)
+            let rect = CGRect(x: center.x - outer, y: center.y - outer, width: outer * 2, height: outer * 2)
+            drawSoftHalo(ctx, rect: rect.insetBy(dx: -size * 0.04, dy: -size * 0.04),
+                         color: primary.withAlphaComponent(lit ? 0.30 : 0.13))
+            drawGlossyBadgePath(ctx, path: path, rect: rect, primary: primary, light: light, dark: dark)
+            UIColor.white.withAlphaComponent(lit ? 0.24 : 0.09).setFill()
+            ctx.addPath(UIBezierPath(ovalIn: CGRect(x: rect.minX + rect.width * 0.34,
+                                                    y: rect.minY + rect.height * 0.22,
+                                                    width: rect.width * 0.18,
+                                                    height: rect.height * 0.12)).cgPath)
+            ctx.fillPath()
+        }
+        let tex = SKTexture(image: img)
+        tex.filteringMode = .linear
+        cache[key] = tex
+        return tex
+    }
+
+    func lockBadgeTexture(size: CGFloat = 30) -> SKTexture {
+        let key = "badge_lock_\(Int(size))"
+        if let cached = cache[key] { return cached }
+
+        let sz = CGSize(width: size, height: size)
+        let img = render(size: sz) { ctx in
+            let rect = CGRect(x: size * 0.18, y: size * 0.38,
+                              width: size * 0.64, height: size * 0.42)
+            let primary = UIColor(hex: "#49627E")
+            let light = UIColor(hex: "#8FA7C7")
+            let dark = UIColor(hex: "#18283E")
+
+            drawSoftHalo(ctx, rect: CGRect(x: size * 0.12, y: size * 0.10,
+                                           width: size * 0.76, height: size * 0.78),
+                         color: UIColor(hex: "#5A7FAE").withAlphaComponent(0.18))
+
+            ctx.saveGState()
+            ctx.setLineWidth(max(2.4, size * 0.11))
+            ctx.setLineCap(.round)
+            ctx.setStrokeColor(light.withAlphaComponent(0.92).cgColor)
+            let shackle = UIBezierPath()
+            shackle.move(to: CGPoint(x: rect.minX + rect.width * 0.18, y: rect.minY + size * 0.04))
+            shackle.addCurve(to: CGPoint(x: rect.maxX - rect.width * 0.18, y: rect.minY + size * 0.04),
+                             controlPoint1: CGPoint(x: rect.minX + rect.width * 0.14, y: size * 0.08),
+                             controlPoint2: CGPoint(x: rect.maxX - rect.width * 0.14, y: size * 0.08))
+            ctx.addPath(shackle.cgPath)
+            ctx.strokePath()
+            ctx.restoreGState()
+
+            let bodyPath = UIBezierPath(roundedRect: rect, cornerRadius: max(4, size * 0.12))
+            drawGlossyBadgePath(ctx, path: bodyPath, rect: rect, primary: primary, light: light, dark: dark)
+
+            UIColor(hex: "#D9EEFF").withAlphaComponent(0.88).setFill()
+            ctx.addPath(UIBezierPath(roundedRect: CGRect(x: rect.midX - size * 0.045,
+                                                         y: rect.midY - size * 0.04,
+                                                         width: size * 0.09,
+                                                         height: size * 0.19),
+                                      cornerRadius: size * 0.035).cgPath)
+            ctx.fillPath()
+        }
+        let tex = SKTexture(image: img)
+        tex.filteringMode = .linear
+        cache[key] = tex
+        return tex
+    }
+
+    func softIconTexture(_ icon: PixelArtIcon, size: CGFloat = 40) -> SKTexture {
+        let key = "soft_icon_2_\(icon.rawValue)_\(Int(size))"
+        if let cached = cache[key] { return cached }
+
+        let sz = CGSize(width: size, height: size)
+        let img = render(size: sz) { ctx in
+            drawSoftIcon(ctx, icon: icon, size: sz)
+        }
+        let tex = SKTexture(image: img)
+        tex.filteringMode = .linear
+        cache[key] = tex
         return tex
     }
 
@@ -387,6 +563,693 @@ final class PixelArt {
             ctx.cgContext.interpolationQuality = .high
             draw(ctx.cgContext)
         }
+    }
+
+    private func drawIconAura(_ ctx: CGContext,
+                              pixels: [[UInt8]],
+                              primary: UIColor,
+                              dark: UIColor,
+                              size: CGSize) {
+        guard !pixels.isEmpty else { return }
+        let rows = pixels.count
+        let cols = pixels[0].count
+        let px = size.width / CGFloat(cols)
+        let py = size.height / CGFloat(rows)
+        let gap = max(0.2, min(px, py) * 0.04)
+
+        ctx.saveGState()
+        ctx.setShadow(offset: CGSize(width: 0, height: max(0.7, size.height * 0.035)),
+                      blur: max(1.2, size.width * 0.055),
+                      color: dark.withAlphaComponent(0.30).cgColor)
+        primary.withAlphaComponent(0.11).setFill()
+        for r in 0..<rows {
+            for c in 0..<cols where pixels[r][c] != 0 {
+                let rect = CGRect(x: CGFloat(c) * px,
+                                  y: CGFloat(r) * py,
+                                  width: px,
+                                  height: py).insetBy(dx: gap, dy: gap)
+                ctx.addPath(UIBezierPath(roundedRect: rect,
+                                         cornerRadius: min(rect.width, rect.height) * 0.26).cgPath)
+                ctx.fillPath()
+            }
+        }
+        ctx.restoreGState()
+    }
+
+    private func drawSoftHalo(_ ctx: CGContext, rect: CGRect, color: UIColor) {
+        ctx.saveGState()
+        ctx.setShadow(offset: .zero,
+                      blur: max(2.0, min(rect.width, rect.height) * 0.18),
+                      color: color.cgColor)
+        color.withAlphaComponent(0.42).setFill()
+        ctx.addPath(UIBezierPath(ovalIn: rect).cgPath)
+        ctx.fillPath()
+        ctx.restoreGState()
+    }
+
+    private func drawGlossyBadgePath(_ ctx: CGContext,
+                                     path: UIBezierPath,
+                                     rect: CGRect,
+                                     primary: UIColor,
+                                     light: UIColor,
+                                     dark: UIColor) {
+        ctx.saveGState()
+        ctx.setShadow(offset: CGSize(width: 0, height: max(1, rect.height * 0.08)),
+                      blur: max(1.6, rect.height * 0.10),
+                      color: dark.withAlphaComponent(0.38).cgColor)
+        dark.withAlphaComponent(0.68).setFill()
+        ctx.addPath(path.cgPath)
+        ctx.fillPath()
+        ctx.restoreGState()
+
+        let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                  colors: [
+                                    light.withAlphaComponent(0.98).cgColor,
+                                    primary.cgColor,
+                                    dark.cgColor
+                                  ] as CFArray,
+                                  locations: [0.0, 0.58, 1.0])!
+        ctx.saveGState()
+        ctx.addPath(path.cgPath)
+        ctx.clip()
+        ctx.drawLinearGradient(gradient,
+                               start: CGPoint(x: rect.midX, y: rect.minY),
+                               end: CGPoint(x: rect.midX, y: rect.maxY),
+                               options: [])
+        UIColor.white.withAlphaComponent(0.12).setFill()
+        ctx.addPath(UIBezierPath(roundedRect: CGRect(x: rect.minX + rect.width * 0.13,
+                                                     y: rect.minY + rect.height * 0.08,
+                                                     width: rect.width * 0.74,
+                                                     height: rect.height * 0.24),
+                                  cornerRadius: rect.height * 0.12).cgPath)
+        ctx.fillPath()
+        ctx.restoreGState()
+
+        light.withAlphaComponent(0.55).setStroke()
+        path.lineWidth = max(1, min(rect.width, rect.height) * 0.055)
+        path.stroke()
+    }
+
+    private func heartPath(in rect: CGRect) -> UIBezierPath {
+        let path = UIBezierPath()
+        let centerX = rect.midX
+        path.move(to: CGPoint(x: centerX, y: rect.maxY))
+        path.addCurve(to: CGPoint(x: rect.minX, y: rect.midY),
+                      controlPoint1: CGPoint(x: centerX - rect.width * 0.34, y: rect.maxY - rect.height * 0.14),
+                      controlPoint2: CGPoint(x: rect.minX, y: rect.maxY - rect.height * 0.32))
+        path.addCurve(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.28),
+                      controlPoint1: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.08),
+                      controlPoint2: CGPoint(x: centerX - rect.width * 0.31, y: rect.minY - rect.height * 0.02))
+        path.addCurve(to: CGPoint(x: rect.maxX, y: rect.midY),
+                      controlPoint1: CGPoint(x: centerX + rect.width * 0.31, y: rect.minY - rect.height * 0.02),
+                      controlPoint2: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.08))
+        path.addCurve(to: CGPoint(x: centerX, y: rect.maxY),
+                      controlPoint1: CGPoint(x: rect.maxX, y: rect.maxY - rect.height * 0.32),
+                      controlPoint2: CGPoint(x: centerX + rect.width * 0.34, y: rect.maxY - rect.height * 0.14))
+        path.close()
+        return path
+    }
+
+    private func drawSoftIcon(_ ctx: CGContext, icon: PixelArtIcon, size: CGSize) {
+        let palette = softIconPalette(icon)
+        let side = min(size.width, size.height)
+        let rect = CGRect(x: (size.width - side) / 2 + side * 0.14,
+                          y: (size.height - side) / 2 + side * 0.14,
+                          width: side * 0.72,
+                          height: side * 0.72)
+        drawSoftHalo(ctx,
+                     rect: rect.insetBy(dx: -side * 0.05, dy: -side * 0.05),
+                     color: palette.primary.withAlphaComponent(0.22))
+
+        switch icon {
+        case .play:
+            drawGlossyBadgePath(ctx, path: playPath(in: rect), rect: rect,
+                                primary: palette.primary, light: palette.light, dark: palette.dark)
+        case .pause:
+            drawPauseIcon(ctx, rect: rect, palette: palette)
+        case .back:
+            drawGlossyBadgePath(ctx, path: backPath(in: rect), rect: rect,
+                                primary: palette.primary, light: palette.light, dark: palette.dark)
+        case .close:
+            drawSoftIconLine(ctx, from: CGPoint(x: rect.minX + rect.width * 0.18, y: rect.minY + rect.height * 0.18),
+                             to: CGPoint(x: rect.maxX - rect.width * 0.18, y: rect.maxY - rect.height * 0.18),
+                             palette: palette, width: side * 0.13)
+            drawSoftIconLine(ctx, from: CGPoint(x: rect.maxX - rect.width * 0.18, y: rect.minY + rect.height * 0.18),
+                             to: CGPoint(x: rect.minX + rect.width * 0.18, y: rect.maxY - rect.height * 0.18),
+                             palette: palette, width: side * 0.13)
+        case .restart:
+            drawRestartIcon(ctx, rect: rect, palette: palette)
+        case .settings:
+            drawSettingsIcon(ctx, rect: rect, palette: palette)
+        case .album:
+            drawAlbumIcon(ctx, rect: rect, palette: palette)
+        case .leaderboard:
+            drawTrophyIcon(ctx, rect: rect, palette: palette)
+        case .coin:
+            drawCoinIcon(ctx, rect: rect, palette: palette)
+        case .diamond:
+            drawDiamondIcon(ctx, rect: rect, palette: palette)
+        case .gift:
+            drawGiftIcon(ctx, rect: rect, palette: palette)
+        case .quest:
+            drawQuestIcon(ctx, rect: rect, palette: palette)
+        case .check:
+            drawCheckIcon(ctx, rect: rect, palette: palette)
+        case .chest:
+            drawChestIcon(ctx, rect: rect, palette: palette)
+        case .video:
+            drawVideoIcon(ctx, rect: rect, palette: palette)
+        case .hammer:
+            drawHammerIcon(ctx, rect: rect, palette: palette)
+        case .shuffle:
+            drawShuffleIcon(ctx, rect: rect, palette: palette)
+        case .extraMoves:
+            drawTextBadgeIcon(ctx, text: "+5", rect: rect, palette: palette)
+        case .colorBomb:
+            drawColorBombIcon(ctx, rect: rect)
+        case .heart:
+            drawGlossyBadgePath(ctx, path: heartPath(in: rect), rect: rect,
+                                primary: palette.primary, light: palette.light, dark: palette.dark)
+        case .sound:
+            drawSoundIcon(ctx, rect: rect, palette: palette)
+        case .music:
+            drawMusicIcon(ctx, rect: rect, palette: palette)
+        case .vibrate:
+            drawVibrateIcon(ctx, rect: rect, palette: palette)
+        case .reduceMotion:
+            drawReduceMotionIcon(ctx, rect: rect, palette: palette)
+        }
+    }
+
+    private func softIconPalette(_ icon: PixelArtIcon) -> (primary: UIColor, light: UIColor, dark: UIColor) {
+        let primary: UIColor
+        switch icon {
+        case .play, .check, .video, .extraMoves:
+            primary = UIColor(hex: "#34C759")
+        case .pause, .quest, .shuffle, .sound:
+            primary = UIColor(hex: "#66D9FF")
+        case .back, .settings, .album, .reduceMotion:
+            primary = UIColor(hex: "#8FA7C7")
+        case .close:
+            primary = UIColor(hex: "#FF5B5B")
+        case .restart, .gift, .chest:
+            primary = UIColor(hex: "#FF9500")
+        case .leaderboard, .coin, .vibrate:
+            primary = UIColor(hex: "#FFCC00")
+        case .diamond, .colorBomb, .music:
+            primary = UIColor(hex: "#AF52DE")
+        case .hammer:
+            primary = UIColor(hex: "#D6DEE8")
+        case .heart:
+            primary = UIColor(hex: "#FF3B30")
+        }
+        return (primary, primary.lighter(by: 0.28), primary.darker(by: 0.34))
+    }
+
+    private func playPath(in rect: CGRect) -> UIBezierPath {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.24, y: rect.minY + rect.height * 0.12))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.14, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.24, y: rect.maxY - rect.height * 0.12))
+        path.close()
+        return path
+    }
+
+    private func backPath(in rect: CGRect) -> UIBezierPath {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: rect.maxX - rect.width * 0.16, y: rect.minY + rect.height * 0.12))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.14, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.16, y: rect.maxY - rect.height * 0.12))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.16, y: rect.midY + rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.02, y: rect.midY + rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.02, y: rect.midY - rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.16, y: rect.midY - rect.height * 0.18))
+        path.close()
+        return path
+    }
+
+    private func drawPauseIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let barW = rect.width * 0.26
+        for x in [rect.minX + rect.width * 0.18, rect.maxX - rect.width * 0.18 - barW] {
+            let bar = CGRect(x: x, y: rect.minY + rect.height * 0.10,
+                             width: barW, height: rect.height * 0.80)
+            let path = UIBezierPath(roundedRect: bar, cornerRadius: barW * 0.38)
+            drawGlossyBadgePath(ctx, path: path, rect: bar,
+                                primary: palette.primary, light: palette.light, dark: palette.dark)
+        }
+    }
+
+    private func drawRestartIcon(_ ctx: CGContext, rect: CGRect,
+                                 palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = rect.width * 0.34
+        let arc = UIBezierPath(arcCenter: center, radius: radius,
+                               startAngle: .pi * 0.15, endAngle: .pi * 1.72, clockwise: true)
+        drawSoftIconPathStroke(ctx, path: arc, palette: palette, width: rect.width * 0.14)
+
+        let arrow = UIBezierPath()
+        arrow.move(to: CGPoint(x: center.x + radius * 0.98, y: center.y + radius * 0.22))
+        arrow.addLine(to: CGPoint(x: center.x + radius * 0.56, y: center.y - radius * 0.05))
+        arrow.addLine(to: CGPoint(x: center.x + radius * 0.74, y: center.y + radius * 0.47))
+        arrow.close()
+        drawGlossyBadgePath(ctx, path: arrow, rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+    }
+
+    private func drawSettingsIcon(_ ctx: CGContext, rect: CGRect,
+                                  palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let toothW = rect.width * 0.16
+        let toothH = rect.height * 0.26
+        for i in 0..<8 {
+            ctx.saveGState()
+            ctx.translateBy(x: center.x, y: center.y)
+            ctx.rotate(by: CGFloat(i) * .pi / 4)
+            let tooth = CGRect(x: -toothW / 2,
+                               y: -rect.height * 0.49,
+                               width: toothW,
+                               height: toothH)
+            let path = UIBezierPath(roundedRect: tooth, cornerRadius: toothW * 0.35)
+            drawGlossyBadgePath(ctx, path: path, rect: tooth,
+                                primary: palette.primary, light: palette.light, dark: palette.dark)
+            ctx.restoreGState()
+        }
+
+        let gearRect = rect.insetBy(dx: rect.width * 0.18, dy: rect.height * 0.18)
+        drawGlossyBadgePath(ctx, path: UIBezierPath(ovalIn: gearRect), rect: gearRect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        let hole = gearRect.insetBy(dx: gearRect.width * 0.33, dy: gearRect.height * 0.33)
+        UIColor(hex: "#0D1B2A").withAlphaComponent(0.82).setFill()
+        ctx.addPath(UIBezierPath(ovalIn: hole).cgPath)
+        ctx.fillPath()
+    }
+
+    private func drawAlbumIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let book = rect.insetBy(dx: rect.width * 0.08, dy: rect.height * 0.06)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: book, cornerRadius: rect.width * 0.10),
+                            rect: book,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: book.minX + book.width * 0.18, y: book.minY + book.height * 0.70),
+                         to: CGPoint(x: book.maxX - book.width * 0.14, y: book.minY + book.height * 0.36),
+                         palette: (UIColor(hex: "#34C759"), UIColor(hex: "#B7F7C8"), UIColor(hex: "#087D30")),
+                         width: rect.width * 0.06)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: book.minX + book.width * 0.22, y: book.minY + book.height * 0.18),
+                         to: CGPoint(x: book.minX + book.width * 0.22, y: book.maxY - book.height * 0.16),
+                         palette: palette,
+                         width: rect.width * 0.05)
+        UIColor.white.withAlphaComponent(0.75).setFill()
+        ctx.addPath(UIBezierPath(ovalIn: CGRect(x: book.maxX - book.width * 0.30,
+                                                y: book.minY + book.height * 0.18,
+                                                width: book.width * 0.13,
+                                                height: book.width * 0.13)).cgPath)
+        ctx.fillPath()
+    }
+
+    private func drawTrophyIcon(_ ctx: CGContext, rect: CGRect,
+                                palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let cup = UIBezierPath()
+        cup.move(to: CGPoint(x: rect.minX + rect.width * 0.24, y: rect.minY + rect.height * 0.16))
+        cup.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.24, y: rect.minY + rect.height * 0.16))
+        cup.addCurve(to: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.64),
+                     controlPoint1: CGPoint(x: rect.maxX - rect.width * 0.22, y: rect.minY + rect.height * 0.46),
+                     controlPoint2: CGPoint(x: rect.maxX - rect.width * 0.42, y: rect.minY + rect.height * 0.64))
+        cup.addCurve(to: CGPoint(x: rect.minX + rect.width * 0.24, y: rect.minY + rect.height * 0.16),
+                     controlPoint1: CGPoint(x: rect.minX + rect.width * 0.42, y: rect.minY + rect.height * 0.64),
+                     controlPoint2: CGPoint(x: rect.minX + rect.width * 0.22, y: rect.minY + rect.height * 0.46))
+        cup.close()
+        drawGlossyBadgePath(ctx, path: cup, rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.60),
+                         to: CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.20),
+                         palette: palette,
+                         width: rect.width * 0.12)
+        let base = CGRect(x: rect.minX + rect.width * 0.25,
+                          y: rect.maxY - rect.height * 0.20,
+                          width: rect.width * 0.50,
+                          height: rect.height * 0.13)
+        drawGlossyBadgePath(ctx, path: UIBezierPath(roundedRect: base, cornerRadius: base.height * 0.32),
+                            rect: base,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+    }
+
+    private func drawCoinIcon(_ ctx: CGContext, rect: CGRect,
+                              palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawGlossyBadgePath(ctx, path: UIBezierPath(ovalIn: rect), rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawSoftIconPathStroke(ctx,
+                               path: UIBezierPath(ovalIn: rect.insetBy(dx: rect.width * 0.18, dy: rect.height * 0.18)),
+                               palette: palette,
+                               width: rect.width * 0.055)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.30),
+                         to: CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.30),
+                         palette: palette,
+                         width: rect.width * 0.055)
+    }
+
+    private func drawDiamondIcon(_ ctx: CGContext, rect: CGRect,
+                                 palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.36))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.36))
+        path.close()
+        drawGlossyBadgePath(ctx, path: path, rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.minX + rect.width * 0.18, y: rect.minY + rect.height * 0.36),
+                         to: CGPoint(x: rect.maxX - rect.width * 0.18, y: rect.minY + rect.height * 0.36),
+                         palette: palette,
+                         width: rect.width * 0.045)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.06),
+                         to: CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.10),
+                         palette: palette,
+                         width: rect.width * 0.045)
+    }
+
+    private func drawGiftIcon(_ ctx: CGContext, rect: CGRect,
+                              palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let box = CGRect(x: rect.minX + rect.width * 0.08,
+                         y: rect.minY + rect.height * 0.35,
+                         width: rect.width * 0.84,
+                         height: rect.height * 0.52)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: box, cornerRadius: rect.width * 0.08),
+                            rect: box,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        let lid = CGRect(x: rect.minX,
+                         y: rect.minY + rect.height * 0.24,
+                         width: rect.width,
+                         height: rect.height * 0.22)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: lid, cornerRadius: rect.width * 0.08),
+                            rect: lid,
+                            primary: UIColor(hex: "#FFCC00"),
+                            light: UIColor(hex: "#FFF6A6"),
+                            dark: UIColor(hex: "#B57400"))
+        drawSoftIconLine(ctx, from: CGPoint(x: rect.midX, y: lid.minY),
+                         to: CGPoint(x: rect.midX, y: box.maxY),
+                         palette: (UIColor(hex: "#FF5B5B"), UIColor(hex: "#FFB3B3"), UIColor(hex: "#B31324")),
+                         width: rect.width * 0.11)
+    }
+
+    private func drawQuestIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let paper = rect.insetBy(dx: rect.width * 0.14, dy: rect.height * 0.05)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: paper, cornerRadius: rect.width * 0.08),
+                            rect: paper,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        let clip = CGRect(x: rect.midX - rect.width * 0.16,
+                          y: rect.minY,
+                          width: rect.width * 0.32,
+                          height: rect.height * 0.16)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: clip, cornerRadius: clip.height * 0.35),
+                            rect: clip,
+                            primary: UIColor(hex: "#D6DEE8"),
+                            light: .white,
+                            dark: UIColor(hex: "#69788C"))
+        for offset in [0.34, 0.50, 0.66] as [CGFloat] {
+            drawSoftIconLine(ctx,
+                             from: CGPoint(x: paper.minX + paper.width * 0.25, y: paper.minY + paper.height * offset),
+                             to: CGPoint(x: paper.maxX - paper.width * 0.18, y: paper.minY + paper.height * offset),
+                             palette: palette,
+                             width: rect.width * 0.045)
+        }
+    }
+
+    private func drawCheckIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawGlossyBadgePath(ctx, path: UIBezierPath(ovalIn: rect), rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        let check = UIBezierPath()
+        check.move(to: CGPoint(x: rect.minX + rect.width * 0.25, y: rect.midY))
+        check.addLine(to: CGPoint(x: rect.midX - rect.width * 0.05, y: rect.maxY - rect.height * 0.28))
+        check.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.20, y: rect.minY + rect.height * 0.30))
+        drawSoftIconPathStroke(ctx,
+                               path: check,
+                               palette: (UIColor.white, UIColor.white, UIColor(hex: "#087D30")),
+                               width: rect.width * 0.13)
+    }
+
+    private func drawChestIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let body = CGRect(x: rect.minX + rect.width * 0.06,
+                          y: rect.minY + rect.height * 0.30,
+                          width: rect.width * 0.88,
+                          height: rect.height * 0.56)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: body, cornerRadius: rect.width * 0.09),
+                            rect: body,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: body.minX + body.width * 0.05, y: body.minY + body.height * 0.34),
+                         to: CGPoint(x: body.maxX - body.width * 0.05, y: body.minY + body.height * 0.34),
+                         palette: (UIColor(hex: "#6B3A0F"), UIColor(hex: "#D9952F"), UIColor(hex: "#4B2A0A")),
+                         width: rect.width * 0.07)
+        let lock = CGRect(x: rect.midX - rect.width * 0.10,
+                          y: body.minY + body.height * 0.38,
+                          width: rect.width * 0.20,
+                          height: rect.height * 0.22)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: lock, cornerRadius: lock.width * 0.20),
+                            rect: lock,
+                            primary: UIColor(hex: "#FFCC00"),
+                            light: UIColor(hex: "#FFF6A6"),
+                            dark: UIColor(hex: "#B57400"))
+    }
+
+    private func drawVideoIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: rect.insetBy(dx: rect.width * 0.04, dy: rect.height * 0.15),
+                                               cornerRadius: rect.width * 0.12),
+                            rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawGlossyBadgePath(ctx,
+                            path: playPath(in: rect.insetBy(dx: rect.width * 0.31, dy: rect.height * 0.28)),
+                            rect: rect,
+                            primary: .white,
+                            light: .white,
+                            dark: UIColor(hex: "#D6DEE8"))
+    }
+
+    private func drawHammerIcon(_ ctx: CGContext, rect: CGRect,
+                                palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.minX + rect.width * 0.30, y: rect.maxY - rect.height * 0.14),
+                         to: CGPoint(x: rect.maxX - rect.width * 0.26, y: rect.minY + rect.height * 0.28),
+                         palette: (UIColor(hex: "#8B5A2B"), UIColor(hex: "#D9A066"), UIColor(hex: "#4B2A0A")),
+                         width: rect.width * 0.14)
+        ctx.saveGState()
+        ctx.translateBy(x: rect.midX, y: rect.minY + rect.height * 0.28)
+        ctx.rotate(by: -.pi / 8)
+        let head = CGRect(x: -rect.width * 0.30, y: -rect.height * 0.15,
+                          width: rect.width * 0.60, height: rect.height * 0.30)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: head, cornerRadius: rect.width * 0.08),
+                            rect: head,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        ctx.restoreGState()
+    }
+
+    private func drawShuffleIcon(_ ctx: CGContext, rect: CGRect,
+                                 palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let upper = UIBezierPath()
+        upper.move(to: CGPoint(x: rect.minX + rect.width * 0.08, y: rect.minY + rect.height * 0.30))
+        upper.addCurve(to: CGPoint(x: rect.maxX - rect.width * 0.22, y: rect.maxY - rect.height * 0.24),
+                       controlPoint1: CGPoint(x: rect.minX + rect.width * 0.34, y: rect.minY + rect.height * 0.30),
+                       controlPoint2: CGPoint(x: rect.maxX - rect.width * 0.42, y: rect.maxY - rect.height * 0.24))
+        drawSoftIconPathStroke(ctx, path: upper, palette: palette, width: rect.width * 0.09)
+        let lower = UIBezierPath()
+        lower.move(to: CGPoint(x: rect.minX + rect.width * 0.08, y: rect.maxY - rect.height * 0.26))
+        lower.addCurve(to: CGPoint(x: rect.maxX - rect.width * 0.22, y: rect.minY + rect.height * 0.26),
+                       controlPoint1: CGPoint(x: rect.minX + rect.width * 0.34, y: rect.maxY - rect.height * 0.26),
+                       controlPoint2: CGPoint(x: rect.maxX - rect.width * 0.42, y: rect.minY + rect.height * 0.26))
+        drawSoftIconPathStroke(ctx, path: lower, palette: palette, width: rect.width * 0.09)
+        drawGlossyBadgePath(ctx,
+                            path: playPath(in: CGRect(x: rect.maxX - rect.width * 0.27,
+                                                      y: rect.maxY - rect.height * 0.39,
+                                                      width: rect.width * 0.25,
+                                                      height: rect.height * 0.25)),
+                            rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawGlossyBadgePath(ctx,
+                            path: playPath(in: CGRect(x: rect.maxX - rect.width * 0.27,
+                                                      y: rect.minY + rect.height * 0.14,
+                                                      width: rect.width * 0.25,
+                                                      height: rect.height * 0.25)),
+                            rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+    }
+
+    private func drawTextBadgeIcon(_ ctx: CGContext, text: String, rect: CGRect,
+                                   palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: rect.insetBy(dx: rect.width * 0.02, dy: rect.height * 0.18),
+                                               cornerRadius: rect.width * 0.16),
+                            rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        drawIconText(text, in: rect.insetBy(dx: -rect.width * 0.08, dy: rect.height * 0.13),
+                     color: .white,
+                     size: rect.height * 0.50)
+    }
+
+    private func drawColorBombIcon(_ ctx: CGContext, rect: CGRect) {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) * 0.44
+        let colors = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#66D9FF", "#AF52DE"].map(UIColor.init(hex:))
+        for i in colors.indices {
+            let start = -.pi / 2 + CGFloat(i) * 2 * .pi / CGFloat(colors.count)
+            let end = start + 2 * .pi / CGFloat(colors.count)
+            ctx.move(to: center)
+            ctx.addArc(center: center, radius: radius, startAngle: start, endAngle: end, clockwise: false)
+            colors[i].setFill()
+            ctx.fillPath()
+        }
+        UIColor.white.withAlphaComponent(0.72).setStroke()
+        let ring = UIBezierPath(ovalIn: CGRect(x: center.x - radius, y: center.y - radius,
+                                               width: radius * 2, height: radius * 2))
+        ring.lineWidth = rect.width * 0.06
+        ring.stroke()
+        drawSparkle(ctx, center: CGPoint(x: rect.minX + rect.width * 0.32, y: rect.minY + rect.height * 0.32),
+                    radius: rect.width * 0.10,
+                    color: UIColor.white.withAlphaComponent(0.82))
+    }
+
+    private func drawSoundIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let speaker = UIBezierPath()
+        speaker.move(to: CGPoint(x: rect.minX + rect.width * 0.14, y: rect.midY - rect.height * 0.14))
+        speaker.addLine(to: CGPoint(x: rect.minX + rect.width * 0.34, y: rect.midY - rect.height * 0.14))
+        speaker.addLine(to: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.18))
+        speaker.addLine(to: CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.18))
+        speaker.addLine(to: CGPoint(x: rect.minX + rect.width * 0.34, y: rect.midY + rect.height * 0.14))
+        speaker.addLine(to: CGPoint(x: rect.minX + rect.width * 0.14, y: rect.midY + rect.height * 0.14))
+        speaker.close()
+        drawGlossyBadgePath(ctx, path: speaker, rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        for scale in [0.28, 0.42] as [CGFloat] {
+            let arc = UIBezierPath(arcCenter: CGPoint(x: rect.midX, y: rect.midY),
+                                   radius: rect.width * scale,
+                                   startAngle: -.pi / 4,
+                                   endAngle: .pi / 4,
+                                   clockwise: true)
+            drawSoftIconPathStroke(ctx, path: arc, palette: palette, width: rect.width * 0.05)
+        }
+    }
+
+    private func drawMusicIcon(_ ctx: CGContext, rect: CGRect,
+                               palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.maxX - rect.width * 0.24, y: rect.minY + rect.height * 0.16),
+                         to: CGPoint(x: rect.maxX - rect.width * 0.24, y: rect.maxY - rect.height * 0.30),
+                         palette: palette,
+                         width: rect.width * 0.10)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.maxX - rect.width * 0.24, y: rect.minY + rect.height * 0.16),
+                         to: CGPoint(x: rect.minX + rect.width * 0.36, y: rect.minY + rect.height * 0.28),
+                         palette: palette,
+                         width: rect.width * 0.08)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(ovalIn: CGRect(x: rect.minX + rect.width * 0.18,
+                                                              y: rect.maxY - rect.height * 0.36,
+                                                              width: rect.width * 0.34,
+                                                              height: rect.height * 0.25)),
+                            rect: rect,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+    }
+
+    private func drawVibrateIcon(_ ctx: CGContext, rect: CGRect,
+                                 palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        let phone = rect.insetBy(dx: rect.width * 0.26, dy: rect.height * 0.10)
+        drawGlossyBadgePath(ctx,
+                            path: UIBezierPath(roundedRect: phone, cornerRadius: rect.width * 0.08),
+                            rect: phone,
+                            primary: palette.primary, light: palette.light, dark: palette.dark)
+        for x in [rect.minX + rect.width * 0.12, rect.maxX - rect.width * 0.12] {
+            drawSoftIconLine(ctx,
+                             from: CGPoint(x: x, y: rect.minY + rect.height * 0.25),
+                             to: CGPoint(x: x + (x < rect.midX ? -rect.width * 0.06 : rect.width * 0.06),
+                                         y: rect.minY + rect.height * 0.40),
+                             palette: palette,
+                             width: rect.width * 0.055)
+            drawSoftIconLine(ctx,
+                             from: CGPoint(x: x, y: rect.maxY - rect.height * 0.25),
+                             to: CGPoint(x: x + (x < rect.midX ? -rect.width * 0.06 : rect.width * 0.06),
+                                         y: rect.maxY - rect.height * 0.40),
+                             palette: palette,
+                             width: rect.width * 0.055)
+        }
+    }
+
+    private func drawReduceMotionIcon(_ ctx: CGContext, rect: CGRect,
+                                      palette: (primary: UIColor, light: UIColor, dark: UIColor)) {
+        drawSoftIconPathStroke(ctx,
+                               path: UIBezierPath(ovalIn: rect.insetBy(dx: rect.width * 0.16, dy: rect.height * 0.16)),
+                               palette: palette,
+                               width: rect.width * 0.10)
+        drawSoftIconLine(ctx,
+                         from: CGPoint(x: rect.minX + rect.width * 0.24, y: rect.maxY - rect.height * 0.24),
+                         to: CGPoint(x: rect.maxX - rect.width * 0.24, y: rect.minY + rect.height * 0.24),
+                         palette: palette,
+                         width: rect.width * 0.08)
+    }
+
+    private func drawSoftIconLine(_ ctx: CGContext,
+                                  from: CGPoint,
+                                  to: CGPoint,
+                                  palette: (primary: UIColor, light: UIColor, dark: UIColor),
+                                  width: CGFloat) {
+        drawSymbolLine(ctx,
+                       from: CGPoint(x: from.x + 0.7, y: from.y + 0.9),
+                       to: CGPoint(x: to.x + 0.7, y: to.y + 0.9),
+                       color: palette.dark.withAlphaComponent(0.46),
+                       width: width + 1.4)
+        drawSymbolLine(ctx, from: from, to: to, color: palette.primary, width: width)
+        drawSymbolLine(ctx, from: from, to: CGPoint(x: (from.x + to.x) / 2, y: (from.y + to.y) / 2),
+                       color: palette.light.withAlphaComponent(0.62),
+                       width: max(1, width * 0.32))
+    }
+
+    private func drawSoftIconPathStroke(_ ctx: CGContext,
+                                        path: UIBezierPath,
+                                        palette: (primary: UIColor, light: UIColor, dark: UIColor),
+                                        width: CGFloat) {
+        ctx.saveGState()
+        ctx.setLineCap(.round)
+        ctx.setLineJoin(.round)
+        ctx.setShadow(offset: CGSize(width: 0, height: 1.0),
+                      blur: 1.8,
+                      color: palette.dark.withAlphaComponent(0.34).cgColor)
+        path.lineWidth = width
+        palette.primary.setStroke()
+        path.stroke()
+        ctx.restoreGState()
+
+        path.lineWidth = max(1, width * 0.38)
+        palette.light.withAlphaComponent(0.58).setStroke()
+        path.stroke()
+    }
+
+    private func drawIconText(_ text: String, in rect: CGRect, color: UIColor, size: CGFloat) {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: UIFont(name: "Courier-Bold", size: size) ?? UIFont.boldSystemFont(ofSize: size),
+            .foregroundColor: color,
+            .paragraphStyle: paragraph
+        ]
+        (text as NSString).draw(in: rect, withAttributes: attrs)
     }
 
     private func drawGemBase(_ ctx: CGContext, color: GemColor, size: CGSize) {
@@ -1256,14 +2119,32 @@ final class PixelArt {
                 case 4: color = white
                 default: color = primary
                 }
-                color.setFill()
                 let gap = max(0.35, min(px, py) * 0.08)
                 let rect = CGRect(x: offset.x + CGFloat(c) * px,
                                   y: offset.y + CGFloat(r) * py,
                                   width: px, height: py).insetBy(dx: gap, dy: gap)
                 let corner = min(rect.width, rect.height) * 0.18
-                ctx.addPath(UIBezierPath(roundedRect: rect, cornerRadius: corner).cgPath)
+                let path = UIBezierPath(roundedRect: rect, cornerRadius: corner)
+
+                ctx.saveGState()
+                ctx.setShadow(offset: CGSize(width: 0, height: 0.45),
+                              blur: 0.65,
+                              color: dark.withAlphaComponent(0.28).cgColor)
+                color.setFill()
+                ctx.addPath(path.cgPath)
                 ctx.fillPath()
+                ctx.restoreGState()
+
+                if min(rect.width, rect.height) >= 3.5 {
+                    UIColor.white.withAlphaComponent(v == 4 ? 0.08 : 0.16).setFill()
+                    let shine = CGRect(x: rect.minX + rect.width * 0.16,
+                                       y: rect.minY + rect.height * 0.14,
+                                       width: rect.width * 0.48,
+                                       height: rect.height * 0.20)
+                    ctx.addPath(UIBezierPath(roundedRect: shine,
+                                             cornerRadius: shine.height / 2).cgPath)
+                    ctx.fillPath()
+                }
             }
         }
     }

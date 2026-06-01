@@ -20,6 +20,7 @@ final class GameHUD: SKNode {
 
     private var currentScore: Int = 0
     private var targetScore: Int = 1000
+    private var starThresholds: (one: Int, two: Int, three: Int) = (0, 1000, 1500)
     private var currentMoves: Int = 0
     private var scoreValueMaxWidth: CGFloat = 90
     private var movesValueMaxWidth: CGFloat = 58
@@ -33,12 +34,10 @@ final class GameHUD: SKNode {
         setupObjectives(level: level, sceneSize: sceneSize, safeAreaInsets: safeAreaInsets)
         setupBoosters(sceneSize: sceneSize, safeAreaInsets: safeAreaInsets, hudWorldY: hudWorldY)
 
+        starThresholds = level.starThresholds
+        targetScore = max(1, level.starThresholds.three)
         currentMoves = level.moves
         updateMovesDisplay()
-
-        if case .score(let t) = level.objectives.first?.kind {
-            targetScore = t
-        }
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -63,17 +62,9 @@ final class GameHUD: SKNode {
     }
 
     private func setupPauseButton(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
-        let btn = PixelButton(icon: [[UInt8]]([
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,1,1,0,1,1,0],
-            [0,0,0,0,0,0,0,0],
-        ]), iconColor: .white, size: CGSize(width: 40, height: 40),
-            bgColor: UIColor(hex: "#1C2E4A"))
+        let btn = PixelButton(icon: .pause,
+                              size: CGSize(width: 40, height: 40),
+                              bgColor: UIColor(hex: "#1C2E4A"))
         btn.position = CGPoint(x: -sceneSize.width/2 + safeAreaInsets.left + 32, y: 25)
         btn.zPosition = 10
         btn.onTap = { [weak self] in self?.onPause?() }
@@ -231,7 +222,7 @@ final class GameHUD: SKNode {
             progressBarMaxWidth = barRect.width - 2
         }
         let maxW = progressBarMaxWidth
-        let progress = min(1.0, CGFloat(currentScore) / CGFloat(targetScore))
+        let progress = min(1.0, CGFloat(currentScore) / CGFloat(max(1, targetScore)))
         let fillW = max(2, progress * maxW)
 
         let newPath = UIBezierPath(roundedRect:
@@ -239,21 +230,24 @@ final class GameHUD: SKNode {
         progressFill.path = newPath
 
         // Color transition
-        if progress >= 1.0 {
+        progressFill.removeAction(forKey: "glow")
+        progressFill.alpha = 1.0
+        if currentScore >= starThresholds.three {
             progressFill.fillColor = UIColor(hex: "#34C759")
             progressFill.run(.repeatForever(.sequence([
                 .fadeAlpha(to: 0.6, duration: 0.3),
                 .fadeAlpha(to: 1.0, duration: 0.3)
             ])), withKey: "glow")
-        } else if progress >= 0.6 {
+        } else if currentScore >= starThresholds.two {
             progressFill.fillColor = UIColor(hex: "#FF9500")
         } else {
             progressFill.fillColor = UIColor(hex: "#FFCC00")
         }
 
         // Update stars
-        let s1 = progress >= 0.5, s2 = progress >= 0.75
-        let starStates = [true, s1, s2]
+        let starStates = [true,
+                          currentScore >= starThresholds.two,
+                          currentScore >= starThresholds.three]
         for (i, lit) in starStates.enumerated() {
             (childNode(withName: "star_\(i)") as? StarIconNode)?.setLit(lit)
         }
@@ -307,16 +301,8 @@ final class StarIconNode: SKNode {
     private var isLit = false
 
     init(size: CGFloat) {
-        let fillTex = PixelArt.shared.iconTexture(pixels: PixelIcons.starIcon,
-                                                   primary: UIColor(hex: "#FFCC00"),
-                                                   light: UIColor.white,
-                                                   dark: UIColor(hex: "#CC8800"),
-                                                   size: size)
-        let emptyTex = PixelArt.shared.iconTexture(pixels: PixelIcons.starIcon,
-                                                    primary: UIColor(hex: "#334466"),
-                                                    light: UIColor(hex: "#445577"),
-                                                    dark: UIColor(hex: "#223355"),
-                                                    size: size)
+        let fillTex = PixelArt.shared.starBadgeTexture(lit: true, size: size)
+        let emptyTex = PixelArt.shared.starBadgeTexture(lit: false, size: size)
         filled = SKSpriteNode(texture: fillTex, size: CGSize(width: size, height: size))
         empty  = SKSpriteNode(texture: emptyTex, size: CGSize(width: size, height: size))
         super.init()
@@ -351,10 +337,12 @@ final class ObjectiveDisplayNode: SKNode {
         self.obj = objective
 
         let color: UIColor
-        var iconPixels = PixelIcons.starIcon
+        var iconPixels = PixelIcons.coin
+        var iconTexture: SKTexture?
         switch objective.kind {
         case .score:
-            color = UIColor(hex: "#FFCC00"); iconPixels = PixelIcons.starIcon
+            color = UIColor(hex: "#FFCC00")
+            iconTexture = PixelArt.shared.starBadgeTexture(lit: true, size: 30)
         case .collect(let c, _):
             color = c.primary; iconPixels = gemIconPixels(for: c)
         case .clearAllJelly:
@@ -369,11 +357,11 @@ final class ObjectiveDisplayNode: SKNode {
             color = UIColor(hex: "#66D9FF"); iconPixels = PixelIcons.key
         }
 
-        iconNode = SKSpriteNode(texture: PixelArt.shared.iconTexture(pixels: iconPixels,
-                                                                      primary: color,
-                                                                      light: color.lighter(),
-                                                                      dark: color.darker(),
-                                                                      size: 28),
+        iconNode = SKSpriteNode(texture: iconTexture ?? PixelArt.shared.iconTexture(pixels: iconPixels,
+                                                                                    primary: color,
+                                                                                    light: color.lighter(),
+                                                                                    dark: color.darker(),
+                                                                                    size: 28),
                                 size: CGSize(width: 28, height: 28))
         iconNode.position = CGPoint(x: 0, y: 10)
 
@@ -442,8 +430,7 @@ final class BoosterButtonNode: SKNode {
     init(type: BoosterType) {
         self.type = type
 
-        btn = PixelButton(icon: type.iconPixels,
-                          iconColor: .white,
+        btn = PixelButton(icon: type.artIcon,
                           size: CGSize(width: 52, height: 52),
                           bgColor: UIColor(hex: "#1C2E4A"))
 

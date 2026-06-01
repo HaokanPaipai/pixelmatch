@@ -146,7 +146,8 @@ struct Level {
     func stars(for score: Int) -> Int {
         if score >= starThresholds.three { return 3 }
         if score >= starThresholds.two   { return 2 }
-        if score >= starThresholds.one   { return 1 }
-        return 0
+        // This is called only after the level objective is completed: completion is
+        // the first star, while score and saved moves determine mastery stars.
+        return 1
     }
 }

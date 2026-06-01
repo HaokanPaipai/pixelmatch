@@ -51,6 +51,37 @@ final class PixelArtComfortTests: XCTestCase {
         XCTAssertGreaterThan(stats.semiTransparentPixels, 4)
         XCTAssertLessThan(stats.brightWhiteOpaqueRatio, 0.20)
     }
+
+    func testButtonIconsUsePixelArtSoftMaterials() {
+        for icon in PixelArtIcon.allCases {
+            let texture = PixelArt.shared.softIconTexture(icon, size: 40)
+            let stats = TextureStats(texture: texture)
+
+            XCTAssertEqual(texture.filteringMode, .linear, "\(icon) should scale smoothly in buttons")
+            XCTAssertGreaterThan(stats.semiTransparentPixels, 12, "\(icon) should have soft antialiased edges")
+            XCTAssertGreaterThan(stats.uniqueOpaqueColorBuckets, 8, "\(icon) should use material depth, not flat pixel blocks")
+            XCTAssertLessThan(stats.brightWhiteOpaqueRatio, 0.30, "\(icon) should avoid harsh white coverage")
+        }
+    }
+
+    func testCommonUiBadgesUseSoftReadableMaterials() {
+        let samples: [(name: String, texture: SKTexture)] = [
+            ("heart filled", PixelArt.shared.heartBadgeTexture(filled: true, size: 32)),
+            ("heart empty", PixelArt.shared.heartBadgeTexture(filled: false, size: 32)),
+            ("star lit", PixelArt.shared.starBadgeTexture(lit: true, size: 32)),
+            ("star dim", PixelArt.shared.starBadgeTexture(lit: false, size: 32)),
+            ("lock", PixelArt.shared.lockBadgeTexture(size: 32))
+        ]
+
+        for sample in samples {
+            let stats = TextureStats(texture: sample.texture)
+
+            XCTAssertEqual(sample.texture.filteringMode, .linear, "\(sample.name) should scale smoothly")
+            XCTAssertGreaterThan(stats.semiTransparentPixels, 20, "\(sample.name) should have soft edges and glow")
+            XCTAssertGreaterThan(stats.uniqueOpaqueColorBuckets, 8, "\(sample.name) should have material depth")
+            XCTAssertLessThan(stats.brightWhiteOpaqueRatio, 0.22, "\(sample.name) should not become a hard white icon")
+        }
+    }
 }
 
 private struct TextureStats {

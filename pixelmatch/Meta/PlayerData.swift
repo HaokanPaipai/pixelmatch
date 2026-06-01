@@ -329,12 +329,12 @@ enum BoosterType: CaseIterable {
         EconomyConfig.shared.boosterCost(self)
     }
 
-    var iconPixels: [[UInt8]] {
+    var artIcon: PixelArtIcon {
         switch self {
-        case .hammer: return PixelIcons.hammer
-        case .shuffle: return PixelIcons.shuffle
-        case .extraMoves: return PixelIcons.moves
-        case .colorBomb: return PixelIcons.bomb
+        case .hammer: return .hammer
+        case .shuffle: return .shuffle
+        case .extraMoves: return .extraMoves
+        case .colorBomb: return .colorBomb
         }
     }
 }

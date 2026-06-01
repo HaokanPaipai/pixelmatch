@@ -162,6 +162,31 @@ final class LevelDataTests: XCTestCase {
         }
     }
 
+    func testStarThresholdsScaleWithMovesAndLevelComplexity() {
+        for level in LevelData.all {
+            XCTAssertGreaterThanOrEqual(level.starThresholds.one, minimumObjectiveScore(for: level),
+                                        "Level \(level.id) one-star score should cover the base objective score")
+            XCTAssertGreaterThan(level.starThresholds.two, level.starThresholds.one,
+                                 "Level \(level.id) two-star score should exceed completion score")
+            XCTAssertGreaterThan(level.starThresholds.three, level.starThresholds.two,
+                                 "Level \(level.id) three-star score should exceed two-star score")
+            XCTAssertGreaterThanOrEqual(level.starThresholds.two - level.starThresholds.one,
+                                        level.moves * 45,
+                                        "Level \(level.id) two-star gap should reflect move budget")
+            XCTAssertGreaterThanOrEqual(level.starThresholds.three - level.starThresholds.two,
+                                        level.moves * 55,
+                                        "Level \(level.id) three-star gap should reflect mastery, not automatic completion")
+        }
+    }
+
+    func testCompletedLevelAlwaysAwardsAtLeastOneStar() {
+        let level = LevelData.level(1)!
+
+        XCTAssertEqual(level.stars(for: 0), 1)
+        XCTAssertEqual(level.stars(for: level.starThresholds.two), 2)
+        XCTAssertEqual(level.stars(for: level.starThresholds.three), 3)
+    }
+
     func testChocolateWorldStartsWithLesson() {
         let firstChocolateLevel = LevelData.level(41)
 
@@ -239,6 +264,30 @@ final class LevelDataTests: XCTestCase {
                                height: CGFloat(level.rows) * GameConstants.tileStep - GameConstants.tileGap)
         return CGSize(width: boardSize.width + BoardNode.visualPadding * 2,
                       height: boardSize.height + BoardNode.visualPadding * 2)
+    }
+
+    private func minimumObjectiveScore(for level: Level) -> Int {
+        var scoreTarget = 0
+        var objectivePoints = 0
+
+        for objective in level.objectives {
+            switch objective.kind {
+            case .score(let target):
+                scoreTarget = max(scoreTarget, target)
+            case .collect(_, let count):
+                objectivePoints += count * GameConstants.scorePerTile
+            case .breakIce(let count):
+                objectivePoints += count * GameConstants.scorePerTile
+            case .clearAllJelly:
+                objectivePoints += objective.progress * GameConstants.scorePerTile
+            case .eliminateChocolate:
+                objectivePoints += objective.progress * GameConstants.scorePerTile
+            case .openChests, .collectKeys:
+                break
+            }
+        }
+
+        return max(scoreTarget, objectivePoints)
     }
 
     private func contains(_ positions: [(row: Int, col: Int)], _ position: (row: Int, col: Int)) -> Bool {

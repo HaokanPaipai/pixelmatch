@@ -250,11 +250,7 @@ final class ResultScene: SKScene {
             bg.lineWidth = 2
             container.addChild(bg)
 
-            let tex = PixelArt.shared.iconTexture(pixels: PixelIcons.starIcon,
-                                                   primary: lit ? UIColor(hex: "#FFCC00") : UIColor(hex: "#445577"),
-                                                   light: lit ? .white : UIColor(hex: "#556688"),
-                                                   dark: lit ? UIColor(hex: "#CC8800") : UIColor(hex: "#334466"),
-                                                   size: 36)
+            let tex = PixelArt.shared.starBadgeTexture(lit: lit, size: 38)
             let star = SKSpriteNode(texture: tex, size: CGSize(width: 36, height: 36))
             container.addChild(star)
 
@@ -311,11 +307,7 @@ final class ResultScene: SKScene {
     private func setupCoinsReward(y: CGFloat) {
         if coinsEarned <= 0 { return }
 
-        let coinTex = PixelArt.shared.iconTexture(pixels: PixelIcons.coin,
-                                                   primary: UIColor(hex: "#FFCC00"),
-                                                   light: .white,
-                                                   dark: UIColor(hex: "#CC8800"),
-                                                   size: 28)
+        let coinTex = PixelArt.shared.softIconTexture(.coin, size: 30)
         let coinIcon = SKSpriteNode(texture: coinTex, size: CGSize(width: 28, height: 28))
         coinIcon.position = CGPoint(x: -50, y: y)
         coinIcon.zPosition = 11
@@ -340,6 +332,7 @@ final class ResultScene: SKScene {
 
         // Next Level button
         let nextBtn = PixelButton(title: L10n.tr("result.next_level", fallback: "NEXT LEVEL ▶"),
+                                   icon: .play,
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
@@ -350,6 +343,7 @@ final class ResultScene: SKScene {
         addChild(nextBtn)
 
         let mapBtn = PixelButton(title: L10n.tr("result.level_map", fallback: "◀ LEVEL MAP"),
+                                  icon: .back,
                                   size: CGSize(width: 240, height: 46),
                                   style: .secondary,
                                   fontSize: 16)
@@ -359,6 +353,7 @@ final class ResultScene: SKScene {
         addChild(mapBtn)
 
         let replayBtn = PixelButton(title: L10n.tr("result.replay", fallback: "↺ REPLAY"),
+                                    icon: .restart,
                                     size: CGSize(width: 240, height: 40),
                                     style: .ghost,
                                     color: UIColor(hex: "#7799CC"),
@@ -424,6 +419,7 @@ final class ResultScene: SKScene {
             : max(-size.height * 0.3, safeBottomY + 99)
 
         let retryBtn = PixelButton(title: L10n.tr("result.try_again", fallback: "↺ TRY AGAIN"),
+                                   icon: .restart,
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: UIColor(hex: "#FF9500"),
@@ -438,6 +434,7 @@ final class ResultScene: SKScene {
         if hasAdButtons {
             let continueBtn = PixelButton(title: L10n.tr("result.continue_ad",
                                                           fallback: "📹 WATCH AD: RETRY +5 MOVES"),
+                                          icon: .video,
                                           size: CGSize(width: 280, height: 46),
                                           style: .secondary,
                                           color: UIColor(hex: "#34C759"),
@@ -450,6 +447,7 @@ final class ResultScene: SKScene {
 
             let bonusBtn = PixelButton(title: L10n.tr("result.bonus_ad",
                                                        fallback: "📹 WATCH AD: +50 COINS"),
+                                       icon: .video,
                                        size: CGSize(width: 280, height: 46),
                                        style: .secondary,
                                        color: UIColor(hex: "#AF52DE"),
@@ -462,6 +460,7 @@ final class ResultScene: SKScene {
         }
 
         let mapBtn = PixelButton(title: L10n.tr("result.level_map", fallback: "◀ LEVEL MAP"),
+                                  icon: .back,
                                   size: CGSize(width: 240, height: 46),
                                   style: .secondary,
                                   fontSize: 16)

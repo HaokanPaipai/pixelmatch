@@ -26,12 +26,92 @@ struct LevelData {
                                   portalLinks: [PortalLink] = [],
                                   target: Int,
                                   lesson: LevelLesson? = nil) -> Level {
-        Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
-              availableColors: colorPool(colors),
-              objectives: objectives,
-              holes: holes, obstacles: obstacles, portalLinks: portalLinks,
-              starThresholds: (target, target * 15 / 10, target * 2),
-              lesson: lesson)
+        let thresholds = starThresholds(target: target,
+                                        rows: rows,
+                                        cols: cols,
+                                        moves: moves,
+                                        colors: colors,
+                                        objectives: objectives,
+                                        holes: holes,
+                                        obstacles: obstacles,
+                                        portalLinks: portalLinks)
+        return Level(id: id, worldId: world, rows: rows, cols: cols, moves: moves,
+                     availableColors: colorPool(colors),
+                     objectives: objectives,
+                     holes: holes, obstacles: obstacles, portalLinks: portalLinks,
+                     starThresholds: thresholds,
+                     lesson: lesson)
+    }
+
+    private static func starThresholds(target: Int,
+                                       rows: Int,
+                                       cols: Int,
+                                       moves: Int,
+                                       colors: Int,
+                                       objectives: [LevelObjective],
+                                       holes: [(row: Int, col: Int)],
+                                       obstacles: [BoardObstacle],
+                                       portalLinks: [PortalLink]) -> (one: Int, two: Int, three: Int) {
+        let boardCells = rows * cols - holes.count
+        let boardPressure = max(0, boardCells - 49) * 10
+        let colorPressure = max(0, colors - 4) * moves * 25
+        let objectivePressure = max(0, objectives.count - 1) * GameConstants.scorePerSpecial
+        let portalPressure = portalLinks.count * 240
+        let obstaclePressure = obstacles.reduce(0) { $0 + obstacleScorePressure($1.type) }
+        let complexity = boardPressure + colorPressure + objectivePressure + portalPressure + obstaclePressure
+        let completionFloor = max(target, objectiveCompletionScoreFloor(objectives))
+
+        let one = roundedScore(max(completionFloor, target + moves * GameConstants.scorePerTile))
+        let twoFloor = completionFloor + moves * GameConstants.scorePerTile * 3 + complexity / 2
+        let threeFloor = completionFloor + moves * GameConstants.scorePerTile * 5 + complexity
+        let two = roundedScore(max(one + moves * 45, max(twoFloor, completionFloor * 13 / 10)))
+        let three = roundedScore(max(two + moves * 55, max(threeFloor, completionFloor * 18 / 10)))
+
+        return (one, two, three)
+    }
+
+    private static func objectiveCompletionScoreFloor(_ objectives: [LevelObjective]) -> Int {
+        var scoreTarget = 0
+        var objectivePoints = 0
+
+        for objective in objectives {
+            switch objective.kind {
+            case .score(let target):
+                scoreTarget = max(scoreTarget, target)
+            case .collect(_, let count):
+                objectivePoints += count * GameConstants.scorePerTile
+            case .breakIce(let count):
+                objectivePoints += count * GameConstants.scorePerTile
+            case .clearAllJelly:
+                objectivePoints += objective.progress * GameConstants.scorePerTile
+            case .eliminateChocolate:
+                objectivePoints += objective.progress * GameConstants.scorePerTile
+            case .openChests, .collectKeys:
+                break
+            }
+        }
+
+        return max(scoreTarget, objectivePoints)
+    }
+
+    private static func obstacleScorePressure(_ type: ObstacleType) -> Int {
+        switch type {
+        case .none: return 0
+        case .jelly1: return 70
+        case .jelly2: return 120
+        case .ice: return 130
+        case .chocolate: return 180
+        case .stone: return 150
+        case .cage: return 180
+        case .chest1: return 150
+        case .chest2: return 230
+        case .key: return 100
+        case .lock: return 160
+        }
+    }
+
+    private static func roundedScore(_ value: Int) -> Int {
+        max(100, ((value + 49) / 50) * 50)
     }
 
     private static func score(_ id: Int, world: Int, rows: Int, cols: Int,

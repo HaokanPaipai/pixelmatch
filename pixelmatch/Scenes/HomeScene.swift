@@ -228,9 +228,7 @@ final class HomeScene: SKScene {
         currencyBar.zPosition = 6
 
         // Coins
-        let coinTex = PixelArt.shared.iconTexture(pixels: PixelIcons.coin,
-                                                   primary: UIColor(hex: "#FFCC00"),
-                                                   light: .white, dark: UIColor(hex: "#CC8800"), size: 22)
+        let coinTex = PixelArt.shared.softIconTexture(.coin, size: 24)
         let coinIcon = SKSpriteNode(texture: coinTex, size: CGSize(width: 22, height: 22))
         coinIcon.position = CGPoint(x: -80, y: 0)
         currencyBar.addChild(coinIcon)
@@ -246,10 +244,7 @@ final class HomeScene: SKScene {
         currencyBar.addChild(coinsLbl)
 
         // Diamonds
-        let dTex = PixelArt.shared.iconTexture(pixels: PixelIcons.diamond,
-                                               primary: UIColor(hex: "#AF52DE"),
-                                               light: UIColor(hex: "#DDA0FF"),
-                                               dark: UIColor(hex: "#7711CC"), size: 22)
+        let dTex = PixelArt.shared.softIconTexture(.diamond, size: 24)
         let dIcon = SKSpriteNode(texture: dTex, size: CGSize(width: 22, height: 22))
         dIcon.position = CGPoint(x: 40, y: 0)
         currencyBar.addChild(dIcon)
@@ -266,15 +261,13 @@ final class HomeScene: SKScene {
 
         // Hearts
         let lives = LivesManager.shared.currentLives
-        let heartTex = PixelArt.shared.iconTexture(pixels: PixelIcons.heart,
-                                                    primary: UIColor(hex: "#FF3B30"),
-                                                    light: UIColor(hex: "#FF9999"),
-                                                    dark: UIColor(hex: "#991111"), size: 20)
         for i in 0..<GameConstants.maxLives {
-            let h = SKSpriteNode(texture: heartTex, size: CGSize(width: 18, height: 18))
+            let filled = i < lives
+            let heartTex = PixelArt.shared.heartBadgeTexture(filled: filled, size: 22)
+            let h = SKSpriteNode(texture: heartTex, size: CGSize(width: 19, height: 19))
             h.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 20 + CGFloat(i) * 22, y: heartsY)
             h.zPosition = 6
-            h.alpha = i < lives ? 1.0 : 0.2
+            h.alpha = filled ? 1.0 : 0.72
             addChild(h)
         }
 
@@ -288,6 +281,7 @@ final class HomeScene: SKScene {
 
         let playY = playButtonY
         let playBtn = PixelButton(title: L10n.tr("home.play", fallback: "▶ PLAY"),
+                                   icon: .play,
                                    size: CGSize(width: 260, height: 64),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
@@ -307,6 +301,7 @@ final class HomeScene: SKScene {
         // Daily reward button (if available)
         if PlayerData.shared.canClaimDailyReward {
             let dailyBtn = PixelButton(title: L10n.tr("home.daily_reward", fallback: "🎁 DAILY REWARD!"),
+                                       icon: .gift,
                                        size: CGSize(width: 240, height: 50),
                                        style: .primary,
                                        color: UIColor(hex: "#FF9500"),
@@ -328,6 +323,7 @@ final class HomeScene: SKScene {
             ? L10n.fmt("home.quests_count", questCount, fallback: "✅ QUESTS (%d)")
             : L10n.tr("home.quests", fallback: "📋 QUESTS")
         let questBtn = PixelButton(title: questTitle,
+                                   icon: questCount > 0 ? .check : .quest,
                                    size: CGSize(width: 150, height: 44),
                                    style: .secondary,
                                    color: UIColor(hex: "#34C759"),
@@ -342,6 +338,7 @@ final class HomeScene: SKScene {
             ? L10n.tr("home.chest_ready", fallback: "⭐ CHEST!")
             : L10n.fmt("home.chest_progress", chest.current, chest.target, fallback: "⭐ %d/%d")
         let chestBtn = PixelButton(title: chestTitle,
+                                   icon: .chest,
                                    size: CGSize(width: 150, height: 44),
                                    style: .secondary,
                                    color: UIColor(hex: "#FFCC00"),
@@ -373,8 +370,7 @@ final class HomeScene: SKScene {
         addChild(bar)
 
         // Shop button
-        let shopBtn = PixelButton(icon: PixelIcons.coin,
-                                   iconColor: UIColor(hex: "#FFCC00"),
+        let shopBtn = PixelButton(icon: .coin,
                                    size: CGSize(width: 50, height: 50),
                                    bgColor: UIColor(hex: "#1C2E4A"))
         shopBtn.position = CGPoint(x: itemXs[0], y: buttonY)
@@ -392,18 +388,7 @@ final class HomeScene: SKScene {
         addChild(shopLbl)
 
         // Pixel album button
-        let albumPixels: [[UInt8]] = [
-            [1,1,1,1,1,1,1,1],
-            [1,2,2,0,0,3,3,1],
-            [1,2,2,0,0,3,3,1],
-            [1,0,0,4,4,0,0,1],
-            [1,0,0,4,4,0,0,1],
-            [1,5,5,0,0,6,6,1],
-            [1,5,5,0,0,6,6,1],
-            [1,1,1,1,1,1,1,1],
-        ]
-        let albumBtn = PixelButton(icon: albumPixels,
-                                   iconColor: UIColor(hex: "#34C759"),
+        let albumBtn = PixelButton(icon: .album,
                                    size: CGSize(width: 50, height: 50),
                                    bgColor: UIColor(hex: "#1C2E4A"))
         albumBtn.position = CGPoint(x: itemXs[1], y: buttonY)
@@ -421,18 +406,7 @@ final class HomeScene: SKScene {
         addChild(albumLbl)
 
         // Settings button
-        let settingsPixels: [[UInt8]] = [
-            [0,0,1,1,1,1,0,0],
-            [0,1,1,0,0,1,1,0],
-            [1,1,0,0,0,0,1,1],
-            [1,0,0,2,2,0,0,1],
-            [1,0,0,2,2,0,0,1],
-            [1,1,0,0,0,0,1,1],
-            [0,1,1,0,0,1,1,0],
-            [0,0,1,1,1,1,0,0],
-        ]
-        let settingsBtn = PixelButton(icon: settingsPixels,
-                                      iconColor: UIColor(hex: "#7799CC"),
+        let settingsBtn = PixelButton(icon: .settings,
                                       size: CGSize(width: 50, height: 50),
                                       bgColor: UIColor(hex: "#1C2E4A"))
         settingsBtn.position = CGPoint(x: itemXs[3], y: buttonY)
@@ -450,18 +424,7 @@ final class HomeScene: SKScene {
         addChild(settingsLbl)
 
         // Leaderboard button
-        let lbPixels: [[UInt8]] = [
-            [0,0,0,1,1,0,0,0],
-            [0,0,1,1,1,1,0,0],
-            [0,1,1,0,0,1,1,0],
-            [0,1,1,1,1,1,1,0],
-            [0,0,1,1,1,1,0,0],
-            [0,0,0,1,1,0,0,0],
-            [0,1,1,1,1,1,1,0],
-            [0,0,0,0,0,0,0,0],
-        ]
-        let lbBtn = PixelButton(icon: lbPixels,
-                                 iconColor: UIColor(hex: "#FFCC00"),
+        let lbBtn = PixelButton(icon: .leaderboard,
                                  size: CGSize(width: 50, height: 50),
                                  bgColor: UIColor(hex: "#1C2E4A"))
         lbBtn.position = CGPoint(x: itemXs[2], y: buttonY)
@@ -1210,8 +1173,7 @@ final class ShopDialog: DialogNode {
         bg.position = CGPoint(x: 0, y: y)
         scrollNode.addChild(bg)
 
-        let icon = SKSpriteNode(texture: PixelArt.shared.iconTexture(
-            pixels: type.iconPixels, primary: .white, light: UIColor.white.lighter(), dark: .gray, size: 28),
+        let icon = SKSpriteNode(texture: PixelArt.shared.softIconTexture(type.artIcon, size: 32),
                                 size: CGSize(width: 28, height: 28))
         icon.position = CGPoint(x: -dialogSize.width / 2 + 40, y: y)
         scrollNode.addChild(icon)
@@ -1226,6 +1188,7 @@ final class ShopDialog: DialogNode {
         scrollNode.addChild(lbl)
 
         let buyBtn = PixelButton(title: "\(type.cost) 🪙",
+                                  icon: .coin,
                                   size: CGSize(width: 90, height: 34),
                                   style: .primary,
                                   color: UIColor(hex: "#FFCC00"),

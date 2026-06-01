@@ -136,6 +136,7 @@ final class TutorialScene: SKScene {
         addChild(msgLabel)
 
         nextBtn = PixelButton(title: L10n.tr("tutorial.next", fallback: "NEXT ▶"),
+                              icon: .play,
                               size: CGSize(width: 160, height: 44),
                               style: .primary,
                               color: UIColor(hex: "#34C759"))

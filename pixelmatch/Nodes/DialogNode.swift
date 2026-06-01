@@ -5,9 +5,11 @@ import SpriteKit
 class DialogNode: SKNode {
 
     let panel: SKShapeNode
+    let panelSize: CGSize
     let sceneSize: CGSize
 
     init(size: CGSize, sceneSize: CGSize) {
+        self.panelSize = size
         self.sceneSize = sceneSize
 
         // Overlay
@@ -76,25 +78,25 @@ final class PauseDialogNode: DialogNode {
             addChild(sq)
         }
 
-        let resumeBtn = PixelButton(title: L10n.tr("dialog.resume", fallback: "▶ RESUME"), size: CGSize(width: 220, height: 48),
+        let resumeBtn = PixelButton(title: L10n.tr("dialog.resume", fallback: "▶ RESUME"), icon: .play, size: CGSize(width: 220, height: 48),
                                     style: .primary, color: UIColor(hex: "#34C759"))
         resumeBtn.position = CGPoint(x: 0, y: 55)
         resumeBtn.onTap = { [weak self] in self?.onResume?() }
         addChild(resumeBtn)
 
-        let restartBtn = PixelButton(title: L10n.tr("dialog.restart", fallback: "↺ RESTART"), size: CGSize(width: 220, height: 48),
+        let restartBtn = PixelButton(title: L10n.tr("dialog.restart", fallback: "↺ RESTART"), icon: .restart, size: CGSize(width: 220, height: 48),
                                      style: .primary, color: UIColor(hex: "#FF9500"))
         restartBtn.position = CGPoint(x: 0, y: -5)
         restartBtn.onTap = { [weak self] in self?.onRestart?() }
         addChild(restartBtn)
 
-        let settingsBtn = PixelButton(title: L10n.tr("dialog.settings", fallback: "⚙ SETTINGS"), size: CGSize(width: 220, height: 48),
+        let settingsBtn = PixelButton(title: L10n.tr("dialog.settings", fallback: "⚙ SETTINGS"), icon: .settings, size: CGSize(width: 220, height: 48),
                                       style: .secondary)
         settingsBtn.position = CGPoint(x: 0, y: -65)
         settingsBtn.onTap = { [weak self] in self?.onSettings?() }
         addChild(settingsBtn)
 
-        let quitBtn = PixelButton(title: L10n.tr("dialog.quit", fallback: "✕ QUIT"), size: CGSize(width: 220, height: 48),
+        let quitBtn = PixelButton(title: L10n.tr("dialog.quit", fallback: "✕ QUIT"), icon: .close, size: CGSize(width: 220, height: 48),
                                    style: .danger)
         quitBtn.position = CGPoint(x: 0, y: -125)
         quitBtn.onTap = { [weak self] in self?.onQuit?() }
@@ -122,10 +124,18 @@ final class OutOfMovesDialog: DialogNode {
 
     private func buildUI(moves: Int, cost: Int, hintText: String?) {
         let hasHint = !(hintText?.isEmpty ?? true)
-        let lift: CGFloat = hasHint ? 15 : 0
+        let panelHalf = panelSize.height / 2
+        let titleY = panelHalf - 65
+        let msgY = titleY - 55
+        let hintY = msgY - 28
+        let diamondY = hasHint ? hintY - 43 : msgY - 45
+        let haveY = diamondY - 40
+        let quitY = -panelHalf + 38
+        let adY = quitY + 55
+        let continueY = PlayerData.shared.noAds ? quitY + 60 : adY + 58
 
         addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"),
-                      y: 130 + lift,
+                      y: titleY,
                       color: UIColor(hex: "#FF3B30"))
 
         let msgLbl = SKLabelNode(fontNamed: "Courier")
@@ -133,7 +143,7 @@ final class OutOfMovesDialog: DialogNode {
         msgLbl.fontSize = 16
         msgLbl.fontColor = UIColor(hex: "#99BBCC")
         msgLbl.verticalAlignmentMode = .center
-        msgLbl.position = CGPoint(x: 0, y: 75 + lift)
+        msgLbl.position = CGPoint(x: 0, y: msgY)
         addChild(msgLbl)
 
         if let hintText = hintText, !hintText.isEmpty {
@@ -145,19 +155,14 @@ final class OutOfMovesDialog: DialogNode {
             hintLbl.horizontalAlignmentMode = .center
             hintLbl.numberOfLines = 2
             hintLbl.preferredMaxLayoutWidth = 250
-            hintLbl.position = CGPoint(x: 0, y: 47 + lift)
+            hintLbl.position = CGPoint(x: 0, y: hintY)
             addChild(hintLbl)
         }
 
         // Diamond icon + cost
         let diamonds = PlayerData.shared.diamonds
         let canAfford = diamonds >= cost
-        let diamondY: CGFloat = hasHint ? 8 : 20
-        let diamondTex = PixelArt.shared.iconTexture(pixels: PixelIcons.diamond,
-                                                     primary: UIColor(hex: "#AF52DE"),
-                                                     light: UIColor(hex: "#DDA0FF"),
-                                                     dark: UIColor(hex: "#7711CC"),
-                                                     size: 32)
+        let diamondTex = PixelArt.shared.softIconTexture(.diamond, size: 34)
         let dIcon = SKSpriteNode(texture: diamondTex, size: CGSize(width: 32, height: 32))
         dIcon.position = CGPoint(x: -25, y: diamondY)
         addChild(dIcon)
@@ -175,36 +180,37 @@ final class OutOfMovesDialog: DialogNode {
         haveLbl.fontSize = 14
         haveLbl.fontColor = UIColor(hex: "#7799CC")
         haveLbl.verticalAlignmentMode = .center
-        haveLbl.position = CGPoint(x: 0, y: hasHint ? -32 : -20)
+        haveLbl.position = CGPoint(x: 0, y: haveY)
         addChild(haveLbl)
 
         let continueBtn = PixelButton(title: canAfford ? L10n.tr("dialog.continue", fallback: "CONTINUE!") : L10n.tr("dialog.get_diamonds", fallback: "GET DIAMONDS"),
+                                      icon: .diamond,
                                       size: CGSize(width: 240, height: 52),
                                       style: .primary,
                                       color: canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF9500"))
-        continueBtn.position = CGPoint(x: 0, y: hasHint ? -88 : -75)
+        continueBtn.name = "outOfMoves.continue"
+        continueBtn.position = CGPoint(x: 0, y: continueY)
         continueBtn.onTap = { [weak self] in self?.onContinue?() }
         addChild(continueBtn)
 
         // 看广告 +5 步：HKAdKit "extraMoves" placement 的承载按钮。仅非 VIP 显示。
-        var nextY: CGFloat = hasHint ? -143 : -130
         if !PlayerData.shared.noAds {
             let adBtn = PixelButton(title: L10n.tr("dialog.extra_moves_ad", fallback: "📹 WATCH AD: +5 MOVES"),
+                                    icon: .video,
                                     size: CGSize(width: 260, height: 46),
                                     style: .secondary,
                                     color: UIColor(hex: "#34C759"),
                                     fontSize: 15)
-            adBtn.position = CGPoint(x: 0, y: nextY)
+            adBtn.name = "outOfMoves.ad"
+            adBtn.position = CGPoint(x: 0, y: adY)
             adBtn.onTap = { [weak self] in self?.onWatchAd?() }
             addChild(adBtn)
-            nextY -= 55
-        } else {
-            nextY = hasHint ? -150 : -135
         }
 
         let quitBtn = PixelButton(title: L10n.tr("dialog.no_thanks", fallback: "NO THANKS"), size: CGSize(width: 240, height: 44),
                                    style: .ghost, color: UIColor(hex: "#7799CC"))
-        quitBtn.position = CGPoint(x: 0, y: nextY)
+        quitBtn.name = "outOfMoves.quit"
+        quitBtn.position = CGPoint(x: 0, y: quitY)
         quitBtn.onTap = { [weak self] in self?.onQuit?() }
         addChild(quitBtn)
     }
@@ -231,14 +237,10 @@ final class NoLivesDialog: DialogNode {
 
         // Broken hearts
         for i in 0..<5 {
-            let tex = PixelArt.shared.iconTexture(pixels: PixelIcons.heart,
-                                                  primary: UIColor(hex: "#CC1111"),
-                                                  light: UIColor(hex: "#FF6666"),
-                                                  dark: UIColor(hex: "#880000"),
-                                                  size: 28)
+            let tex = PixelArt.shared.heartBadgeTexture(filled: false, size: 30)
             let h = SKSpriteNode(texture: tex, size: CGSize(width: 28, height: 28))
             h.position = CGPoint(x: -56 + CGFloat(i) * 28, y: 95)
-            h.alpha = 0.3
+            h.alpha = 0.78
             addChild(h)
         }
 
@@ -254,6 +256,7 @@ final class NoLivesDialog: DialogNode {
 
         // Refill button
         let refillBtn = PixelButton(title: L10n.tr("dialog.refill", fallback: "REFILL (15 💎)"),
+                                    icon: .diamond,
                                     size: CGSize(width: 240, height: 52),
                                     style: .primary,
                                     color: UIColor(hex: "#AF52DE"))
@@ -265,6 +268,7 @@ final class NoLivesDialog: DialogNode {
         var nextY: CGFloat = -80
         if !PlayerData.shared.noAds {
             let adBtn = PixelButton(title: L10n.tr("dialog.refill_ad", fallback: "📹 WATCH AD: +1 ❤"),
+                                    icon: .video,
                                     size: CGSize(width: 240, height: 48),
                                     style: .secondary,
                                     color: UIColor(hex: "#34C759"))
@@ -275,6 +279,7 @@ final class NoLivesDialog: DialogNode {
         }
 
         let waitBtn = PixelButton(title: L10n.tr("dialog.wait_life", fallback: "WAIT FOR FREE LIFE"),
+                                   icon: .heart,
                                    size: CGSize(width: 240, height: 48),
                                    style: .secondary)
         waitBtn.position = CGPoint(x: 0, y: nextY)
@@ -388,15 +393,10 @@ final class PreLevelDialog: DialogNode {
         addChild(descLbl)
 
         // Booster selection grid
-        let boosters: [(BoosterType, String)] = [
-            (.hammer, "🔨"),
-            (.shuffle, "🔀"),
-            (.extraMoves, "+5"),
-            (.colorBomb, "💥")
-        ]
+        let boosters = BoosterType.allCases
 
         var yPos: CGFloat = 60
-        for (i, (type, icon)) in boosters.enumerated() {
+        for (i, type) in boosters.enumerated() {
             let xPos: CGFloat = (i % 2 == 0 ? -70 : 70)
             if i % 2 == 0 && i > 0 { yPos -= 90 }
 
@@ -411,12 +411,10 @@ final class PreLevelDialog: DialogNode {
             container.addChild(bg)
 
 
-            let iconLbl = SKLabelNode(fontNamed: "Courier-Bold")
-            iconLbl.text = icon
-            iconLbl.fontSize = 24
-            iconLbl.verticalAlignmentMode = .center
-            iconLbl.position = CGPoint(x: 0, y: 12)
-            container.addChild(iconLbl)
+            let iconNode = SKSpriteNode(texture: PixelArt.shared.softIconTexture(type.artIcon, size: 34),
+                                        size: CGSize(width: 30, height: 30))
+            iconNode.position = CGPoint(x: 0, y: 14)
+            container.addChild(iconNode)
 
             let nameLbl = SKLabelNode(fontNamed: "Courier")
             nameLbl.text = type.name
@@ -448,6 +446,7 @@ final class PreLevelDialog: DialogNode {
         }
 
         let playBtn = PixelButton(title: L10n.tr("map.play", fallback: "▶ PLAY!"),
+                                   icon: .play,
                                    size: CGSize(width: 240, height: 52),
                                    style: .primary,
                                    color: UIColor(hex: "#34C759"),
@@ -460,8 +459,9 @@ final class PreLevelDialog: DialogNode {
         }
         addChild(playBtn)
 
-        let closeBtn = PixelButton(title: "✕", size: CGSize(width: 36, height: 36),
-                                    style: .ghost, color: UIColor(hex: "#7799CC"), fontSize: 16)
+        let closeBtn = PixelButton(icon: .close,
+                                   size: CGSize(width: 36, height: 36),
+                                   bgColor: UIColor(hex: "#1C2E4A"))
         closeBtn.position = CGPoint(x: 128, y: 185)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)

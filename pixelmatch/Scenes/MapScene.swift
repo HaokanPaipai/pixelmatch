@@ -65,8 +65,9 @@ final class MapScene: SKScene {
         addChild(bg)
 
         // Back button
-        let backBtn = PixelButton(title: "◀", size: CGSize(width: 40, height: 40),
-                                   style: .secondary, fontSize: 20)
+        let backBtn = PixelButton(icon: .back,
+                                  size: CGSize(width: 40, height: 40),
+                                  bgColor: UIColor(hex: "#1C2E4A"))
         backBtn.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + 32, y: safeTopY - 45)
         backBtn.zPosition = 25
         backBtn.onTap = { [weak self] in self?.goHome() }
@@ -82,44 +83,53 @@ final class MapScene: SKScene {
         title.zPosition = 25
         addChild(title)
 
-        // Stars count
-        let stars = PlayerData.shared.totalStars
-        let starTex = PixelArt.shared.iconTexture(pixels: PixelIcons.starIcon,
-                                                   primary: UIColor(hex: "#FFCC00"),
-                                                   light: .white, dark: UIColor(hex: "#CC8800"),
-                                                   size: 22)
-        let starIcon = SKSpriteNode(texture: starTex, size: CGSize(width: 22, height: 22))
-        starIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 45)
-        starIcon.zPosition = 25
-        addChild(starIcon)
+        let titleRightEdge = title.frame.maxX + 12
+        addHeaderCounter(iconTexture: PixelArt.shared.starBadgeTexture(lit: true, size: 24),
+                         iconSize: CGSize(width: 22, height: 22),
+                         text: "\(PlayerData.shared.totalStars)",
+                         fontSize: 18,
+                         y: safeTopY - 45,
+                         leftLimit: titleRightEdge)
 
-        let starsLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        starsLbl.text = "\(stars)"
-        starsLbl.fontSize = 18
-        starsLbl.fontColor = UIColor(hex: "#FFCC00")
-        starsLbl.verticalAlignmentMode = .center
-        starsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 45)
-        starsLbl.zPosition = 25
-        addChild(starsLbl)
+        addHeaderCounter(iconTexture: PixelArt.shared.softIconTexture(.coin, size: 22),
+                         iconSize: CGSize(width: 20, height: 20),
+                         text: "\(PlayerData.shared.coins)",
+                         fontSize: 16,
+                         y: safeTopY - 68,
+                         leftLimit: -size.width / 2 + safeAreaInsets.left + 64)
+    }
 
-        // Coins
-        let coinTex = PixelArt.shared.iconTexture(pixels: PixelIcons.coin,
-                                                   primary: UIColor(hex: "#FFCC00"),
-                                                   light: .white, dark: UIColor(hex: "#CC8800"),
-                                                   size: 20)
-        let coinIcon = SKSpriteNode(texture: coinTex, size: CGSize(width: 20, height: 20))
-        coinIcon.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 65, y: safeTopY - 68)
-        coinIcon.zPosition = 25
-        addChild(coinIcon)
+    private func addHeaderCounter(iconTexture: SKTexture,
+                                  iconSize: CGSize,
+                                  text: String,
+                                  fontSize: CGFloat,
+                                  y: CGFloat,
+                                  leftLimit: CGFloat) {
+        let rightX = size.width / 2 - safeAreaInsets.right - 18
+        let gap: CGFloat = 7
 
-        let coinsLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        coinsLbl.text = "\(PlayerData.shared.coins)"
-        coinsLbl.fontSize = 16
-        coinsLbl.fontColor = UIColor(hex: "#FFCC00")
-        coinsLbl.verticalAlignmentMode = .center
-        coinsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - 42, y: safeTopY - 68)
-        coinsLbl.zPosition = 25
-        addChild(coinsLbl)
+        let label = SKLabelNode(fontNamed: "Courier-Bold")
+        label.text = text
+        label.fontSize = fontSize
+        label.fontColor = UIColor(hex: "#FFCC00")
+        label.verticalAlignmentMode = .center
+        label.horizontalAlignmentMode = .right
+        label.position = CGPoint(x: rightX, y: y)
+        label.zPosition = 25
+
+        let rawTextWidth = max(label.frame.width, 1)
+        let maxTextWidth = max(20, rightX - leftLimit - iconSize.width - gap)
+        let labelScale = rawTextWidth > maxTextWidth
+            ? max(0.62, maxTextWidth / rawTextWidth)
+            : 1
+        label.setScale(labelScale)
+
+        let icon = SKSpriteNode(texture: iconTexture, size: iconSize)
+        icon.position = CGPoint(x: rightX - rawTextWidth * labelScale - gap - iconSize.width / 2, y: y)
+        icon.zPosition = 25
+
+        addChild(icon)
+        addChild(label)
     }
 
     // MARK: - Scroll Content
@@ -508,36 +518,16 @@ final class LevelButtonNode: SKNode {
             // Stars row
             if completed {
                 for i in 0..<3 {
-                    let starTex = PixelArt.shared.iconTexture(
-                        pixels: PixelIcons.starIcon,
-                        primary: i < stars ? UIColor(hex: "#FFCC00") : UIColor(hex: "#334466"),
-                        light: i < stars ? .white : UIColor(hex: "#445577"),
-                        dark: i < stars ? UIColor(hex: "#CC8800") : UIColor(hex: "#223355"),
-                        size: 10)
-                    let s = SKSpriteNode(texture: starTex, size: CGSize(width: 10, height: 10))
-                    s.position = CGPoint(x: CGFloat(i-1) * 11, y: -12)
+                    let starTex = PixelArt.shared.starBadgeTexture(lit: i < stars, size: 14)
+                    let s = SKSpriteNode(texture: starTex, size: CGSize(width: 13, height: 13))
+                    s.position = CGPoint(x: CGFloat(i-1) * 13, y: -13)
                     s.zPosition = 3
                     addChild(s)
                 }
             }
         } else {
-            // Lock icon (pixel)
-            let lockPixels: [[UInt8]] = [
-                [0,0,1,1,1,1,0,0],
-                [0,1,0,0,0,0,1,0],
-                [0,1,0,0,0,0,1,0],
-                [1,1,1,1,1,1,1,1],
-                [1,1,0,1,1,0,1,1],
-                [1,1,0,1,1,0,1,1],
-                [1,1,1,1,1,1,1,1],
-                [0,0,0,0,0,0,0,0],
-            ]
-            let lockTex = PixelArt.shared.iconTexture(pixels: lockPixels,
-                                                      primary: UIColor(hex: "#334466"),
-                                                      light: UIColor(hex: "#445577"),
-                                                      dark: UIColor(hex: "#223355"),
-                                                      size: btnSize * 0.5)
-            let lock = SKSpriteNode(texture: lockTex, size: CGSize(width: btnSize*0.4, height: btnSize*0.4))
+            let lockTex = PixelArt.shared.lockBadgeTexture(size: btnSize * 0.52)
+            let lock = SKSpriteNode(texture: lockTex, size: CGSize(width: btnSize * 0.44, height: btnSize * 0.44))
             lock.zPosition = 2
             addChild(lock)
         }
@@ -581,11 +571,7 @@ final class LevelDetailDialog: DialogNode {
         let bestStars = PlayerData.shared.stars(forLevel: level.id)
         for i in 0..<3 {
             let lit = i < bestStars
-            let tex = PixelArt.shared.iconTexture(pixels: PixelIcons.starIcon,
-                                                   primary: lit ? UIColor(hex: "#FFCC00") : UIColor(hex: "#334466"),
-                                                   light: lit ? .white : UIColor(hex: "#445577"),
-                                                   dark: lit ? UIColor(hex: "#CC8800") : UIColor(hex: "#223355"),
-                                                   size: 32)
+            let tex = PixelArt.shared.starBadgeTexture(lit: lit, size: 34)
             let s = SKSpriteNode(texture: tex, size: CGSize(width: 32, height: 32))
             s.position = CGPoint(x: CGFloat(i-1) * 38, y: 110)
             addChild(s)
@@ -629,15 +615,12 @@ final class LevelDetailDialog: DialogNode {
 
         // Lives display
         let lives = LivesManager.shared.currentLives
-        let heartTex = PixelArt.shared.iconTexture(pixels: PixelIcons.heart,
-                                                    primary: UIColor(hex: "#FF3B30"),
-                                                    light: UIColor(hex: "#FF9999"),
-                                                    dark: UIColor(hex: "#991111"),
-                                                    size: 20)
         for i in 0..<GameConstants.maxLives {
+            let filled = i < lives
+            let heartTex = PixelArt.shared.heartBadgeTexture(filled: filled, size: 22)
             let h = SKSpriteNode(texture: heartTex, size: CGSize(width: 20, height: 20))
             h.position = CGPoint(x: CGFloat(i-2) * 24, y: -100)
-            h.alpha = i < lives ? 1.0 : 0.25
+            h.alpha = filled ? 1.0 : 0.72
             addChild(h)
         }
 
@@ -653,6 +636,7 @@ final class LevelDetailDialog: DialogNode {
 
         // Play button
         let playBtn = PixelButton(title: lives > 0 ? L10n.tr("map.play", fallback: "▶ PLAY!") : L10n.tr("map.no_lives", fallback: "NO LIVES"),
+                                   icon: lives > 0 ? .play : .heart,
                                    size: CGSize(width: 240, height: 54),
                                    style: .primary,
                                    color: lives > 0 ? UIColor(hex: "#34C759") : UIColor(hex: "#FF3B30"),
@@ -661,8 +645,9 @@ final class LevelDetailDialog: DialogNode {
         playBtn.onTap = { [weak self] in self?.onPlay?() }
         addChild(playBtn)
 
-        let closeBtn = PixelButton(title: "✕", size: CGSize(width: 36, height: 36),
-                                   style: .ghost, color: UIColor(hex: "#7799CC"), fontSize: 18)
+        let closeBtn = PixelButton(icon: .close,
+                                   size: CGSize(width: 36, height: 36),
+                                   bgColor: UIColor(hex: "#1C2E4A"))
         closeBtn.position = CGPoint(x: 140, y: 200)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)

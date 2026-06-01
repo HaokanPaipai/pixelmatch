@@ -17,49 +17,63 @@ final class PixelButton: SKNode {
     private let iconSprite: SKSpriteNode?
     private let style: Style
     private let buttonSize: CGSize
+    private let stripsLegacyIconText: Bool
 
     init(title: String,
+         icon: PixelArtIcon? = nil,
          size: CGSize = CGSize(width: 180, height: 50),
          style: Style = .primary,
          color: UIColor = UIColor(hex: "#007AFF"),
          fontSize: CGFloat = 20) {
         self.style = style
         self.buttonSize = size
+        self.stripsLegacyIconText = icon != nil
 
         bg = PixelButton.makeBg(size, style: style, color: color)
 
         let lbl = SKLabelNode(fontNamed: "Courier-Bold")
-        lbl.text = title
+        lbl.text = icon == nil ? title : PixelButton.cleanLegacyIconText(title)
         lbl.fontSize = fontSize
         lbl.verticalAlignmentMode = .center
         lbl.horizontalAlignmentMode = .center
         lbl.zPosition = 2
         lbl.fontColor = style == .ghost ? color : .white
         label = lbl
-        iconSprite = nil
+
+        if let icon {
+            let iconSize = min(size.height * 0.46, 28)
+            let tex = PixelArt.shared.softIconTexture(icon, size: iconSize * 1.35)
+            let sprite = SKSpriteNode(texture: tex,
+                                      size: CGSize(width: iconSize, height: iconSize))
+            sprite.zPosition = 2
+            iconSprite = sprite
+        } else {
+            iconSprite = nil
+        }
 
         super.init()
         addChild(bg)
+        if let iconSprite {
+            addChild(iconSprite)
+        }
         addChild(lbl)
         fitTitleIfNeeded()
+        layoutContent()
         isUserInteractionEnabled = true
     }
 
-    init(icon pixels: [[UInt8]],
-         iconColor: UIColor = .white,
+    init(icon: PixelArtIcon,
          size: CGSize = CGSize(width: 50, height: 50),
          bgColor: UIColor = UIColor(hex: "#334466"),
          badge: String? = nil) {
         self.style = .icon
         self.buttonSize = size
+        self.stripsLegacyIconText = false
 
         bg = PixelButton.makeBg(size, style: .icon, color: bgColor)
 
         let iconSize = size.width * 0.6
-        let tex = PixelArt.shared.iconTexture(pixels: pixels,
-                                              primary: iconColor,
-                                              light: iconColor.lighter(),
-                                              dark: iconColor.darker())
+        let tex = PixelArt.shared.softIconTexture(icon, size: iconSize * 1.35)
         let sprite = SKSpriteNode(texture: tex,
                                   size: CGSize(width: iconSize, height: iconSize))
         sprite.zPosition = 2
@@ -101,40 +115,82 @@ final class PixelButton: SKNode {
         let node = SKShapeNode(path: path)
         node.zPosition = 1
         node.lineWidth = style == .ghost ? 2 : 0
+        var surfaceColor = color
 
         switch style {
         case .primary:
             node.fillColor = color
             node.strokeColor = .clear
-            // Bottom shadow
-            let shadow = SKShapeNode(path: UIBezierPath(roundedRect:
-                CGRect(x: -size.width/2 + 2, y: -size.height/2 - 3, width: size.width - 4, height: 4),
-                cornerRadius: 4).cgPath)
-            shadow.fillColor = color.darker(by: 0.3)
-            shadow.strokeColor = .clear
-            shadow.zPosition = 0
-            node.addChild(shadow)
 
         case .secondary:
+            surfaceColor = color
             node.fillColor = UIColor(hex: "#1C2E4A")
-            node.strokeColor = UIColor(hex: "#334466")
+            node.strokeColor = color.withAlphaComponent(0.48)
             node.lineWidth = 2
 
         case .danger:
+            surfaceColor = UIColor(hex: "#FF3B30")
             node.fillColor = UIColor(hex: "#FF3B30")
             node.strokeColor = .clear
 
         case .ghost:
+            surfaceColor = color
             node.fillColor = UIColor.white.withAlphaComponent(0.08)
             node.strokeColor = color
 
         case .icon:
+            surfaceColor = color
             node.fillColor = color
             node.strokeColor = color.darker(by: 0.2)
             node.lineWidth = 2
         }
 
+        addSurfaceDetails(to: node, size: size, color: surfaceColor, style: style)
         return node
+    }
+
+    private static func addSurfaceDetails(to node: SKShapeNode,
+                                          size: CGSize,
+                                          color: UIColor,
+                                          style: Style) {
+        guard style != .ghost else { return }
+
+        let bottomRect = CGRect(x: -size.width / 2 + 3,
+                                y: -size.height / 2 - 3,
+                                width: size.width - 6,
+                                height: 5)
+        let shadow = SKShapeNode(path: UIBezierPath(roundedRect: bottomRect,
+                                                    cornerRadius: 4).cgPath)
+        shadow.name = "button.shadow"
+        shadow.fillColor = color.darker(by: style == .secondary ? 0.18 : 0.32)
+        shadow.strokeColor = .clear
+        shadow.alpha = style == .icon ? 0.65 : 0.82
+        shadow.zPosition = -1
+        node.addChild(shadow)
+
+        let glossRect = CGRect(x: -size.width / 2 + 7,
+                               y: size.height * 0.04,
+                               width: size.width - 14,
+                               height: max(8, size.height * 0.28))
+        let gloss = SKShapeNode(path: UIBezierPath(roundedRect: glossRect,
+                                                   cornerRadius: min(7, glossRect.height / 2)).cgPath)
+        gloss.name = "button.gloss"
+        gloss.fillColor = UIColor.white.withAlphaComponent(style == .secondary ? 0.07 : 0.13)
+        gloss.strokeColor = .clear
+        gloss.zPosition = 1
+        node.addChild(gloss)
+
+        let lowerRim = SKShapeNode(path: UIBezierPath(roundedRect:
+            CGRect(x: -size.width / 2 + 5,
+                   y: -size.height / 2 + 3,
+                   width: size.width - 10,
+                   height: 3),
+            cornerRadius: 2).cgPath)
+        lowerRim.name = "button.lowerRim"
+        lowerRim.fillColor = color.darker(by: 0.25).withAlphaComponent(style == .secondary ? 0.36 : 0.52)
+        lowerRim.strokeColor = .clear
+        lowerRim.zPosition = 1
+        node.addChild(lowerRim)
     }
 
     // MARK: - Touch
@@ -165,15 +221,24 @@ final class PixelButton: SKNode {
     // MARK: - Update
 
     func setTitle(_ title: String) {
-        label?.text = title
+        label?.text = stripsLegacyIconText ? PixelButton.cleanLegacyIconText(title) : title
         fitTitleIfNeeded()
+        layoutContent()
     }
 
     func setColor(_ color: UIColor) {
         bg.fillColor = color
         bg.strokeColor = style == .ghost ? color : .clear
         for child in bg.children {
-            (child as? SKShapeNode)?.fillColor = color.darker(by: 0.3)
+            guard let shape = child as? SKShapeNode else { continue }
+            switch shape.name {
+            case "button.shadow":
+                shape.fillColor = color.darker(by: 0.32)
+            case "button.lowerRim":
+                shape.fillColor = color.darker(by: 0.25).withAlphaComponent(0.52)
+            default:
+                break
+            }
         }
     }
 
@@ -189,11 +254,39 @@ final class PixelButton: SKNode {
 
         // 文本按钮只允许在自己的可见区域内响应，长文案也要收进按钮宽度。
         label.setScale(1)
-        let maxWidth = max(24, buttonSize.width - 18)
+        let iconAllowance = iconSprite == nil ? 0 : (iconSprite?.size.width ?? 0) + 10
+        let maxWidth = max(24, buttonSize.width - 18 - iconAllowance)
         guard label.frame.width > maxWidth else { return }
 
         let scale = max(0.72, maxWidth / max(label.frame.width, 1))
         label.setScale(scale)
+    }
+
+    private func layoutContent() {
+        guard let label else { return }
+        guard let iconSprite else {
+            label.position = .zero
+            return
+        }
+
+        let gap: CGFloat = 7
+        let textWidth = max(1, label.frame.width)
+        let combined = iconSprite.size.width + gap + textWidth
+        let startX = -combined / 2
+        iconSprite.position = CGPoint(x: startX + iconSprite.size.width / 2, y: 0)
+        label.position = CGPoint(x: startX + iconSprite.size.width + gap + textWidth / 2, y: 0)
+    }
+
+    private static func cleanLegacyIconText(_ title: String) -> String {
+        let symbols = ["▶", "◀", "↺", "✕", "⏸", "⚙", "📹", "🎁", "✅", "📋", "⭐", "🪙", "💎", "❤", "♥", "◌"]
+        var text = title
+        for symbol in symbols {
+            text = text.replacingOccurrences(of: symbol, with: "")
+        }
+        while text.contains("  ") {
+            text = text.replacingOccurrences(of: "  ", with: " ")
+        }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -206,9 +299,8 @@ final class CurrencyNode: SKNode {
 
     init(isDiamond: Bool, initialValue: Int) {
         self.value = initialValue
-        let px = isDiamond ? PixelIcons.diamond : PixelIcons.coin
-        let color: UIColor = isDiamond ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FFCC00")
-        icon = SKSpriteNode(texture: PixelArt.shared.iconTexture(pixels: px, primary: color, light: color.lighter(), dark: color.darker()), size: CGSize(width: 24, height: 24))
+        icon = SKSpriteNode(texture: PixelArt.shared.softIconTexture(isDiamond ? .diamond : .coin, size: 28),
+                            size: CGSize(width: 24, height: 24))
         icon.position = CGPoint(x: -50, y: 0)
 
         countLabel = SKLabelNode(fontNamed: "Courier-Bold")
