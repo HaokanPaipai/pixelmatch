@@ -134,6 +134,36 @@ struct PixelIcons {
         [0,4,4,4,4,4,4,0],
         [0,0,4,0,0,4,0,0],
     ]
+    static let chest: [[UInt8]] = [
+        [0,0,3,3,3,3,0,0],
+        [0,3,1,1,1,1,3,0],
+        [3,1,2,2,2,2,1,3],
+        [3,1,1,1,1,1,1,3],
+        [3,1,1,4,4,1,1,3],
+        [3,1,1,4,4,1,1,3],
+        [0,3,1,1,1,1,3,0],
+        [0,0,3,3,3,3,0,0],
+    ]
+    static let key: [[UInt8]] = [
+        [0,0,2,2,2,0,0,0],
+        [0,2,1,1,1,2,0,0],
+        [0,2,1,0,1,2,0,0],
+        [0,0,2,1,2,0,0,0],
+        [0,0,0,1,1,1,1,0],
+        [0,0,0,1,0,0,1,0],
+        [0,0,0,1,1,0,1,0],
+        [0,0,0,0,1,1,0,0],
+    ]
+    static let lock: [[UInt8]] = [
+        [0,0,2,2,2,2,0,0],
+        [0,2,1,1,1,1,2,0],
+        [0,2,1,0,0,1,2,0],
+        [1,1,1,1,1,1,1,1],
+        [1,2,2,4,4,2,2,1],
+        [1,2,2,4,4,2,2,1],
+        [1,1,2,2,2,2,1,1],
+        [0,1,1,1,1,1,1,0],
+    ]
 
     // Star icon
     static let starIcon: [[UInt8]] = [
@@ -451,6 +481,56 @@ final class PixelArt {
             ctx.fill(CGRect(origin: .zero, size: size))
             UIColor(hex: "#A0A0A0").setFill()
             ctx.fill(CGRect(x: 2, y: 2, width: size.width*0.4, height: size.height*0.3))
+        case .cage:
+            let bar = UIColor(hex: "#C0C7D0").withAlphaComponent(0.82)
+            let shadow = UIColor(hex: "#263241").withAlphaComponent(0.9)
+            shadow.setFill()
+            for x in stride(from: size.width * 0.20, through: size.width * 0.80, by: size.width * 0.20) {
+                ctx.fill(CGRect(x: x - 2, y: 4, width: 5, height: size.height - 8))
+            }
+            ctx.fill(CGRect(x: 4, y: size.height * 0.22, width: size.width - 8, height: 5))
+            ctx.fill(CGRect(x: 4, y: size.height * 0.72, width: size.width - 8, height: 5))
+
+            bar.setFill()
+            for x in stride(from: size.width * 0.20, through: size.width * 0.80, by: size.width * 0.20) {
+                ctx.fill(CGRect(x: x - 3, y: 3, width: 4, height: size.height - 8))
+            }
+            ctx.fill(CGRect(x: 4, y: size.height * 0.20, width: size.width - 8, height: 4))
+            ctx.fill(CGRect(x: 4, y: size.height * 0.70, width: size.width - 8, height: 4))
+        case .chest1, .chest2:
+            let base = type == .chest2 ? UIColor(hex: "#C67A25") : UIColor(hex: "#DDAA44")
+            UIColor(hex: "#3A2208").withAlphaComponent(0.92).setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            drawPixels(ctx, pixels: PixelIcons.chest,
+                       primary: base,
+                       light: UIColor(hex: "#FFE082"),
+                       dark: UIColor(hex: "#5B3510"),
+                       white: UIColor(hex: "#FFF7CC"),
+                       size: size)
+            if type == .chest2 {
+                UIColor(hex: "#4A2808").withAlphaComponent(0.9).setFill()
+                ctx.fill(CGRect(x: size.width * 0.15, y: size.height * 0.28,
+                                width: size.width * 0.70, height: 4))
+                ctx.fill(CGRect(x: size.width * 0.15, y: size.height * 0.58,
+                                width: size.width * 0.70, height: 4))
+            }
+        case .key:
+            drawPixels(ctx, pixels: PixelIcons.key,
+                       primary: UIColor(hex: "#FFCC00"),
+                       light: UIColor(hex: "#FFF6A6"),
+                       dark: UIColor(hex: "#B57400"),
+                       white: .white,
+                       size: CGSize(width: size.width * 0.82, height: size.height * 0.82),
+                       offset: CGPoint(x: size.width * 0.09, y: size.height * 0.09))
+        case .lock:
+            UIColor(hex: "#1E3248").withAlphaComponent(0.96).setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            drawPixels(ctx, pixels: PixelIcons.lock,
+                       primary: UIColor(hex: "#4A90E2"),
+                       light: UIColor(hex: "#A8D8FF"),
+                       dark: UIColor(hex: "#102A44"),
+                       white: UIColor(hex: "#FFFFFF"),
+                       size: size)
         default: break
         }
     }

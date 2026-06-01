@@ -12,6 +12,7 @@
 "home.chest_ready" = "⭐ 宝箱!";
 "home.chest_progress" = "⭐ %d/%d";
 "home.shop" = "商店";
+"home.album" = "相册";
 "home.settings" = "设置";
 "home.ranks" = "排行";
 "home.daily_streak" = "连续第 %d 天!";
@@ -26,6 +27,12 @@
 "home.quest_reward" = "+%d 金币  +%d 钻石";
 "home.done" = "已完成";
 "home.claim_short" = "领取";
+"home.pixel_album" = "像素相册";
+"home.album_overall" = "已修复 %d/%d 块 · %d%%";
+"home.album_world_status" = "%d%% · %d/%d 星";
+"home.album_locked" = "未解锁";
+"home.album_complete" = "已修复";
+"home.event_today" = "今日活动: %@";
 
 "shop.title" = "🛒 商店";
 "shop.starter_pack" = "新手包";
@@ -43,6 +50,17 @@
 "quest.win_levels" = "通关";
 "quest.make_specials" = "制造特殊棋子";
 "quest.use_boosters" = "使用道具";
+"quest.clear_jelly" = "清除果冻";
+"quest.break_ice" = "打破冰块";
+"quest.clear_chocolate" = "清除巧克力";
+"quest.make_color_bombs" = "制造彩虹炸弹";
+"quest.special_combos" = "触发特殊组合";
+"quest.no_booster_win" = "无道具通关";
+
+"event.weekend.title" = "周末金币闪耀";
+"event.weekend.desc" = "周末通关金币 x2";
+"event.quest_boost.title" = "%@冲刺";
+"event.quest_boost.desc" = "今日%@进度 x2";
 
 "booster.hammer" = "锤子";
 "booster.shuffle" = "洗牌";
@@ -72,12 +90,18 @@
 "objective.score" = "获得 %@ 分";
 "objective.collect" = "收集 %d 个%@";
 "objective.clear_jelly" = "清除所有果冻";
+"objective.clear_jelly_count" = "清除 %d 个果冻";
 "objective.break_ice" = "打破 %d 块冰";
 "objective.remove_chocolate" = "清除巧克力";
 "objective.eliminate_chocolate" = "消灭巧克力";
+"objective.eliminate_chocolate_count" = "消除 %d 块巧克力";
+"objective.open_chests" = "打开 %d 个宝箱";
+"objective.collect_keys" = "收集 %d 把钥匙";
 "objective.progress.jelly" = "果冻 ×%d";
 "objective.progress.ice" = "冰: %d/%d";
 "objective.progress.chocolate" = "巧克力 ×%d";
+"objective.progress.chests" = "宝箱 ×%d";
+"objective.progress.keys" = "钥匙: %d/%d";
 
 "lesson.swap.title" = "交换";
 "lesson.swap.message" = "匹配 3 个棋子。稳住步数，熟悉棋盘。";
@@ -97,6 +121,18 @@
 "lesson.focus.message" = "每一步都朝目标推进，不要只追分数。";
 "lesson.ice.title" = "冰块";
 "lesson.ice.message" = "清除被冻棋子或用特殊效果命中即可破冰。";
+"lesson.chocolate.title" = "巧克力";
+"lesson.chocolate.message" = "巧克力会在回合后蔓延；本回合清掉巧克力即可阻止蔓延。";
+"lesson.stone.title" = "石块";
+"lesson.stone.message" = "石块不会移动，也不能被清除。围绕它们制造消除。";
+"lesson.cage.title" = "笼子";
+"lesson.cage.message" = "笼中棋子不能移动。匹配同色或用特殊效果命中即可解锁。";
+"lesson.chest.title" = "宝箱";
+"lesson.chest.message" = "宝箱会阻挡下落。命中两次或在旁边消除即可打开并获得奖励。";
+"lesson.key_lock.title" = "钥匙";
+"lesson.key_lock.message" = "收集钥匙会打开最近的锁，让被分隔的棋盘区域重新连通。";
+"lesson.portal.title" = "传送门";
+"lesson.portal.message" = "下落的棋子会进入亮色传送门，并从相连出口重新出现。";
 "lesson.boss.title" = "挑战";
 "lesson.boss.message" = "尽早使用特殊棋子。省下步数能获得更高奖励。";
 
@@ -110,6 +146,13 @@
 "dialog.quit" = "✕ 退出";
 "dialog.out_of_moves.title" = "步数用完!";
 "dialog.out_of_moves.message" = "继续获得 +%d 步?";
+"dialog.out_of_moves.hint.score" = "还差 %@ 分";
+"dialog.out_of_moves.hint.collect" = "还差 %d 个%@";
+"dialog.out_of_moves.hint.jelly" = "还剩 %d 个果冻";
+"dialog.out_of_moves.hint.ice" = "还剩 %d 块冰";
+"dialog.out_of_moves.hint.chocolate" = "还剩 %d 块巧克力";
+"dialog.out_of_moves.hint.chests" = "还剩 %d 个宝箱";
+"dialog.out_of_moves.hint.keys" = "还剩 %d 把钥匙";
 "dialog.you_have_diamonds" = "你有: %d 💎";
 "dialog.continue" = "继续!";
 "dialog.get_diamonds" = "获取钻石";
@@ -130,12 +173,30 @@
 "map.life_timer" = "+♥ %@ 后";
 "map.play" = "▶ 开始!";
 "map.no_lives" = "无体力";
+"map.tag.boss" = "BOSS";
+"map.tag.mixed" = "混合";
+"map.tag.chocolate" = "巧克力";
+"map.tag.portal" = "传送";
+"map.tag.key_lock" = "钥匙";
+"map.tag.chest" = "宝箱";
+"map.tag.cage" = "笼子";
+"map.tag.stone" = "石块";
+"map.tag.ice" = "冰块";
+"map.tag.jelly" = "果冻";
+"map.tag.holes" = "空洞";
+"map.tag.hard" = "困难";
+"map.repair_progress" = "修复 %d%%";
+"map.repair_complete" = "已修复";
 
 "game.hammer_hint" = "🔨 点击一个格子移除!";
 "game.extra_moves" = "+5 步!";
 "game.need_more_booster" = "%@不足!\n花费: %d 🪙";
 "game.double_points" = "⚡ 双倍分数!";
 "game.board_shuffled" = "🔄 棋盘已洗牌!";
+"game.chocolate_spread" = "巧克力蔓延!";
+"game.move_bonus" = "%d 步奖励 +%@";
+"game.chest_opened" = "宝箱 +%@";
+"game.lock_opened" = "%d 把锁 +%@";
 "game.not_enough_diamonds" = "钻石不足!";
 "combo.double" = "双连!";
 "combo.triple" = "三连!";

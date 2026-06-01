@@ -9,11 +9,32 @@ final class Tile {
     var isHole: Bool
 
     var isMovable: Bool {
-        return !isHole && obstacle != .stone
+        return !isHole
+            && obstacle != .stone
+            && obstacle != .chocolate
+            && obstacle != .cage
+            && obstacle != .chest1
+            && obstacle != .chest2
+            && obstacle != .lock
     }
 
     var isMatchable: Bool {
-        return !isHole && obstacle != .stone && obstacle != .ice
+        return !isHole
+            && obstacle != .stone
+            && obstacle != .ice
+            && obstacle != .chocolate
+            && obstacle != .chest1
+            && obstacle != .chest2
+            && obstacle != .lock
+    }
+
+    var isGravityBlocker: Bool {
+        isHole
+            || obstacle == .stone
+            || obstacle == .cage
+            || obstacle == .chest1
+            || obstacle == .chest2
+            || obstacle == .lock
     }
 
     init(row: Int, col: Int, color: GemColor,

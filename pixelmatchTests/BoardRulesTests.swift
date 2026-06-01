@@ -105,6 +105,261 @@ final class BoardRulesTests: XCTestCase {
         XCTAssertEqual(board.grid[2][0]?.gemColor, .red)
     }
 
+    func testDoubleJellyDowngradesBeforeRemovingTile() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .jelly2
+
+        let result = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertEqual(board.grid[1][1]?.obstacle, .jelly1)
+        XCTAssertNotNil(board.grid[1][1])
+        XCTAssertEqual(result.jellyReduced.count, 1)
+        XCTAssertTrue(result.removedPositions.isEmpty)
+    }
+
+    func testSingleJellyRemovesTileAndClearsLayer() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .jelly1
+
+        let result = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertNil(board.grid[1][1])
+        XCTAssertEqual(result.jellyReduced.count, 1)
+        XCTAssertEqual(result.removedPositions.count, 1)
+    }
+
+    func testRemoveResultCountsEachObstacleOnce() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .jelly2
+        board.grid[1][2] = tile(1, 2, .blue)
+        board.grid[1][2]?.obstacle = .ice
+
+        let result = board.removeTiles(at: [(1, 1), (1, 1), (1, 2), (1, 2)])
+
+        XCTAssertEqual(result.jellyReduced.count, 1)
+        XCTAssertEqual(result.iceCleared.count, 1)
+    }
+
+    func testStoneCannotBeRemovedOrMovedThroughGravity() {
+        let board = makeBoard(rows: 4, cols: 1)
+        board.grid[0][0] = tile(0, 0, .red)
+        board.grid[1][0] = tile(1, 0, .blue)
+        board.grid[1][0]?.obstacle = .stone
+        board.grid[2][0] = nil
+        board.grid[3][0] = nil
+
+        let result = board.removeTiles(at: [(1, 0)])
+        let falls = board.applyGravity()
+
+        XCTAssertTrue(result.removedPositions.isEmpty)
+        XCTAssertEqual(board.grid[1][0]?.obstacle, .stone)
+        XCTAssertTrue(falls.isEmpty)
+        XCTAssertEqual(board.grid[0][0]?.gemColor, .red)
+    }
+
+    func testRemovingAdjacentTileClearsChocolate() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][2] = tile(1, 2, .blue)
+        board.grid[1][2]?.obstacle = .chocolate
+
+        let result = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertEqual(board.grid[1][2]?.obstacle, .none)
+        XCTAssertEqual(result.chocolateCleared.count, 1)
+        XCTAssertTrue(result.removedPositions.contains { $0.row == 1 && $0.col == 2 })
+    }
+
+    func testSpecialDirectHitClearsChocolate() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .chocolate
+
+        let result = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertNil(board.grid[1][1])
+        XCTAssertEqual(result.chocolateCleared.count, 1)
+    }
+
+    func testChocolateCannotMoveOrJoinNormalMatches() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .chocolate
+        board.grid[1][2] = tile(1, 2, .red)
+
+        XCTAssertFalse(board.grid[1][1]?.isMovable == true)
+        XCTAssertTrue(board.detectMatches().isEmpty)
+    }
+
+    func testChocolateSpreadAddsOneChocolateWhenForced() {
+        let board = filledBoard(rows: 3, cols: 3, color: .green)
+        board.grid[1][1]?.obstacle = .chocolate
+
+        let newChocolate = board.spreadChocolate(force: true)
+
+        XCTAssertEqual(newChocolate.count, 1)
+        XCTAssertEqual(board.chocolateCount, 2)
+    }
+
+    func testChocolateDoesNotSpreadToSpecialsOrBlockedTiles() {
+        let board = filledBoard(rows: 3, cols: 3, color: .green)
+        board.grid[1][1]?.obstacle = .chocolate
+        board.grid[0][1]?.special = .stripedH
+        board.grid[1][0]?.obstacle = .ice
+        board.grid[1][2]?.obstacle = .jelly1
+
+        let newChocolate = board.spreadChocolate(force: true)
+
+        XCTAssertEqual(newChocolate.count, 1)
+        XCTAssertEqual(newChocolate[0].row, 2)
+        XCTAssertEqual(newChocolate[0].col, 1)
+    }
+
+    func testCageBlocksSwapButCanJoinMatchToUnlock() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .cage
+        board.grid[1][2] = tile(1, 2, .red)
+
+        XCTAssertFalse(board.grid[1][1]?.isMovable == true)
+        XCTAssertEqual(board.detectMatches().count, 1)
+
+        let result = board.removeTiles(at: [(1, 0), (1, 1), (1, 2)])
+
+        XCTAssertNil(board.grid[1][0])
+        XCTAssertNotNil(board.grid[1][1])
+        XCTAssertNil(board.grid[1][2])
+        XCTAssertEqual(board.grid[1][1]?.obstacle, .none)
+        XCTAssertEqual(result.cageCleared.count, 1)
+    }
+
+    func testCageStopsGravityUntilUnlocked() {
+        let board = makeBoard(rows: 4, cols: 1)
+        board.grid[0][0] = tile(0, 0, .blue)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][0]?.obstacle = .cage
+        board.grid[2][0] = nil
+        board.grid[3][0] = nil
+
+        let blockedFalls = board.applyGravity()
+        XCTAssertTrue(blockedFalls.isEmpty)
+
+        let result = board.removeTiles(at: [(1, 0)])
+        let falls = board.applyGravity()
+
+        XCTAssertEqual(result.cageCleared.count, 1)
+        XCTAssertEqual(falls.count, 2)
+        XCTAssertEqual(board.grid[3][0]?.gemColor, .red)
+        XCTAssertEqual(board.grid[2][0]?.gemColor, .blue)
+    }
+
+    func testChestTakesTwoHitsAndOpensIntoPlayableTile() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][1] = tile(1, 1, .yellow)
+        board.grid[1][1]?.obstacle = .chest2
+
+        let firstHit = board.removeTiles(at: [(1, 1)])
+        let secondHit = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertEqual(firstHit.chestDamaged.count, 1)
+        XCTAssertTrue(firstHit.chestOpened.isEmpty)
+        XCTAssertEqual(board.grid[1][1]?.obstacle, .none)
+        XCTAssertEqual(secondHit.chestDamaged.count, 1)
+        XCTAssertEqual(secondHit.chestOpened.count, 1)
+        XCTAssertNotNil(board.grid[1][1])
+    }
+
+    func testRemovingAdjacentTileDamagesChestOnce() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][1] = tile(1, 1, .yellow)
+        board.grid[1][1]?.obstacle = .chest2
+        board.grid[1][2] = tile(1, 2, .blue)
+
+        let result = board.removeTiles(at: [(1, 0), (1, 2)])
+
+        XCTAssertEqual(result.chestDamaged.count, 1)
+        XCTAssertTrue(result.chestOpened.isEmpty)
+        XCTAssertEqual(board.grid[1][1]?.obstacle, .chest1)
+    }
+
+    func testChestBlocksSwapMatchesAndGravityUntilOpened() {
+        let board = makeBoard(rows: 4, cols: 3)
+        board.grid[0][1] = tile(0, 1, .blue)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][1]?.obstacle = .chest1
+        board.grid[1][2] = tile(1, 2, .red)
+        board.grid[2][1] = nil
+        board.grid[3][1] = nil
+
+        XCTAssertFalse(board.grid[1][1]?.isMovable == true)
+        XCTAssertTrue(board.detectMatches().isEmpty)
+        XCTAssertTrue(board.applyGravity().isEmpty)
+
+        let result = board.removeTiles(at: [(1, 1)])
+        let falls = board.applyGravity()
+
+        XCTAssertEqual(result.chestOpened.count, 1)
+        XCTAssertEqual(falls.count, 2)
+        XCTAssertEqual(board.grid[3][1]?.gemColor, .red)
+        XCTAssertEqual(board.grid[2][1]?.gemColor, .blue)
+    }
+
+    func testCollectingKeyOpensNearestLock() {
+        let board = makeBoard(rows: 4, cols: 4)
+        board.grid[1][1] = tile(1, 1, .yellow)
+        board.grid[1][1]?.obstacle = .key
+        board.grid[1][2] = tile(1, 2, .blue)
+        board.grid[1][2]?.obstacle = .lock
+        board.grid[3][3] = tile(3, 3, .blue)
+        board.grid[3][3]?.obstacle = .lock
+
+        let result = board.removeTiles(at: [(1, 1)])
+
+        XCTAssertEqual(result.keysCollected.count, 1)
+        XCTAssertEqual(result.locksOpened.count, 1)
+        XCTAssertEqual(board.grid[1][2]?.obstacle, .none)
+        XCTAssertEqual(board.grid[3][3]?.obstacle, .lock)
+        XCTAssertNil(board.grid[1][1])
+    }
+
+    func testLockBlocksGravityAndCannotBeSpecialCleared() {
+        let board = makeBoard(rows: 4, cols: 1)
+        board.grid[0][0] = tile(0, 0, .green)
+        board.grid[1][0] = tile(1, 0, .blue)
+        board.grid[1][0]?.obstacle = .lock
+        board.grid[2][0] = nil
+        board.grid[3][0] = nil
+
+        let affected = board.positionsForSpecial(.stripedV, at: (0, 0))
+        let result = board.removeTiles(at: affected)
+        let falls = board.applyGravity()
+
+        XCTAssertFalse(affected.contains { $0.row == 1 && $0.col == 0 })
+        XCTAssertTrue(result.locksOpened.isEmpty)
+        XCTAssertEqual(board.grid[1][0]?.obstacle, .lock)
+        XCTAssertTrue(falls.isEmpty)
+    }
+
+    func testPortalRedirectsFallingTileToLinkedExitColumn() {
+        let board = makeBoard(rows: 5, cols: 3)
+        board.portalLinks = [PortalLink(entrance: (row: 2, col: 0), exit: (row: 1, col: 2))]
+        board.grid[0][0] = tile(0, 0, .purple)
+
+        let falls = board.applyGravity()
+
+        XCTAssertFalse(falls.isEmpty)
+        XCTAssertNil(board.grid[0][0])
+        XCTAssertNil(board.grid[2][0])
+        XCTAssertEqual(board.grid[4][2]?.gemColor, .purple)
+    }
+
     private func makeBoard(rows: Int, cols: Int) -> Board {
         let board = Board(rows: rows, cols: cols, availableColors: GemColor.allCases)
         board.grid = Array(repeating: Array(repeating: nil, count: cols), count: rows)

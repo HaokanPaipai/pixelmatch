@@ -39,6 +39,7 @@ final class Board {
     let cols: Int
     var grid: [[Tile?]]
     var availableColors: [GemColor]
+    var portalLinks: [PortalLink] = []
 
     init(rows: Int, cols: Int, availableColors: [GemColor]) {
         self.rows = rows
@@ -50,6 +51,8 @@ final class Board {
     // MARK: - Setup
 
     func setup(from level: Level) {
+        portalLinks = level.portalLinks
+
         // Place holes
         for pos in level.holes {
             guard valid(pos) else { continue }
@@ -239,6 +242,12 @@ final class Board {
         var removedPositions: [(row: Int, col: Int)]
         var jellyReduced: [(row: Int, col: Int)]
         var iceCleared: [(row: Int, col: Int)]
+        var cageCleared: [(row: Int, col: Int)]
+        var chocolateCleared: [(row: Int, col: Int)]
+        var chestDamaged: [(row: Int, col: Int)]
+        var chestOpened: [(row: Int, col: Int)]
+        var keysCollected: [(row: Int, col: Int)]
+        var locksOpened: [(row: Int, col: Int)]
         var score: Int
     }
 
@@ -249,13 +258,26 @@ final class Board {
         var removed: [(row: Int, col: Int)] = []
         var jellyReduced: [(row: Int, col: Int)] = []
         var iceCleared: [(row: Int, col: Int)] = []
+        var cageCleared: [(row: Int, col: Int)] = []
+        var chocolateCleared: [(row: Int, col: Int)] = []
+        var chestDamaged: [(row: Int, col: Int)] = []
+        var chestOpened: [(row: Int, col: Int)] = []
+        var keysCollected: [(row: Int, col: Int)] = []
+        var locksOpened: [(row: Int, col: Int)] = []
         var score = 0
         let multiplier = 1 + cascadeLevel
 
-        for pos in positions {
+        for pos in uniquePositions(positions) {
             guard valid(pos), let tile = grid[pos.row][pos.col], !tile.isHole else { continue }
 
-            if let sp = specialPos, sp.row == pos.row && sp.col == pos.col, newSpecial != .none {
+            if let sp = specialPos,
+               sp.row == pos.row && sp.col == pos.col,
+               newSpecial != .none,
+               tile.obstacle != .cage,
+               tile.obstacle != .chest1,
+               tile.obstacle != .chest2,
+               tile.obstacle != .key,
+               tile.obstacle != .lock {
                 tile.special = newSpecial
                 score += GameConstants.scorePerSpecial
                 continue
@@ -277,29 +299,82 @@ final class Board {
                 iceCleared.append(pos)
                 score += GameConstants.scorePerTile * multiplier
                 // tile stays, just freed
+            case .cage:
+                tile.obstacle = .none
+                cageCleared.append(pos)
+                score += GameConstants.scorePerTile * multiplier
+                // The cage absorbs this hit; the freed tile remains on the board.
+            case .chest2:
+                tile.obstacle = .chest1
+                chestDamaged.append(pos)
+                score += GameConstants.scorePerTile * multiplier
+            case .chest1:
+                tile.obstacle = .none
+                chestDamaged.append(pos)
+                chestOpened.append(pos)
+                score += GameConstants.scorePerTile * 3 * multiplier
+            case .key:
+                tile.obstacle = .none
+                keysCollected.append(pos)
+                grid[pos.row][pos.col] = nil
+                removed.append(pos)
+                score += GameConstants.scorePerTile * 2 * multiplier
+            case .lock:
+                continue
             case .stone:
                 continue // immovable
             default:
+                if tile.obstacle == .chocolate {
+                    chocolateCleared.append(pos)
+                }
                 grid[pos.row][pos.col] = nil
                 removed.append(pos)
                 score += GameConstants.scorePerTile * multiplier
             }
         }
 
-        // Damage chocolate adjacent to removed tiles
-        var chocolatePositions: [(row: Int, col: Int)] = []
+        // Damage blockers adjacent to removed tiles. A blocker can only take one adjacent hit per cascade step.
+        var adjacentChests: [(row: Int, col: Int)] = []
         for pos in removed {
             for (dr, dc) in [(-1,0),(1,0),(0,-1),(0,1)] {
                 let nr = pos.row + dr, nc = pos.col + dc
-                guard valid((nr, nc)), let t = grid[nr][nc], t.obstacle == .chocolate else { continue }
-                t.obstacle = .none
-                chocolatePositions.append((nr, nc))
+                guard valid((nr, nc)), let t = grid[nr][nc] else { continue }
+                if t.obstacle == .chocolate {
+                    t.obstacle = .none
+                    chocolateCleared.append((nr, nc))
+                } else if t.obstacle == .chest1 || t.obstacle == .chest2 {
+                    adjacentChests.append((nr, nc))
+                }
             }
         }
+        for pos in uniquePositions(adjacentChests) {
+            guard let tile = grid[pos.row][pos.col] else { continue }
+            if tile.obstacle == .chest2 {
+                tile.obstacle = .chest1
+                chestDamaged.append(pos)
+                score += GameConstants.scorePerTile * multiplier
+            } else if tile.obstacle == .chest1 {
+                tile.obstacle = .none
+                chestDamaged.append(pos)
+                chestOpened.append(pos)
+                score += GameConstants.scorePerTile * 3 * multiplier
+            }
+        }
+        if !keysCollected.isEmpty {
+            locksOpened.append(contentsOf: unlockNearestLocks(for: keysCollected))
+            score += locksOpened.count * GameConstants.scorePerSpecial
+        }
 
-        return RemoveResult(removedPositions: removed + chocolatePositions,
-                            jellyReduced: jellyReduced,
-                            iceCleared: iceCleared,
+        let uniqueChocolate = uniquePositions(chocolateCleared)
+        return RemoveResult(removedPositions: uniquePositions(removed + uniqueChocolate),
+                            jellyReduced: uniquePositions(jellyReduced),
+                            iceCleared: uniquePositions(iceCleared),
+                            cageCleared: uniquePositions(cageCleared),
+                            chocolateCleared: uniqueChocolate,
+                            chestDamaged: uniquePositions(chestDamaged),
+                            chestOpened: uniquePositions(chestOpened),
+                            keysCollected: uniquePositions(keysCollected),
+                            locksOpened: uniquePositions(locksOpened),
                             score: score)
     }
 
@@ -485,7 +560,7 @@ final class Board {
         var result: [(row: Int, col: Int)] = []
         for r in 0..<rows {
             for c in 0..<cols {
-                guard let tile = grid[r][c], !tile.isHole, tile.obstacle != .stone,
+                guard let tile = grid[r][c], !tile.isHole, tile.obstacle != .stone, tile.obstacle != .lock,
                       tile.gemColor == color else { continue }
                 result.append((r, c))
             }
@@ -505,7 +580,39 @@ final class Board {
 
     private func isClearable(_ pos: (row: Int, col: Int)) -> Bool {
         guard valid(pos), let tile = grid[pos.row][pos.col] else { return false }
-        return !tile.isHole && tile.obstacle != .stone
+        return !tile.isHole && tile.obstacle != .stone && tile.obstacle != .lock
+    }
+
+    private func unlockNearestLocks(for keyPositions: [(row: Int, col: Int)]) -> [(row: Int, col: Int)] {
+        var locks = lockPositions()
+        var opened: [(row: Int, col: Int)] = []
+
+        for key in keyPositions where !locks.isEmpty {
+            let targetIndex = locks.indices.min { lhs, rhs in
+                distance(key, locks[lhs]) < distance(key, locks[rhs])
+            }
+            guard let index = targetIndex else { continue }
+            let lock = locks.remove(at: index)
+            grid[lock.row][lock.col]?.obstacle = .none
+            opened.append(lock)
+        }
+
+        return opened
+    }
+
+    private func lockPositions() -> [(row: Int, col: Int)] {
+        var positions: [(row: Int, col: Int)] = []
+        for r in 0..<rows {
+            for c in 0..<cols {
+                guard let tile = grid[r][c], tile.obstacle == .lock else { continue }
+                positions.append((r, c))
+            }
+        }
+        return positions
+    }
+
+    private func distance(_ a: (row: Int, col: Int), _ b: (row: Int, col: Int)) -> Int {
+        abs(a.row - b.row) + abs(a.col - b.col)
     }
 
     private func uniquePositions(_ positions: [(row: Int, col: Int)]) -> [(row: Int, col: Int)] {
@@ -523,28 +630,94 @@ final class Board {
     // MARK: - Gravity & Refill
 
     func applyGravity() -> [TileFall] {
-        var falls: [TileFall] = []
+        var origins: [ObjectIdentifier: (tile: Tile, row: Int, col: Int)] = [:]
+
+        func recordMove(_ tile: Tile, from: (row: Int, col: Int), to: (row: Int, col: Int)) {
+            let key = ObjectIdentifier(tile)
+            if origins[key] == nil {
+                origins[key] = (tile, from.row, from.col)
+            }
+            tile.row = to.row
+            tile.col = to.col
+        }
+
+        var changed = false
+        var safety = 0
+        repeat {
+            changed = false
+            if transferPortalTiles(recordMove: recordMove) { changed = true }
+            if applyVerticalGravity(recordMove: recordMove) { changed = true }
+            if transferPortalTiles(recordMove: recordMove) { changed = true }
+            safety += 1
+        } while changed && safety < 12
+
+        return origins.values.compactMap { origin in
+            guard origin.row != origin.tile.row || origin.col != origin.tile.col else { return nil }
+            return TileFall(tile: origin.tile,
+                            fromRow: origin.row,
+                            fromCol: origin.col,
+                            toRow: origin.tile.row,
+                            toCol: origin.tile.col)
+        }
+    }
+
+    private func applyVerticalGravity(recordMove: (Tile, (row: Int, col: Int), (row: Int, col: Int)) -> Void) -> Bool {
+        var changed = false
         for c in 0..<cols {
             var writeRow = rows - 1
             for r in stride(from: rows - 1, through: 0, by: -1) {
-                // hole 和 stone 是重力屏障，不能被上方棋子覆盖。
-                if let blocker = grid[r][c], blocker.isHole || blocker.obstacle == .stone {
+                let current = (row: r, col: c)
+                if isPortalEntrance(current) {
+                    if let tile = grid[r][c], !tile.isHole {
+                        writeRow = r - 1
+                    } else {
+                        writeRow = r
+                    }
+                    continue
+                }
+
+                // hole 和固定障碍是重力屏障，不能被上方棋子覆盖。
+                if let blocker = grid[r][c], blocker.isGravityBlocker {
                     writeRow = r - 1
                     continue
                 }
 
                 if let t = grid[r][c] {
                     if r != writeRow {
-                        falls.append(TileFall(tile: t, fromRow: r, fromCol: c, toRow: writeRow, toCol: c))
                         grid[writeRow][c] = t
                         grid[r][c] = nil
-                        t.row = writeRow; t.col = c
+                        recordMove(t, current, (row: writeRow, col: c))
+                        changed = true
                     }
                     writeRow -= 1
                 }
             }
         }
-        return falls
+        return changed
+    }
+
+    private func transferPortalTiles(recordMove: (Tile, (row: Int, col: Int), (row: Int, col: Int)) -> Void) -> Bool {
+        var changed = false
+        for link in portalLinks {
+            guard valid(link.entrance), valid(link.exit),
+                  let tile = grid[link.entrance.row][link.entrance.col],
+                  !tile.isHole,
+                  !tile.isGravityBlocker,
+                  grid[link.exit.row][link.exit.col] == nil else { continue }
+            grid[link.exit.row][link.exit.col] = tile
+            grid[link.entrance.row][link.entrance.col] = nil
+            recordMove(tile, link.entrance, link.exit)
+            changed = true
+        }
+        return changed
+    }
+
+    func isPortalEntrance(_ pos: (row: Int, col: Int)) -> Bool {
+        portalLinks.contains { $0.entrance.row == pos.row && $0.entrance.col == pos.col }
+    }
+
+    func isPortalExit(_ pos: (row: Int, col: Int)) -> Bool {
+        portalLinks.contains { $0.exit.row == pos.row && $0.exit.col == pos.col }
     }
 
     func fillFromTop() -> [NewTileInfo] {
@@ -565,7 +738,7 @@ final class Board {
 
     // MARK: - Chocolate Spread
 
-    func spreadChocolate() -> [(row: Int, col: Int)] {
+    func spreadChocolate(force: Bool = false) -> [(row: Int, col: Int)] {
         var chocolatePositions: [(row: Int, col: Int)] = []
         var newChocolate: [(row: Int, col: Int)] = []
 
@@ -586,7 +759,7 @@ final class Board {
                       t.obstacle == .none, t.special == .none else { continue }
                 adjacents.append((nr, nc))
             }
-            if let target = adjacents.randomElement(), Int.random(in: 0..<3) == 0 {
+            if let target = adjacents.randomElement(), (force || Int.random(in: 0..<3) == 0) {
                 grid[target.row][target.col]?.obstacle = .chocolate
                 newChocolate.append(target)
             }
@@ -610,7 +783,7 @@ final class Board {
         var tilesAndPositions: [(Tile, (row: Int, col: Int))] = []
         for r in 0..<rows {
             for c in 0..<cols {
-                if let t = grid[r][c], !t.isHole, t.obstacle != .stone {
+                if let t = grid[r][c], !t.isHole, !t.isGravityBlocker {
                     tilesAndPositions.append((t, (r, c)))
                 }
             }
@@ -646,6 +819,56 @@ final class Board {
         for r in 0..<rows {
             for c in 0..<cols {
                 if let t = grid[r][c], t.obstacle == .ice { count += 1 }
+            }
+        }
+        return count
+    }
+
+    var chocolateCount: Int {
+        var count = 0
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if let t = grid[r][c], t.obstacle == .chocolate { count += 1 }
+            }
+        }
+        return count
+    }
+
+    var cageCount: Int {
+        var count = 0
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if let t = grid[r][c], t.obstacle == .cage { count += 1 }
+            }
+        }
+        return count
+    }
+
+    var chestCount: Int {
+        var count = 0
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if let t = grid[r][c], t.obstacle == .chest1 || t.obstacle == .chest2 { count += 1 }
+            }
+        }
+        return count
+    }
+
+    var keyCount: Int {
+        var count = 0
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if let t = grid[r][c], t.obstacle == .key { count += 1 }
+            }
+        }
+        return count
+    }
+
+    var lockCount: Int {
+        var count = 0
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if let t = grid[r][c], t.obstacle == .lock { count += 1 }
             }
         }
         return count

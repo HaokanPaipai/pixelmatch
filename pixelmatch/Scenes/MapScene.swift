@@ -144,7 +144,7 @@ final class MapScene: SKScene {
         let cols = 5
         let hMargin: CGFloat = 16 + max(safeAreaInsets.left, safeAreaInsets.right)
         let spacing: CGFloat = (size.width - 2 * hMargin) / CGFloat(cols)
-        let headerSize: CGFloat = 56
+        let headerSize: CGFloat = 66
         let headerGap: CGFloat = 14
         let worldGap: CGFloat = 36
         let topPad: CGFloat = 20
@@ -190,7 +190,8 @@ final class MapScene: SKScene {
     }
 
     private func addWorldHeader(world: World, y: CGFloat) {
-        let bg = SKShapeNode(rectOf: CGSize(width: size.width - safeAreaInsets.left - safeAreaInsets.right - 24, height: 50), cornerRadius: 10)
+        let width = size.width - safeAreaInsets.left - safeAreaInsets.right - 24
+        let bg = SKShapeNode(rectOf: CGSize(width: width, height: 60), cornerRadius: 10)
         bg.fillColor = world.themeColor.withAlphaComponent(0.18)
         bg.strokeColor = world.themeColor.withAlphaComponent(0.7)
         bg.lineWidth = 2
@@ -202,7 +203,7 @@ final class MapScene: SKScene {
         lbl.fontSize = 17
         lbl.fontColor = world.themeColor
         lbl.verticalAlignmentMode = .center
-        lbl.position = CGPoint(x: 0, y: y)
+        lbl.position = CGPoint(x: 0, y: y + 10)
         scrollNode.addChild(lbl)
 
         // Sub-label: level range
@@ -211,8 +212,43 @@ final class MapScene: SKScene {
         rangeLbl.fontSize = 10
         rangeLbl.fontColor = world.themeColor.withAlphaComponent(0.7)
         rangeLbl.verticalAlignmentMode = .center
-        rangeLbl.position = CGPoint(x: 0, y: y - 18)
+        rangeLbl.horizontalAlignmentMode = .left
+        rangeLbl.position = CGPoint(x: -width / 2 + 16, y: y - 11)
         scrollNode.addChild(rangeLbl)
+
+        let repair = WorldRepairManager.shared.snapshot(for: world)
+        let repairLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        repairLbl.text = repair.isComplete
+            ? L10n.tr("map.repair_complete", fallback: "RESTORED")
+            : L10n.fmt("map.repair_progress", repair.percent, fallback: "REPAIR %d%%")
+        repairLbl.fontSize = 10
+        repairLbl.fontColor = world.themeColor
+        repairLbl.verticalAlignmentMode = .center
+        repairLbl.horizontalAlignmentMode = .right
+        repairLbl.position = CGPoint(x: width / 2 - 16, y: y - 11)
+        scrollNode.addChild(repairLbl)
+
+        addRepairPixels(repair, width: width - 32, y: y - 25)
+    }
+
+    private func addRepairPixels(_ repair: WorldRepairSnapshot, width: CGFloat, y: CGFloat) {
+        let gap: CGFloat = 4
+        let pixelCount = max(1, repair.totalPieces)
+        let pixelWidth = min(28, (width - CGFloat(pixelCount - 1) * gap) / CGFloat(pixelCount))
+        let totalWidth = CGFloat(pixelCount) * pixelWidth + CGFloat(pixelCount - 1) * gap
+        let startX = -totalWidth / 2 + pixelWidth / 2
+
+        for index in 0..<pixelCount {
+            let filled = index < repair.unlockedPieces
+            let pixel = SKShapeNode(rectOf: CGSize(width: pixelWidth, height: 6), cornerRadius: 2)
+            pixel.fillColor = filled
+                ? repair.world.themeColor
+                : UIColor(hex: "#0A1628").withAlphaComponent(0.9)
+            pixel.strokeColor = repair.world.themeColor.withAlphaComponent(filled ? 0.8 : 0.35)
+            pixel.lineWidth = 1
+            pixel.position = CGPoint(x: startX + CGFloat(index) * (pixelWidth + gap), y: y)
+            scrollNode.addChild(pixel)
+        }
     }
 
     private func scrollToCurrentLevel() {
@@ -521,7 +557,7 @@ final class LevelDetailDialog: DialogNode {
     var onClose: (() -> Void)?
 
     init(level: Level, sceneSize: CGSize) {
-        super.init(size: CGSize(width: 300, height: 380), sceneSize: sceneSize)
+        super.init(size: CGSize(width: 320, height: 440), sceneSize: sceneSize)
         buildUI(level: level)
     }
 
@@ -535,11 +571,11 @@ final class LevelDetailDialog: DialogNode {
             worldLbl.fontSize = 14
             worldLbl.fontColor = world.themeColor
             worldLbl.verticalAlignmentMode = .center
-            worldLbl.position = CGPoint(x: 0, y: 160)
+            worldLbl.position = CGPoint(x: 0, y: 190)
             addChild(worldLbl)
         }
 
-        addPixelTitle(L10n.upper(level.displayName), y: 125)
+        addPixelTitle(L10n.upper(level.displayName), y: 154)
 
         // Stars display
         let bestStars = PlayerData.shared.stars(forLevel: level.id)
@@ -551,18 +587,21 @@ final class LevelDetailDialog: DialogNode {
                                                    dark: lit ? UIColor(hex: "#CC8800") : UIColor(hex: "#223355"),
                                                    size: 32)
             let s = SKSpriteNode(texture: tex, size: CGSize(width: 32, height: 32))
-            s.position = CGPoint(x: CGFloat(i-1) * 38, y: 78)
+            s.position = CGPoint(x: CGFloat(i-1) * 38, y: 110)
             addChild(s)
         }
 
+        addMechanicTags(for: level, y: 76)
+
         // Objectives
-        let objY: CGFloat = 30
+        let objY: CGFloat = 42
         for (i, obj) in level.objectives.enumerated() {
             let lbl = SKLabelNode(fontNamed: "Courier")
             lbl.text = "▸ \(objectiveText(obj))"
             lbl.fontSize = 15
             lbl.fontColor = UIColor(hex: "#99BBCC")
             lbl.verticalAlignmentMode = .center
+            lbl.horizontalAlignmentMode = .center
             lbl.position = CGPoint(x: 0, y: objY - CGFloat(i) * 24)
             addChild(lbl)
         }
@@ -573,7 +612,7 @@ final class LevelDetailDialog: DialogNode {
         movesLbl.fontSize = 16
         movesLbl.fontColor = UIColor(hex: "#7799CC")
         movesLbl.verticalAlignmentMode = .center
-        movesLbl.position = CGPoint(x: 0, y: -30)
+        movesLbl.position = CGPoint(x: 0, y: -42)
         addChild(movesLbl)
 
         // Best score
@@ -584,7 +623,7 @@ final class LevelDetailDialog: DialogNode {
             bestLbl.fontSize = 14
             bestLbl.fontColor = UIColor(hex: "#FFCC00")
             bestLbl.verticalAlignmentMode = .center
-            bestLbl.position = CGPoint(x: 0, y: -55)
+            bestLbl.position = CGPoint(x: 0, y: -68)
             addChild(bestLbl)
         }
 
@@ -597,7 +636,7 @@ final class LevelDetailDialog: DialogNode {
                                                     size: 20)
         for i in 0..<GameConstants.maxLives {
             let h = SKSpriteNode(texture: heartTex, size: CGSize(width: 20, height: 20))
-            h.position = CGPoint(x: CGFloat(i-2) * 24, y: -82)
+            h.position = CGPoint(x: CGFloat(i-2) * 24, y: -100)
             h.alpha = i < lives ? 1.0 : 0.25
             addChild(h)
         }
@@ -608,7 +647,7 @@ final class LevelDetailDialog: DialogNode {
             timeLbl.fontSize = 12
             timeLbl.fontColor = UIColor(hex: "#FF3B30")
             timeLbl.verticalAlignmentMode = .center
-            timeLbl.position = CGPoint(x: 0, y: -105)
+            timeLbl.position = CGPoint(x: 0, y: -122)
             addChild(timeLbl)
         }
 
@@ -618,24 +657,111 @@ final class LevelDetailDialog: DialogNode {
                                    style: .primary,
                                    color: lives > 0 ? UIColor(hex: "#34C759") : UIColor(hex: "#FF3B30"),
                                    fontSize: 22)
-        playBtn.position = CGPoint(x: 0, y: -155)
+        playBtn.position = CGPoint(x: 0, y: -174)
         playBtn.onTap = { [weak self] in self?.onPlay?() }
         addChild(playBtn)
 
         let closeBtn = PixelButton(title: "✕", size: CGSize(width: 36, height: 36),
                                    style: .ghost, color: UIColor(hex: "#7799CC"), fontSize: 18)
-        closeBtn.position = CGPoint(x: 130, y: 170)
+        closeBtn.position = CGPoint(x: 140, y: 200)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)
+    }
+
+    private func addMechanicTags(for level: Level, y: CGFloat) {
+        let tags = levelTags(level)
+        guard !tags.isEmpty else { return }
+
+        let tagWidth: CGFloat = 76
+        let gap: CGFloat = 7
+        let totalWidth = CGFloat(tags.count) * tagWidth + CGFloat(tags.count - 1) * gap
+
+        for (index, tag) in tags.enumerated() {
+            let x = -totalWidth / 2 + tagWidth / 2 + CGFloat(index) * (tagWidth + gap)
+            addTag(title: tag.title, color: tag.color, position: CGPoint(x: x, y: y))
+        }
+    }
+
+    private func addTag(title: String, color: UIColor, position: CGPoint) {
+        let bg = SKShapeNode(rectOf: CGSize(width: 76, height: 22), cornerRadius: 4)
+        bg.fillColor = color.withAlphaComponent(0.16)
+        bg.strokeColor = color.withAlphaComponent(0.75)
+        bg.lineWidth = 1
+        bg.position = position
+        addChild(bg)
+
+        let lbl = SKLabelNode(fontNamed: "Courier-Bold")
+        lbl.text = title
+        lbl.fontSize = 11
+        lbl.fontColor = color
+        lbl.verticalAlignmentMode = .center
+        lbl.horizontalAlignmentMode = .center
+        bg.addChild(lbl)
+    }
+
+    private func levelTags(_ level: Level) -> [(title: String, color: UIColor)] {
+        var tags: [(title: String, color: UIColor)] = []
+        let hasChocolate = level.obstacles.contains { $0.type == .chocolate }
+        let hasStone = level.obstacles.contains { $0.type == .stone }
+        let hasCage = level.obstacles.contains { $0.type == .cage }
+        let hasChest = level.obstacles.contains { $0.type == .chest1 || $0.type == .chest2 }
+        let hasKeyLock = level.obstacles.contains { $0.type == .key || $0.type == .lock }
+        let hasPortal = !level.portalLinks.isEmpty
+        let hasIce = level.obstacles.contains { $0.type == .ice }
+        let hasJelly = level.obstacles.contains { $0.type == .jelly1 || $0.type == .jelly2 }
+
+        if level.id % 20 == 0 {
+            tags.append((L10n.tr("map.tag.boss", fallback: "BOSS"), UIColor(hex: "#FF2D55")))
+        }
+        if level.objectives.count >= 2 {
+            tags.append((L10n.tr("map.tag.mixed", fallback: "MIXED"), UIColor(hex: "#AF52DE")))
+        }
+        if hasChocolate {
+            tags.append((L10n.tr("map.tag.chocolate", fallback: "CHOCO"), UIColor(hex: "#D2691E")))
+        } else if hasPortal {
+            tags.append((L10n.tr("map.tag.portal", fallback: "PORTAL"), UIColor(hex: "#AF52DE")))
+        } else if hasKeyLock {
+            tags.append((L10n.tr("map.tag.key_lock", fallback: "KEY"), UIColor(hex: "#66D9FF")))
+        } else if hasChest {
+            tags.append((L10n.tr("map.tag.chest", fallback: "CHEST"), UIColor(hex: "#FFCC00")))
+        } else if hasCage {
+            tags.append((L10n.tr("map.tag.cage", fallback: "CAGE"), UIColor(hex: "#C0C7D0")))
+        } else if hasStone {
+            tags.append((L10n.tr("map.tag.stone", fallback: "STONE"), UIColor(hex: "#9A9AA3")))
+        } else if hasIce {
+            tags.append((L10n.tr("map.tag.ice", fallback: "ICE"), UIColor(hex: "#66D9FF")))
+        } else if hasJelly {
+            tags.append((L10n.tr("map.tag.jelly", fallback: "JELLY"), UIColor(hex: "#FF66CC")))
+        }
+        if tags.count < 3 && !level.holes.isEmpty {
+            tags.append((L10n.tr("map.tag.holes", fallback: "HOLES"), UIColor(hex: "#99BBCC")))
+        }
+        if tags.count < 3 && (level.moves <= 21 || level.availableColors.count >= 6 || level.objectives.count >= 3) {
+            tags.append((L10n.tr("map.tag.hard", fallback: "HARD"), UIColor(hex: "#FF9500")))
+        }
+
+        return Array(tags.prefix(3))
     }
 
     private func objectiveText(_ obj: LevelObjective) -> String {
         switch obj.kind {
         case .score(let t): return L10n.fmt("objective.score", t.scoreFormatted, fallback: "Score %@ pts")
         case .collect(let c, let n): return L10n.fmt("objective.collect", n, c.name, fallback: "Collect %d %@")
-        case .clearAllJelly: return L10n.tr("objective.clear_jelly", fallback: "Clear all jelly")
+        case .clearAllJelly:
+            guard obj.progress > 0 else {
+                return L10n.tr("objective.clear_jelly", fallback: "Clear all jelly")
+            }
+            return L10n.fmt("objective.clear_jelly_count", obj.progress, fallback: "Clear %d jelly")
         case .breakIce(let n): return L10n.fmt("objective.break_ice", n, fallback: "Break %d ice blocks")
-        case .eliminateChocolate: return L10n.tr("objective.remove_chocolate", fallback: "Remove chocolate")
+        case .eliminateChocolate:
+            guard obj.progress > 0 else {
+                return L10n.tr("objective.eliminate_chocolate", fallback: "Eliminate chocolate")
+            }
+            return L10n.fmt("objective.eliminate_chocolate_count", obj.progress, fallback: "Remove %d chocolate")
+        case .openChests(let n):
+            return L10n.fmt("objective.open_chests", n, fallback: "Open %d chests")
+        case .collectKeys(let n):
+            return L10n.fmt("objective.collect_keys", n, fallback: "Collect %d keys")
         }
     }
 }

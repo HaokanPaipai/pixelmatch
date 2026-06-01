@@ -347,7 +347,13 @@ final class HomeScene: SKScene {
         let barCenterY = -size.height/2 + barHeight / 2
         let buttonY = safeBottomY + 35
         let labelY = safeBottomY + 12
-        let sideInset: CGFloat = 45
+        let sideInset: CGFloat = 38
+        let itemXs = [
+            -size.width/2 + safeAreaInsets.left + sideInset,
+            -size.width * 0.16,
+            size.width * 0.16,
+            size.width/2 - safeAreaInsets.right - sideInset
+        ]
         let bar = SKShapeNode(rectOf: CGSize(width: size.width, height: barHeight))
         bar.fillColor = UIColor(hex: "#0A1628").withAlphaComponent(0.95)
         bar.strokeColor = UIColor(hex: "#1C3A5C")
@@ -361,7 +367,7 @@ final class HomeScene: SKScene {
                                    iconColor: UIColor(hex: "#FFCC00"),
                                    size: CGSize(width: 50, height: 50),
                                    bgColor: UIColor(hex: "#1C2E4A"))
-        shopBtn.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + sideInset, y: buttonY)
+        shopBtn.position = CGPoint(x: itemXs[0], y: buttonY)
         shopBtn.zPosition = 25
         shopBtn.onTap = { [weak self] in self?.showShop() }
         addChild(shopBtn)
@@ -371,9 +377,38 @@ final class HomeScene: SKScene {
         shopLbl.fontSize = 10
         shopLbl.fontColor = UIColor(hex: "#7799CC")
         shopLbl.verticalAlignmentMode = .center
-        shopLbl.position = CGPoint(x: -size.width/2 + safeAreaInsets.left + sideInset, y: labelY)
+        shopLbl.position = CGPoint(x: itemXs[0], y: labelY)
         shopLbl.zPosition = 25
         addChild(shopLbl)
+
+        // Pixel album button
+        let albumPixels: [[UInt8]] = [
+            [1,1,1,1,1,1,1,1],
+            [1,2,2,0,0,3,3,1],
+            [1,2,2,0,0,3,3,1],
+            [1,0,0,4,4,0,0,1],
+            [1,0,0,4,4,0,0,1],
+            [1,5,5,0,0,6,6,1],
+            [1,5,5,0,0,6,6,1],
+            [1,1,1,1,1,1,1,1],
+        ]
+        let albumBtn = PixelButton(icon: albumPixels,
+                                   iconColor: UIColor(hex: "#34C759"),
+                                   size: CGSize(width: 50, height: 50),
+                                   bgColor: UIColor(hex: "#1C2E4A"))
+        albumBtn.position = CGPoint(x: itemXs[1], y: buttonY)
+        albumBtn.zPosition = 25
+        albumBtn.onTap = { [weak self] in self?.showPixelAlbum() }
+        addChild(albumBtn)
+
+        let albumLbl = SKLabelNode(fontNamed: "Courier")
+        albumLbl.text = L10n.tr("home.album", fallback: "ALBUM")
+        albumLbl.fontSize = 10
+        albumLbl.fontColor = UIColor(hex: "#7799CC")
+        albumLbl.verticalAlignmentMode = .center
+        albumLbl.position = CGPoint(x: itemXs[1], y: labelY)
+        albumLbl.zPosition = 25
+        addChild(albumLbl)
 
         // Settings button
         let settingsPixels: [[UInt8]] = [
@@ -390,7 +425,7 @@ final class HomeScene: SKScene {
                                       iconColor: UIColor(hex: "#7799CC"),
                                       size: CGSize(width: 50, height: 50),
                                       bgColor: UIColor(hex: "#1C2E4A"))
-        settingsBtn.position = CGPoint(x: size.width/2 - safeAreaInsets.right - sideInset, y: buttonY)
+        settingsBtn.position = CGPoint(x: itemXs[3], y: buttonY)
         settingsBtn.zPosition = 25
         settingsBtn.onTap = { [weak self] in self?.showSettings() }
         addChild(settingsBtn)
@@ -400,7 +435,7 @@ final class HomeScene: SKScene {
         settingsLbl.fontSize = 10
         settingsLbl.fontColor = UIColor(hex: "#7799CC")
         settingsLbl.verticalAlignmentMode = .center
-        settingsLbl.position = CGPoint(x: size.width/2 - safeAreaInsets.right - sideInset, y: labelY)
+        settingsLbl.position = CGPoint(x: itemXs[3], y: labelY)
         settingsLbl.zPosition = 25
         addChild(settingsLbl)
 
@@ -419,7 +454,7 @@ final class HomeScene: SKScene {
                                  iconColor: UIColor(hex: "#FFCC00"),
                                  size: CGSize(width: 50, height: 50),
                                  bgColor: UIColor(hex: "#1C2E4A"))
-        lbBtn.position = CGPoint(x: 0, y: buttonY)
+        lbBtn.position = CGPoint(x: itemXs[2], y: buttonY)
         lbBtn.zPosition = 25
         lbBtn.onTap = { [weak self] in self?.showLeaderboard() }
         addChild(lbBtn)
@@ -429,7 +464,7 @@ final class HomeScene: SKScene {
         lbLbl.fontSize = 10
         lbLbl.fontColor = UIColor(hex: "#7799CC")
         lbLbl.verticalAlignmentMode = .center
-        lbLbl.position = CGPoint(x: 0, y: labelY)
+        lbLbl.position = CGPoint(x: itemXs[2], y: labelY)
         lbLbl.zPosition = 25
         addChild(lbLbl)
     }
@@ -549,6 +584,13 @@ final class HomeScene: SKScene {
         dialog.onCurrencyChanged = { [weak self] in self?.refreshCurrency() }
     }
 
+    private func showPixelAlbum() {
+        let dialog = PixelAlbumDialog(sceneSize: size)
+        dialog.zPosition = 50
+        addChild(dialog)
+        dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+    }
+
     /// 购买/恢复成功后即时刷新顶部货币条。
     func refreshCurrency() {
         (childNode(withName: "//home.coins") as? SKLabelNode)?.text = "\(PlayerData.shared.coins)"
@@ -641,7 +683,7 @@ final class QuestsDialog: DialogNode {
     private let dialogSize: CGSize
 
     init(sceneSize: CGSize) {
-        dialogSize = CGSize(width: min(sceneSize.width - 36, 330), height: 360)
+        dialogSize = CGSize(width: min(sceneSize.width - 36, 330), height: 420)
         super.init(size: dialogSize, sceneSize: sceneSize)
         buildUI()
     }
@@ -649,20 +691,53 @@ final class QuestsDialog: DialogNode {
     required init?(coder: NSCoder) { fatalError() }
 
     private func buildUI() {
-        addPixelTitle(L10n.tr("home.daily_quests", fallback: "DAILY QUESTS"), y: 145)
+        addPixelTitle(L10n.tr("home.daily_quests", fallback: "DAILY QUESTS"), y: 172)
+        addEventStrip(y: 130)
 
         let quests = LiveOpsManager.shared.quests
         for (index, quest) in quests.enumerated() {
-            addQuestRow(quest, y: 78 - CGFloat(index) * 78)
+            addQuestRow(quest, y: 72 - CGFloat(index) * 68)
         }
 
         let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
                                    size: CGSize(width: 220, height: 44),
                                    style: .secondary,
                                    fontSize: 16)
-        closeBtn.position = CGPoint(x: 0, y: -145)
+        closeBtn.position = CGPoint(x: 0, y: -174)
         closeBtn.onTap = { [weak self] in self?.onClose?() }
         addChild(closeBtn)
+    }
+
+    private func addEventStrip(y: CGFloat) {
+        guard let event = LiveEventManager.shared.activeEvents().first else { return }
+        let rowWidth = dialogSize.width - 28
+
+        let bg = SKShapeNode(rectOf: CGSize(width: rowWidth, height: 36), cornerRadius: 8)
+        bg.fillColor = UIColor(hex: "#231A0A")
+        bg.strokeColor = UIColor(hex: "#FFCC00").withAlphaComponent(0.85)
+        bg.lineWidth = 1.4
+        bg.position = CGPoint(x: 0, y: y)
+        addChild(bg)
+
+        let title = SKLabelNode(fontNamed: "Courier-Bold")
+        title.text = L10n.fmt("home.event_today", event.title, fallback: "TODAY: %@")
+        title.fontSize = 11
+        title.fontColor = UIColor(hex: "#FFCC00")
+        title.verticalAlignmentMode = .center
+        title.horizontalAlignmentMode = .left
+        title.position = CGPoint(x: -rowWidth / 2 + 12, y: y + 7)
+        fitLabel(title, maxWidth: rowWidth - 24, minScale: 0.72)
+        addChild(title)
+
+        let desc = SKLabelNode(fontNamed: "Courier")
+        desc.text = event.description
+        desc.fontSize = 10
+        desc.fontColor = UIColor(hex: "#FFE8A3")
+        desc.verticalAlignmentMode = .center
+        desc.horizontalAlignmentMode = .left
+        desc.position = CGPoint(x: -rowWidth / 2 + 12, y: y - 8)
+        fitLabel(desc, maxWidth: rowWidth - 24, minScale: 0.72)
+        addChild(desc)
     }
 
     private func addQuestRow(_ quest: DailyQuest, y: CGFloat) {
@@ -723,6 +798,132 @@ final class QuestsDialog: DialogNode {
 
     private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat = 0.68) {
         // 任务文案和奖励文字在小屏上不能挤进领取按钮。
+        label.setScale(1)
+        let width = max(label.frame.width, 1)
+        if width > maxWidth {
+            label.setScale(max(minScale, maxWidth / width))
+        }
+    }
+}
+
+// MARK: - Pixel Album Dialog
+
+final class PixelAlbumDialog: DialogNode {
+    var onClose: (() -> Void)?
+
+    private let dialogSize: CGSize
+
+    init(sceneSize: CGSize) {
+        dialogSize = CGSize(width: min(sceneSize.width - 36, 340), height: 430)
+        super.init(size: dialogSize, sceneSize: sceneSize)
+        buildUI()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func buildUI() {
+        addPixelTitle(L10n.tr("home.pixel_album", fallback: "PIXEL ALBUM"), y: 178)
+
+        let overall = WorldRepairManager.shared.overall
+        let overallLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        overallLbl.text = L10n.fmt("home.album_overall",
+                                   overall.unlockedPieces,
+                                   overall.totalPieces,
+                                   overall.percent,
+                                   fallback: "%d/%d pieces · %d%% restored")
+        overallLbl.fontSize = 13
+        overallLbl.fontColor = UIColor(hex: "#FFCC00")
+        overallLbl.verticalAlignmentMode = .center
+        overallLbl.position = CGPoint(x: 0, y: 143)
+        fitLabel(overallLbl, maxWidth: dialogSize.width - 36, minScale: 0.72)
+        addChild(overallLbl)
+
+        for (index, snapshot) in albumRows().enumerated() {
+            addAlbumRow(snapshot, y: 88 - CGFloat(index) * 56)
+        }
+
+        let closeBtn = PixelButton(title: L10n.tr("common.close", fallback: "CLOSE"),
+                                   size: CGSize(width: 220, height: 44),
+                                   style: .secondary,
+                                   fontSize: 16)
+        closeBtn.position = CGPoint(x: 0, y: -178)
+        closeBtn.onTap = { [weak self] in self?.onClose?() }
+        addChild(closeBtn)
+    }
+
+    private func albumRows() -> [WorldRepairSnapshot] {
+        let currentWorldId = max(1, min(GameWorlds.count, (PlayerData.shared.maxUnlockedLevel - 1) / 20 + 1))
+        let startWorldId = max(1, min(currentWorldId - 1, GameWorlds.count - 4))
+        let shownWorldIds = startWorldId...min(GameWorlds.count, startWorldId + 4)
+        return WorldRepairManager.shared.snapshots().filter { shownWorldIds.contains($0.world.id) }
+    }
+
+    private func addAlbumRow(_ snapshot: WorldRepairSnapshot, y: CGFloat) {
+        let rowWidth = dialogSize.width - 28
+        let unlocked = PlayerData.shared.isLevelUnlocked(snapshot.world.levelRange.lowerBound)
+
+        let bg = SKShapeNode(rectOf: CGSize(width: rowWidth, height: 48), cornerRadius: 8)
+        bg.fillColor = UIColor(hex: "#0F1E33")
+        bg.strokeColor = unlocked
+            ? snapshot.world.themeColor.withAlphaComponent(0.8)
+            : UIColor(hex: "#1C3A5C")
+        bg.lineWidth = 1.5
+        bg.position = CGPoint(x: 0, y: y)
+        bg.alpha = unlocked ? 1.0 : 0.65
+        addChild(bg)
+
+        addAlbumPixels(snapshot, unlocked: unlocked, x: -rowWidth / 2 + 42, y: y)
+
+        let title = SKLabelNode(fontNamed: "Courier-Bold")
+        title.text = L10n.upper(snapshot.world.localizedName)
+        title.fontSize = 12
+        title.fontColor = unlocked ? snapshot.world.themeColor : UIColor(hex: "#7799CC")
+        title.verticalAlignmentMode = .center
+        title.horizontalAlignmentMode = .left
+        title.position = CGPoint(x: -rowWidth / 2 + 82, y: y + 10)
+        fitLabel(title, maxWidth: rowWidth - 112, minScale: 0.7)
+        addChild(title)
+
+        let status = SKLabelNode(fontNamed: "Courier")
+        if !unlocked {
+            status.text = L10n.tr("home.album_locked", fallback: "Locked")
+        } else if snapshot.isComplete {
+            status.text = L10n.tr("home.album_complete", fallback: "Restored")
+        } else {
+            status.text = L10n.fmt("home.album_world_status",
+                                   snapshot.percent,
+                                   snapshot.earnedStars,
+                                   snapshot.totalStars,
+                                   fallback: "%d%% · %d/%d stars")
+        }
+        status.fontSize = 10
+        status.fontColor = UIColor(hex: "#99BBCC")
+        status.verticalAlignmentMode = .center
+        status.horizontalAlignmentMode = .left
+        status.position = CGPoint(x: -rowWidth / 2 + 82, y: y - 10)
+        fitLabel(status, maxWidth: rowWidth - 112, minScale: 0.7)
+        addChild(status)
+    }
+
+    private func addAlbumPixels(_ snapshot: WorldRepairSnapshot, unlocked: Bool, x: CGFloat, y: CGFloat) {
+        let pixelSize: CGFloat = 11
+        let gap: CGFloat = 2
+        let columns = 3
+        for index in 0..<snapshot.totalPieces {
+            let col = index % columns
+            let row = index / columns
+            let filled = unlocked && index < snapshot.unlockedPieces
+            let pixel = SKShapeNode(rectOf: CGSize(width: pixelSize, height: pixelSize), cornerRadius: 2)
+            pixel.fillColor = filled ? snapshot.world.themeColor : UIColor(hex: "#0A1628")
+            pixel.strokeColor = snapshot.world.themeColor.withAlphaComponent(filled ? 0.85 : 0.32)
+            pixel.lineWidth = 1
+            pixel.position = CGPoint(x: x + CGFloat(col) * (pixelSize + gap),
+                                     y: y + CGFloat(1 - row) * (pixelSize + gap) - 4)
+            addChild(pixel)
+        }
+    }
+
+    private func fitLabel(_ label: SKLabelNode, maxWidth: CGFloat, minScale: CGFloat = 0.68) {
         label.setScale(1)
         let width = max(label.frame.width, 1)
         if width > maxWidth {

@@ -9,6 +9,34 @@ enum GameState {
     case idle, selecting, animating, paused, won, failed
 }
 
+struct BoardLayoutMetrics {
+    let scale: CGFloat
+    let centerY: CGFloat
+    let playableTop: CGFloat
+    let playableBottom: CGFloat
+}
+
+enum BoardLayoutCalculator {
+    static func metrics(sceneSize: CGSize,
+                        safeAreaInsets: UIEdgeInsets,
+                        boardSize: CGSize,
+                        sidePadding: CGFloat = 14,
+                        verticalPadding: CGFloat = 8) -> BoardLayoutMetrics {
+        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + 15
+        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight
+        let playableTop = sceneSize.height / 2 - topReservedHeight
+        let playableBottom = -sceneSize.height / 2 + bottomReservedHeight
+        let availableWidth = max(1, sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - sidePadding * 2)
+        let availableHeight = max(1, playableTop - playableBottom - verticalPadding * 2)
+        let scale = min(1, availableWidth / boardSize.width, availableHeight / boardSize.height)
+
+        return BoardLayoutMetrics(scale: scale,
+                                  centerY: (playableTop + playableBottom) / 2,
+                                  playableTop: playableTop,
+                                  playableBottom: playableBottom)
+    }
+}
+
 // MARK: - GameScene
 
 // 负责一个可游玩的关卡：场景布局、棋盘交互、消除流程、HUD 回调、
@@ -44,7 +72,17 @@ final class GameScene: SKScene {
 
     // Collected counts (for collect objectives)
     private var collectedCounts: [GemColor: Int] = [:]
+    private var collectedKeys: Int = 0
     private var initialIceCount: Int = 0
+    private var shouldResolveChocolateAfterCascade = false
+    private var clearedChocolateThisMove = false
+    private var usedBoosterThisLevel = false
+
+    private struct HintCandidate {
+        let a: (row: Int, col: Int)
+        let b: (row: Int, col: Int)
+        let score: Int
+    }
 
     // Score multiplier event
     private var scoreMultiplier: Int = 1
@@ -132,14 +170,14 @@ final class GameScene: SKScene {
 
         boardNode = BoardNode(board: board)
 
-        // 保持既有棋盘布局基线：棋盘居中放在 HUD 与底部 Booster 之间。
-        let topReservedHeight = safeAreaInsets.top + GameHUD.contentHeight + 15
-        let bottomReservedHeight = safeAreaInsets.bottom + GameHUD.boosterReservedHeight
-        let playableTop = size.height / 2 - topReservedHeight
-        let playableBottom = -size.height / 2 + bottomReservedHeight
-        let boardY = (playableTop + playableBottom) / 2
+        // 9x9 starts at level 13. Small devices cannot fit the raw 430pt board,
+        // so scale to the space between HUD and boosters while preserving touch math.
+        let layout = BoardLayoutCalculator.metrics(sceneSize: size,
+                                                   safeAreaInsets: safeAreaInsets,
+                                                   boardSize: boardNode.boardSize)
+        boardNode.setScale(layout.scale)
 
-        boardNode.position = CGPoint(x: 0, y: boardY)
+        boardNode.position = CGPoint(x: 0, y: layout.centerY)
         boardNode.zPosition = 1
         addChild(boardNode)
     }
@@ -155,7 +193,9 @@ final class GameScene: SKScene {
             switch objectives[i].kind {
             case .clearAllJelly: objectives[i].progress = board.jellyCount
             case .breakIce:     objectives[i].progress = board.iceCount
-            case .eliminateChocolate: break
+            case .eliminateChocolate: objectives[i].progress = board.chocolateCount
+            case .openChests: objectives[i].progress = board.chestCount
+            case .collectKeys: objectives[i].progress = collectedKeys
             default: break
             }
         }
@@ -171,10 +211,15 @@ final class GameScene: SKScene {
 
         hud.updateMoves(remainingMoves)
         hud.updateScore(0)
+        for index in objectives.indices {
+            hud.updateObjective(index, progress: objectives[index].progress)
+        }
 
         // Apply pre-game boosters
         for booster in preGameBoosters {
-            _ = PlayerData.shared.useBooster(booster)
+            guard PlayerData.shared.useBooster(booster) else { continue }
+            usedBoosterThisLevel = true
+            LiveOpsManager.shared.recordBoosterUsed()
             switch booster {
             case .extraMoves:
                 remainingMoves += 5
@@ -279,6 +324,8 @@ final class GameScene: SKScene {
         case .clearAllJelly: return L10n.tr("objective.clear_jelly", fallback: "Clear all jelly")
         case .breakIce(let n): return L10n.fmt("objective.break_ice", n, fallback: "Break %d ice blocks")
         case .eliminateChocolate: return L10n.tr("objective.eliminate_chocolate", fallback: "Eliminate chocolate")
+        case .openChests(let n): return L10n.fmt("objective.open_chests", n, fallback: "Open %d chests")
+        case .collectKeys(let n): return L10n.fmt("objective.collect_keys", n, fallback: "Collect %d keys")
         }
     }
 
@@ -458,6 +505,8 @@ final class GameScene: SKScene {
             }
         }
         LiveOpsManager.shared.recordSpecialsCreated(specialCreations.count)
+        let colorBombCreations = specialCreations.filter { $0.special == .colorBomb }.count
+        LiveOpsManager.shared.recordColorBombsCreated(colorBombCreations)
         if !specialCreations.isEmpty {
             AnalyticsManager.shared.track(.specialCreated,
                                           properties: ["level": "\(level.id)",
@@ -494,9 +543,10 @@ final class GameScene: SKScene {
                                    specialPos: firstSpecialPos,
                                    newSpecial: firstSpecialKind) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: allPositions,
-                                           specialPos: firstSpecialPos,
-                                           newSpecial: firstSpecialKind)
+            let result = self.board.removeTiles(at: allPositions,
+                                                specialPos: firstSpecialPos,
+                                                newSpecial: firstSpecialKind)
+            self.recordRemoveResult(result)
 
             self.updateObjectiveProgress(positions: allPositions)
             self.boardNode.syncWithBoard()
@@ -519,17 +569,17 @@ final class GameScene: SKScene {
                     self.processMatches()
                 } else {
                     self.cascadeCount = 0
-                    // Activate specials that were just created
-                    self.checkAndActivateSpecials()
+                    self.finishStableBoard()
                 }
             }
         }
     }
 
-    private func checkAndActivateSpecials() {
-        // Check if any remaining special needs activation
+    private func finishStableBoard() {
         state = .idle
 
+        if checkWin() { return }
+        resolveChocolateAfterStableBoardIfNeeded()
         if checkWin() { return }
         if checkLoss() { return }
         checkDeadlock()
@@ -593,12 +643,14 @@ final class GameScene: SKScene {
                                                                      preserving: effect.consumedPositions)
         let positions = expanded.positions
 
+        LiveOpsManager.shared.recordSpecialComboActivated()
         HapticsManager.shared.special()
         boardNode.animateSpecialActivation(at: effect.origin,
                                            affectedPositions: positions,
                                            special: effect.visualSpecial) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: positions)
+            let result = self.board.removeTiles(at: positions)
+            self.recordRemoveResult(result)
             self.updateObjectiveProgress(positions: positions)
             self.addScore(positions.count * GameConstants.scorePerTile * effect.scoreMultiplier
                 + expanded.activationBonus)
@@ -621,7 +673,8 @@ final class GameScene: SKScene {
         HapticsManager.shared.special()
         boardNode.animateSpecialActivation(at: pos, affectedPositions: expanded.positions, special: special) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: expanded.positions)
+            let result = self.board.removeTiles(at: expanded.positions)
+            self.recordRemoveResult(result)
             self.updateObjectiveProgress(positions: expanded.positions)
             let score = expanded.positions.count * GameConstants.scorePerTile * 2
                 + expanded.activationBonus
@@ -649,7 +702,8 @@ final class GameScene: SKScene {
         HapticsManager.shared.colorBomb()
         boardNode.animateSpecialActivation(at: bombPos, affectedPositions: expanded.positions, special: .colorBomb) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: expanded.positions)
+            let result = self.board.removeTiles(at: expanded.positions)
+            self.recordRemoveResult(result)
             self.updateObjectiveProgress(positions: expanded.positions)
             self.addScore(expanded.positions.count * GameConstants.scorePerTile * 3
                 + expanded.activationBonus)
@@ -671,7 +725,8 @@ final class GameScene: SKScene {
     private func clearAllTiles(_ positions: [(row: Int, col: Int)]) {
         boardNode.animateRemovals(positions) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: positions)
+            let result = self.board.removeTiles(at: positions)
+            self.recordRemoveResult(result)
             self.updateObjectiveProgress(positions: positions)
             self.addScore(positions.count * GameConstants.scorePerTile * 4)
             self.boardNode.syncWithBoard()
@@ -691,7 +746,8 @@ final class GameScene: SKScene {
 
         boardNode.animateRemovals([pos]) { [weak self] in
             guard let self = self else { return }
-            let _ = self.board.removeTiles(at: [pos])
+            let result = self.board.removeTiles(at: [pos])
+            self.recordRemoveResult(result)
             self.updateObjectiveProgress(positions: [pos])
             self.addScore(GameConstants.scorePerTile * 2)
             self.boardNode.syncWithBoard()
@@ -707,6 +763,7 @@ final class GameScene: SKScene {
         case .hammer:
             if PlayerData.shared.useBooster(.hammer) {
                 LiveOpsManager.shared.recordBoosterUsed()
+                usedBoosterThisLevel = true
                 AnalyticsManager.shared.track(.boosterUsed,
                                               properties: ["level": "\(level.id)", "type": "hammer"])
                 isHammerMode = true
@@ -718,6 +775,7 @@ final class GameScene: SKScene {
         case .shuffle:
             if PlayerData.shared.useBooster(.shuffle) {
                 LiveOpsManager.shared.recordBoosterUsed()
+                usedBoosterThisLevel = true
                 AnalyticsManager.shared.track(.boosterUsed,
                                               properties: ["level": "\(level.id)", "type": "shuffle"])
                 board.shuffle()
@@ -733,6 +791,7 @@ final class GameScene: SKScene {
         case .extraMoves:
             if PlayerData.shared.useBooster(.extraMoves) {
                 LiveOpsManager.shared.recordBoosterUsed()
+                usedBoosterThisLevel = true
                 AnalyticsManager.shared.track(.boosterUsed,
                                               properties: ["level": "\(level.id)", "type": "extra_moves"])
                 remainingMoves += 5
@@ -745,6 +804,7 @@ final class GameScene: SKScene {
         case .colorBomb:
             if PlayerData.shared.useBooster(.colorBomb) {
                 LiveOpsManager.shared.recordBoosterUsed()
+                usedBoosterThisLevel = true
                 AnalyticsManager.shared.track(.boosterUsed,
                                               properties: ["level": "\(level.id)", "type": "color_bomb"])
                 placeColorBombBooster()
@@ -808,12 +868,56 @@ final class GameScene: SKScene {
     private func spendMove() {
         remainingMoves -= 1
         hud.updateMoves(remainingMoves)
-        _ = board.spreadChocolate()
+        shouldResolveChocolateAfterCascade = true
+        clearedChocolateThisMove = false
 
         movesUntilNextEvent -= 1
         if movesUntilNextEvent <= 0 && level.id >= 10 && Int.random(in: 0..<5) == 0 {
             triggerScoreMultiplierEvent()
         }
+    }
+
+    private func recordRemoveResult(_ result: Board.RemoveResult) {
+        if !result.chocolateCleared.isEmpty {
+            clearedChocolateThisMove = true
+        }
+        LiveOpsManager.shared.recordJellyCleared(result.jellyReduced.count)
+        LiveOpsManager.shared.recordIceCleared(result.iceCleared.count)
+        LiveOpsManager.shared.recordChocolateCleared(result.chocolateCleared.count)
+        if !result.chestOpened.isEmpty {
+            let reward = result.chestOpened.count * GameConstants.scorePerSpecial
+            addScore(reward)
+            showFloatingText(L10n.fmt("game.chest_opened", reward.scoreFormatted,
+                                      fallback: "CHEST +%@"),
+                             color: UIColor(hex: "#FFCC00"))
+        }
+        if !result.keysCollected.isEmpty {
+            collectedKeys += result.keysCollected.count
+        }
+        if !result.locksOpened.isEmpty {
+            let lockReward = result.locksOpened.count * GameConstants.scorePerSpecial
+            addScore(lockReward)
+            showFloatingText(L10n.fmt("game.lock_opened", result.locksOpened.count, lockReward.scoreFormatted,
+                                      fallback: "%d LOCKS +%@"),
+                             color: UIColor(hex: "#66D9FF"))
+        }
+    }
+
+    private func resolveChocolateAfterStableBoardIfNeeded() {
+        guard shouldResolveChocolateAfterCascade else { return }
+        defer {
+            shouldResolveChocolateAfterCascade = false
+            clearedChocolateThisMove = false
+        }
+        guard !clearedChocolateThisMove else { return }
+
+        let newChocolate = board.spreadChocolate()
+        guard !newChocolate.isEmpty else { return }
+
+        boardNode.syncWithBoard()
+        updateObjectiveProgress(positions: [])
+        showFloatingText(L10n.tr("game.chocolate_spread", fallback: "CHOCOLATE SPREAD!"),
+                         color: UIColor(hex: "#8B4513"))
     }
 
     private func triggerScoreMultiplierEvent() {
@@ -849,14 +953,17 @@ final class GameScene: SKScene {
                 objectives[i].progress = remaining
                 hud.updateObjective(i, progress: remaining)
             case .eliminateChocolate:
-                var chocolateCount = 0
-                for r in 0..<board.rows {
-                    for c in 0..<board.cols {
-                        if board.grid[r][c]?.obstacle == .chocolate { chocolateCount += 1 }
-                    }
-                }
-                objectives[i].progress = chocolateCount
-                hud.updateObjective(i, progress: chocolateCount)
+                let remaining = board.chocolateCount
+                objectives[i].progress = remaining
+                hud.updateObjective(i, progress: remaining)
+            case .openChests:
+                let remaining = board.chestCount
+                objectives[i].progress = remaining
+                hud.updateObjective(i, progress: remaining)
+            case .collectKeys(let target):
+                let progress = min(collectedKeys, target)
+                objectives[i].progress = progress
+                hud.updateObjective(i, progress: progress)
             }
         }
     }
@@ -871,13 +978,9 @@ final class GameScene: SKScene {
             case .collect(let color, let count): return (collectedCounts[color] ?? 0) >= count
             case .clearAllJelly: return board.jellyCount == 0
             case .breakIce: return board.iceCount <= 0
-            case .eliminateChocolate:
-                for r in 0..<board.rows {
-                    for c in 0..<board.cols {
-                        if board.grid[r][c]?.obstacle == .chocolate { return false }
-                    }
-                }
-                return true
+            case .eliminateChocolate: return board.chocolateCount == 0
+            case .openChests: return board.chestCount == 0
+            case .collectKeys(let count): return collectedKeys >= count
             }
         }
 
@@ -919,6 +1022,8 @@ final class GameScene: SKScene {
         multiplierTimer?.invalidate()
         hideHints()
 
+        let rewardedMoves = remainingMoves
+        let moveBonus = awardRemainingMoveBonus()
         AudioManager.shared.play(.levelWin)
         HapticsManager.shared.win()
         let stars = level.stars(for: currentScore)
@@ -930,17 +1035,22 @@ final class GameScene: SKScene {
 
         // Coin reward + win streak bonus
         let streak = PlayerData.shared.recordWin()
-        let coins = EconomyConfig.shared.winCoins(stars: stars,
-                                                  remainingMoves: remainingMoves,
-                                                  winStreak: streak)
+        let baseCoins = EconomyConfig.shared.winCoins(stars: stars,
+                                                      remainingMoves: rewardedMoves,
+                                                      winStreak: streak)
+        let coinMultiplier = LiveEventManager.shared.winCoinMultiplier
+        let coins = baseCoins * coinMultiplier
         PlayerData.shared.addCoins(coins)
         PlayerData.shared.totalMatches += 1
-        LiveOpsManager.shared.recordLevelWin()
+        LiveOpsManager.shared.recordLevelWin(usedBooster: usedBoosterThisLevel)
         AnalyticsManager.shared.track(.levelWin,
                                       properties: ["level": "\(level.id)",
                                                    "score": "\(currentScore)",
                                                    "stars": "\(stars)",
-                                                   "remaining_moves": "\(remainingMoves)",
+                                                   "remaining_moves": "\(rewardedMoves)",
+                                                   "move_bonus": "\(moveBonus)",
+                                                   "coin_multiplier": "\(coinMultiplier)",
+                                                   "used_booster": "\(usedBoosterThisLevel)",
                                                    "coins": "\(coins)"])
 
         // Game Center
@@ -965,6 +1075,20 @@ final class GameScene: SKScene {
                 self.showResultScene(won: true, stars: stars, coinsEarned: coins)
             }
         }
+    }
+
+    private func awardRemainingMoveBonus() -> Int {
+        guard remainingMoves > 0 else { return 0 }
+
+        let moves = remainingMoves
+        let bonus = moves * GameConstants.scorePerSpecial
+        remainingMoves = 0
+        hud.updateMoves(remainingMoves)
+        addScore(bonus)
+        showFloatingText(L10n.fmt("game.move_bonus", moves, bonus.scoreFormatted,
+                                  fallback: "%d MOVES BONUS +%@"),
+                         color: UIColor(hex: "#FFCC00"))
+        return bonus
     }
 
     private func celebrationBurst() -> TimeInterval {
@@ -1050,7 +1174,7 @@ final class GameScene: SKScene {
                                       properties: ["level": "\(level.id)",
                                                    "score": "\(currentScore)",
                                                    "reason": "out_of_moves"])
-        let dialog = OutOfMovesDialog(sceneSize: size)
+        let dialog = OutOfMovesDialog(sceneSize: size, hintText: failureHintText())
         dialog.zPosition = 100
         addChild(dialog)
 
@@ -1095,6 +1219,37 @@ final class GameScene: SKScene {
         }
     }
 
+    private func failureHintText() -> String? {
+        guard let objective = objectives.first(where: { !$0.isComplete }) else { return nil }
+
+        switch objective.kind {
+        case .score(let target):
+            let remaining = max(0, target - currentScore)
+            return L10n.fmt("dialog.out_of_moves.hint.score", remaining.scoreFormatted,
+                            fallback: "Need %@ more points")
+        case .collect(let color, let count):
+            let remaining = max(0, count - (collectedCounts[color] ?? 0))
+            return L10n.fmt("dialog.out_of_moves.hint.collect", remaining, color.name,
+                            fallback: "Need %d more %@")
+        case .clearAllJelly:
+            return L10n.fmt("dialog.out_of_moves.hint.jelly", board.jellyCount,
+                            fallback: "%d jelly left")
+        case .breakIce:
+            return L10n.fmt("dialog.out_of_moves.hint.ice", board.iceCount,
+                            fallback: "%d ice left")
+        case .eliminateChocolate:
+            return L10n.fmt("dialog.out_of_moves.hint.chocolate", board.chocolateCount,
+                            fallback: "%d chocolate left")
+        case .openChests:
+            return L10n.fmt("dialog.out_of_moves.hint.chests", board.chestCount,
+                            fallback: "%d chests left")
+        case .collectKeys(let count):
+            let remaining = max(0, count - collectedKeys)
+            return L10n.fmt("dialog.out_of_moves.hint.keys", remaining,
+                            fallback: "%d keys left")
+        }
+    }
+
     private func restartLevel() {
         guard let view = view else { return }
         let scene = GameScene(size: size)
@@ -1128,21 +1283,136 @@ final class GameScene: SKScene {
 
     private func showHint() {
         guard state == .idle else { return }
-        // Find a possible move
+        if let candidate = bestHintCandidate() {
+            boardNode.showHint(a: candidate.a, b: candidate.b)
+            hintShown = true
+        }
+    }
+
+    private func bestHintCandidate() -> HintCandidate? {
+        var best: HintCandidate?
+
         for r in 0..<board.rows {
             for c in 0..<board.cols {
                 if c + 1 < board.cols && board.canSwap((r, c), (r, c + 1)) {
-                    boardNode.showHint(a: (r, c), b: (r, c + 1))
-                    hintShown = true
-                    return
+                    best = betterHint(best, candidateForHint(a: (r, c), b: (r, c + 1)))
                 }
                 if r + 1 < board.rows && board.canSwap((r, c), (r + 1, c)) {
-                    boardNode.showHint(a: (r, c), b: (r + 1, c))
-                    hintShown = true
-                    return
+                    best = betterHint(best, candidateForHint(a: (r, c), b: (r + 1, c)))
                 }
             }
         }
+        return best
+    }
+
+    private func betterHint(_ current: HintCandidate?, _ next: HintCandidate) -> HintCandidate {
+        guard let current = current else { return next }
+        return next.score > current.score ? next : current
+    }
+
+    private func candidateForHint(a: (row: Int, col: Int),
+                                  b: (row: Int, col: Int)) -> HintCandidate {
+        let specialBonus = hintSpecialSwapBonus(a: a, b: b)
+        board.doSwap(a, b)
+        let matches = board.detectMatches()
+        let positions = uniqueHintPositions(matches.flatMap { $0.positions })
+        let score = hintScore(matches: matches, positions: positions) + specialBonus
+        board.doSwap(a, b)
+        return HintCandidate(a: a, b: b, score: score)
+    }
+
+    private func hintSpecialSwapBonus(a: (row: Int, col: Int), b: (row: Int, col: Int)) -> Int {
+        guard let first = board.tile(at: a), let second = board.tile(at: b) else { return 0 }
+        if first.special == .colorBomb || second.special == .colorBomb {
+            let color = first.special == .colorBomb ? second.gemColor : first.gemColor
+            return 80 + board.count(of: color) * 4
+        }
+        if first.special != .none && second.special != .none { return 90 }
+        if first.special != .none || second.special != .none { return 45 }
+        return 0
+    }
+
+    private func hintScore(matches: [TileMatch],
+                           positions: [(row: Int, col: Int)]) -> Int {
+        var score = positions.count * 4
+        for match in matches where match.createsSpecial != .none {
+            score += match.createsSpecial == .colorBomb ? 70 : 35
+        }
+
+        for objective in objectives where !objective.isComplete {
+            switch objective.kind {
+            case .score:
+                score += positions.count * 2
+            case .collect(let color, _):
+                score += positions.reduce(0) { total, pos in
+                    total + ((board.tile(at: pos)?.gemColor == color) ? 18 : 0)
+                }
+            case .clearAllJelly:
+                score += positions.reduce(0) { total, pos in
+                    let obstacle = board.tile(at: pos)?.obstacle
+                    return total + ((obstacle == .jelly1 || obstacle == .jelly2) ? 22 : 0)
+                }
+            case .breakIce:
+                score += positions.reduce(0) { total, pos in
+                    total + (board.tile(at: pos)?.obstacle == .ice
+                        ? 24
+                        : adjacentObstacleBonus(from: pos, obstacle: .ice, value: 8))
+                }
+            case .eliminateChocolate:
+                score += positions.reduce(0) { total, pos in
+                    total + (board.tile(at: pos)?.obstacle == .chocolate
+                        ? 28
+                        : adjacentObstacleBonus(from: pos, obstacle: .chocolate, value: 16))
+                }
+            case .openChests:
+                score += positions.reduce(0) { total, pos in
+                    let obstacle = board.tile(at: pos)?.obstacle
+                    return total + ((obstacle == .chest1 || obstacle == .chest2)
+                        ? 34
+                        : adjacentChestBonus(from: pos, value: 18))
+                }
+            case .collectKeys:
+                score += positions.reduce(0) { total, pos in
+                    total + (board.tile(at: pos)?.obstacle == .key ? 38 : 0)
+                }
+            }
+        }
+
+        return score
+    }
+
+    private func adjacentObstacleBonus(from pos: (row: Int, col: Int),
+                                       obstacle: ObstacleType,
+                                       value: Int) -> Int {
+        for (dr, dc) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+            let next = (row: pos.row + dr, col: pos.col + dc)
+            guard board.valid(next), board.tile(at: next)?.obstacle == obstacle else { continue }
+            return value
+        }
+        return 0
+    }
+
+    private func adjacentChestBonus(from pos: (row: Int, col: Int),
+                                    value: Int) -> Int {
+        for (dr, dc) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+            let next = (row: pos.row + dr, col: pos.col + dc)
+            guard board.valid(next), let obstacle = board.tile(at: next)?.obstacle,
+                  obstacle == .chest1 || obstacle == .chest2 else { continue }
+            return value
+        }
+        return 0
+    }
+
+    private func uniqueHintPositions(_ positions: [(row: Int, col: Int)]) -> [(row: Int, col: Int)] {
+        var seen = Set<String>()
+        var result: [(row: Int, col: Int)] = []
+        for position in positions {
+            let key = "\(position.row)_\(position.col)"
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            result.append(position)
+        }
+        return result
     }
 
     private func hideHints() {

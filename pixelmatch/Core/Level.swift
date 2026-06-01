@@ -8,6 +8,11 @@ struct BoardObstacle {
     let type: ObstacleType
 }
 
+struct PortalLink {
+    let entrance: (row: Int, col: Int)
+    let exit: (row: Int, col: Int)
+}
+
 // MARK: - Objectives
 
 enum ObjectiveKind: Equatable {
@@ -16,6 +21,8 @@ enum ObjectiveKind: Equatable {
     case clearAllJelly
     case breakIce(count: Int)
     case eliminateChocolate
+    case openChests(count: Int)
+    case collectKeys(count: Int)
 }
 
 struct LevelObjective {
@@ -29,6 +36,8 @@ struct LevelObjective {
         case .clearAllJelly: return 0
         case .breakIce(let c): return c
         case .eliminateChocolate: return 0
+        case .openChests(let c): return c
+        case .collectKeys(let c): return c
         }
     }
 
@@ -39,6 +48,8 @@ struct LevelObjective {
         case .clearAllJelly: return progress <= 0
         case .breakIce: return progress <= 0
         case .eliminateChocolate: return progress <= 0
+        case .openChests: return progress <= 0
+        case .collectKeys(let c): return progress >= c
         }
     }
 
@@ -49,6 +60,8 @@ struct LevelObjective {
         case .clearAllJelly: return L10n.fmt("objective.progress.jelly", progress, fallback: "Jelly ×%d")
         case .breakIce(let c): return L10n.fmt("objective.progress.ice", progress, c, fallback: "Ice: %d/%d")
         case .eliminateChocolate: return L10n.fmt("objective.progress.chocolate", progress, fallback: "Choco ×%d")
+        case .openChests: return L10n.fmt("objective.progress.chests", progress, fallback: "Chest ×%d")
+        case .collectKeys(let c): return L10n.fmt("objective.progress.keys", progress, c, fallback: "Key: %d/%d")
         }
     }
 }
@@ -97,6 +110,7 @@ struct Level {
     let objectives: [LevelObjective]
     let holes: [(row: Int, col: Int)]
     let obstacles: [BoardObstacle]
+    let portalLinks: [PortalLink]
     let starThresholds: (one: Int, two: Int, three: Int)
     let lesson: LevelLesson?
 
@@ -109,6 +123,7 @@ struct Level {
          objectives: [LevelObjective],
          holes: [(row: Int, col: Int)],
          obstacles: [BoardObstacle],
+         portalLinks: [PortalLink] = [],
          starThresholds: (one: Int, two: Int, three: Int),
          lesson: LevelLesson? = nil) {
         self.id = id
@@ -120,6 +135,7 @@ struct Level {
         self.objectives = objectives
         self.holes = holes
         self.obstacles = obstacles
+        self.portalLinks = portalLinks
         self.starThresholds = starThresholds
         self.lesson = lesson
     }

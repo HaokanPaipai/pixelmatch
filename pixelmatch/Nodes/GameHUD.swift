@@ -363,6 +363,10 @@ final class ObjectiveDisplayNode: SKNode {
             color = UIColor(hex: "#87CEEB"); iconPixels = PixelIcons.ice
         case .eliminateChocolate:
             color = UIColor(hex: "#8B4513"); iconPixels = PixelIcons.hammer
+        case .openChests:
+            color = UIColor(hex: "#FFCC00"); iconPixels = PixelIcons.chest
+        case .collectKeys:
+            color = UIColor(hex: "#66D9FF"); iconPixels = PixelIcons.key
         }
 
         iconNode = SKSpriteNode(texture: PixelArt.shared.iconTexture(pixels: iconPixels,

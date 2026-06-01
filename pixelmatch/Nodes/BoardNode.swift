@@ -41,8 +41,33 @@ final class BoardNode: SKNode {
                 cell.zPosition = 0
                 if isHole { cell.alpha = 0 }
                 cellBg.addChild(cell)
+
+                if !isHole {
+                    addPortalMarkerIfNeeded(row: r, col: c)
+                }
             }
         }
+    }
+
+    private func addPortalMarkerIfNeeded(row: Int, col: Int) {
+        let pos = (row: row, col: col)
+        let isEntrance = board.isPortalEntrance(pos)
+        let isExit = board.isPortalExit(pos)
+        guard isEntrance || isExit else { return }
+
+        let marker = SKShapeNode(circleOfRadius: tileSize * (isEntrance ? 0.39 : 0.31))
+        marker.position = tilePos(row: row, col: col)
+        marker.fillColor = (isEntrance ? UIColor(hex: "#AF52DE") : UIColor(hex: "#00C7BE")).withAlphaComponent(0.18)
+        marker.strokeColor = (isEntrance ? UIColor(hex: "#DDA0FF") : UIColor(hex: "#66FFF0")).withAlphaComponent(0.85)
+        marker.lineWidth = 3
+        marker.zPosition = 0.4
+        cellBg.addChild(marker)
+
+        let inner = SKShapeNode(circleOfRadius: tileSize * 0.16)
+        inner.fillColor = (isEntrance ? UIColor(hex: "#DDA0FF") : UIColor(hex: "#66FFF0")).withAlphaComponent(0.45)
+        inner.strokeColor = .clear
+        inner.zPosition = 0.5
+        marker.addChild(inner)
     }
 
     private func setupTileNodes() {
@@ -284,16 +309,33 @@ final class BoardNode: SKNode {
         for move in moves {
             let fall = move.fall
             let node = move.node
-            let fromY = tilePos(row: fall.fromRow, col: fall.fromCol).y
-            let toY = tilePos(row: fall.toRow, col: fall.toCol).y
+            let fromPos = tilePos(row: fall.fromRow, col: fall.fromCol)
+            let toPos = tilePos(row: fall.toRow, col: fall.toCol)
 
             // 先用快照取节点，再统一更新目标格，避免同一列连续下落时来源格被覆盖。
             node.tile = fall.tile
             tileNodes[fall.toRow][fall.toCol] = node
 
-            node.animateFall(fromY: fromY, toY: toY, delay: 0) {
-                completedCount += 1
-                if completedCount == total { completion() }
+            if fall.fromCol == fall.toCol {
+                node.animateFall(fromY: fromPos.y, toY: toPos.y, delay: 0) {
+                    completedCount += 1
+                    if completedCount == total { completion() }
+                }
+            } else {
+                node.position = fromPos
+                let distance = hypot(fromPos.x - toPos.x, fromPos.y - toPos.y)
+                let duration = min(0.42, max(0.16, distance / 560))
+                node.run(.sequence([
+                    .scale(to: 0.72, duration: 0.06),
+                    .group([
+                        .move(to: toPos, duration: duration),
+                        .rotate(byAngle: CGFloat.pi * 2, duration: duration)
+                    ]),
+                    .scale(to: 1.0, duration: 0.08)
+                ])) {
+                    completedCount += 1
+                    if completedCount == total { completion() }
+                }
             }
         }
     }

@@ -110,36 +110,56 @@ final class OutOfMovesDialog: DialogNode {
     var onWatchAd: (() -> Void)?   // 看激励视频 +5 步（非 VIP 才挂载到 HKAdKit "extraMoves" placement）
     var onQuit: (() -> Void)?
 
-    init(sceneSize: CGSize, movesCount: Int = 5, diamondCost: Int = 10) {
+    init(sceneSize: CGSize, movesCount: Int = 5, diamondCost: Int = 10, hintText: String? = nil) {
         // 高度按"是否展示看广告按钮"动态：VIP 维持 340，非 VIP 拉到 400 留 +5 步入口。
-        let height: CGFloat = PlayerData.shared.noAds ? 340 : 400
+        let hasHint = !(hintText?.isEmpty ?? true)
+        let height: CGFloat = PlayerData.shared.noAds ? (hasHint ? 370 : 340) : (hasHint ? 430 : 400)
         super.init(size: CGSize(width: 300, height: height), sceneSize: sceneSize)
-        buildUI(moves: movesCount, cost: diamondCost)
+        buildUI(moves: movesCount, cost: diamondCost, hintText: hintText)
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
-    private func buildUI(moves: Int, cost: Int) {
-        addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"), y: 130, color: UIColor(hex: "#FF3B30"))
+    private func buildUI(moves: Int, cost: Int, hintText: String?) {
+        let hasHint = !(hintText?.isEmpty ?? true)
+        let lift: CGFloat = hasHint ? 15 : 0
+
+        addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"),
+                      y: 130 + lift,
+                      color: UIColor(hex: "#FF3B30"))
 
         let msgLbl = SKLabelNode(fontNamed: "Courier")
         msgLbl.text = L10n.fmt("dialog.out_of_moves.message", moves, fallback: "Continue with +%d moves?")
         msgLbl.fontSize = 16
         msgLbl.fontColor = UIColor(hex: "#99BBCC")
         msgLbl.verticalAlignmentMode = .center
-        msgLbl.position = CGPoint(x: 0, y: 75)
+        msgLbl.position = CGPoint(x: 0, y: 75 + lift)
         addChild(msgLbl)
+
+        if let hintText = hintText, !hintText.isEmpty {
+            let hintLbl = SKLabelNode(fontNamed: "Courier-Bold")
+            hintLbl.text = hintText
+            hintLbl.fontSize = 13
+            hintLbl.fontColor = UIColor(hex: "#FFCC00")
+            hintLbl.verticalAlignmentMode = .center
+            hintLbl.horizontalAlignmentMode = .center
+            hintLbl.numberOfLines = 2
+            hintLbl.preferredMaxLayoutWidth = 250
+            hintLbl.position = CGPoint(x: 0, y: 47 + lift)
+            addChild(hintLbl)
+        }
 
         // Diamond icon + cost
         let diamonds = PlayerData.shared.diamonds
         let canAfford = diamonds >= cost
+        let diamondY: CGFloat = hasHint ? 8 : 20
         let diamondTex = PixelArt.shared.iconTexture(pixels: PixelIcons.diamond,
                                                      primary: UIColor(hex: "#AF52DE"),
                                                      light: UIColor(hex: "#DDA0FF"),
                                                      dark: UIColor(hex: "#7711CC"),
                                                      size: 32)
         let dIcon = SKSpriteNode(texture: diamondTex, size: CGSize(width: 32, height: 32))
-        dIcon.position = CGPoint(x: -25, y: 20)
+        dIcon.position = CGPoint(x: -25, y: diamondY)
         addChild(dIcon)
 
         let costLbl = SKLabelNode(fontNamed: "Courier-Bold")
@@ -147,7 +167,7 @@ final class OutOfMovesDialog: DialogNode {
         costLbl.fontSize = 26
         costLbl.fontColor = canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF3B30")
         costLbl.verticalAlignmentMode = .center
-        costLbl.position = CGPoint(x: 15, y: 20)
+        costLbl.position = CGPoint(x: 15, y: diamondY)
         addChild(costLbl)
 
         let haveLbl = SKLabelNode(fontNamed: "Courier")
@@ -155,19 +175,19 @@ final class OutOfMovesDialog: DialogNode {
         haveLbl.fontSize = 14
         haveLbl.fontColor = UIColor(hex: "#7799CC")
         haveLbl.verticalAlignmentMode = .center
-        haveLbl.position = CGPoint(x: 0, y: -20)
+        haveLbl.position = CGPoint(x: 0, y: hasHint ? -32 : -20)
         addChild(haveLbl)
 
         let continueBtn = PixelButton(title: canAfford ? L10n.tr("dialog.continue", fallback: "CONTINUE!") : L10n.tr("dialog.get_diamonds", fallback: "GET DIAMONDS"),
                                       size: CGSize(width: 240, height: 52),
                                       style: .primary,
                                       color: canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF9500"))
-        continueBtn.position = CGPoint(x: 0, y: -75)
+        continueBtn.position = CGPoint(x: 0, y: hasHint ? -88 : -75)
         continueBtn.onTap = { [weak self] in self?.onContinue?() }
         addChild(continueBtn)
 
         // 看广告 +5 步：HKAdKit "extraMoves" placement 的承载按钮。仅非 VIP 显示。
-        var nextY: CGFloat = -130
+        var nextY: CGFloat = hasHint ? -143 : -130
         if !PlayerData.shared.noAds {
             let adBtn = PixelButton(title: L10n.tr("dialog.extra_moves_ad", fallback: "📹 WATCH AD: +5 MOVES"),
                                     size: CGSize(width: 260, height: 46),
@@ -179,7 +199,7 @@ final class OutOfMovesDialog: DialogNode {
             addChild(adBtn)
             nextY -= 55
         } else {
-            nextY = -135
+            nextY = hasHint ? -150 : -135
         }
 
         let quitBtn = PixelButton(title: L10n.tr("dialog.no_thanks", fallback: "NO THANKS"), size: CGSize(width: 240, height: 44),

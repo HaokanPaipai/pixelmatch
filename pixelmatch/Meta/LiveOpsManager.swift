@@ -1,17 +1,35 @@
 import Foundation
 
-enum DailyQuestKind: String, Codable {
+enum DailyQuestKind: String, Codable, CaseIterable {
     case completeLevels
     case createSpecials
     case useBoosters
+    case clearJelly
+    case breakIce
+    case clearChocolate
+    case createColorBombs
+    case triggerSpecialCombos
+    case winWithoutBoosters
 
     var title: String {
         switch self {
         case .completeLevels: return L10n.tr("quest.win_levels", fallback: "Win Levels")
         case .createSpecials: return L10n.tr("quest.make_specials", fallback: "Make Specials")
         case .useBoosters: return L10n.tr("quest.use_boosters", fallback: "Use Boosters")
+        case .clearJelly: return L10n.tr("quest.clear_jelly", fallback: "Clear Jelly")
+        case .breakIce: return L10n.tr("quest.break_ice", fallback: "Break Ice")
+        case .clearChocolate: return L10n.tr("quest.clear_chocolate", fallback: "Clear Chocolate")
+        case .createColorBombs: return L10n.tr("quest.make_color_bombs", fallback: "Make Color Bombs")
+        case .triggerSpecialCombos: return L10n.tr("quest.special_combos", fallback: "Special Combos")
+        case .winWithoutBoosters: return L10n.tr("quest.no_booster_win", fallback: "No-Booster Wins")
         }
     }
+}
+
+private struct DailyQuestTemplate {
+    let id: String
+    let kind: DailyQuestKind
+    let target: Int
 }
 
 struct DailyQuest: Codable {
@@ -65,15 +83,16 @@ final class LiveOpsManager {
     func refreshDailyQuestsIfNeeded() {
         guard defaults.string(forKey: questDateKey) != todayKey else { return }
         defaults.set(todayKey, forKey: questDateKey)
-        saveQuests([
-            DailyQuest(id: "win_levels", kind: .completeLevels, target: 3, progress: 0, claimed: false),
-            DailyQuest(id: "make_specials", kind: .createSpecials, target: 12, progress: 0, claimed: false),
-            DailyQuest(id: "use_boosters", kind: .useBoosters, target: 2, progress: 0, claimed: false)
-        ])
+        saveQuests(dailyQuestTemplates().map {
+            DailyQuest(id: $0.id, kind: $0.kind, target: $0.target, progress: 0, claimed: false)
+        })
     }
 
-    func recordLevelWin() {
+    func recordLevelWin(usedBooster: Bool = false) {
         increment(.completeLevels, by: 1)
+        if !usedBooster {
+            increment(.winWithoutBoosters, by: 1)
+        }
     }
 
     func recordSpecialsCreated(_ count: Int) {
@@ -81,8 +100,32 @@ final class LiveOpsManager {
         increment(.createSpecials, by: count)
     }
 
+    func recordColorBombsCreated(_ count: Int) {
+        guard count > 0 else { return }
+        increment(.createColorBombs, by: count)
+    }
+
+    func recordSpecialComboActivated() {
+        increment(.triggerSpecialCombos, by: 1)
+    }
+
     func recordBoosterUsed() {
         increment(.useBoosters, by: 1)
+    }
+
+    func recordJellyCleared(_ count: Int) {
+        guard count > 0 else { return }
+        increment(.clearJelly, by: count)
+    }
+
+    func recordIceCleared(_ count: Int) {
+        guard count > 0 else { return }
+        increment(.breakIce, by: count)
+    }
+
+    func recordChocolateCleared(_ count: Int) {
+        guard count > 0 else { return }
+        increment(.clearChocolate, by: count)
     }
 
     func claimQuest(id: String) -> RewardBundle? {
@@ -125,9 +168,10 @@ final class LiveOpsManager {
 
     private func increment(_ kind: DailyQuestKind, by amount: Int) {
         refreshDailyQuestsIfNeeded()
+        let adjustedAmount = amount * LiveEventManager.shared.progressMultiplier(for: kind)
         var quests = loadQuests()
         for index in quests.indices where quests[index].kind == kind && !quests[index].claimed {
-            quests[index].progress = min(quests[index].target, quests[index].progress + amount)
+            quests[index].progress = min(quests[index].target, quests[index].progress + adjustedAmount)
         }
         saveQuests(quests)
     }
@@ -152,8 +196,32 @@ final class LiveOpsManager {
         defaults.set(data, forKey: questsKey)
     }
 
+    private func dailyQuestTemplates() -> [DailyQuestTemplate] {
+        let catalog = [
+            DailyQuestTemplate(id: "win_levels", kind: .completeLevels, target: 3),
+            DailyQuestTemplate(id: "make_specials", kind: .createSpecials, target: 12),
+            DailyQuestTemplate(id: "clear_jelly", kind: .clearJelly, target: 24),
+            DailyQuestTemplate(id: "break_ice", kind: .breakIce, target: 18),
+            DailyQuestTemplate(id: "clear_chocolate", kind: .clearChocolate, target: 12),
+            DailyQuestTemplate(id: "make_color_bombs", kind: .createColorBombs, target: 3),
+            DailyQuestTemplate(id: "special_combos", kind: .triggerSpecialCombos, target: 4),
+            DailyQuestTemplate(id: "no_booster_win", kind: .winWithoutBoosters, target: 2),
+            DailyQuestTemplate(id: "use_boosters", kind: .useBoosters, target: 2)
+        ]
+        guard !catalog.isEmpty else { return [] }
+
+        let count = min(EconomyConfig.shared.questDailyCount, catalog.count)
+        let start = dailyRotationSeed % catalog.count
+        return (0..<count).map { catalog[($0 + start) % catalog.count] }
+    }
+
     private var todayKey: String {
         let components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         return "\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+    }
+
+    private var dailyRotationSeed: Int {
+        let components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        return (components.year ?? 0) * 372 + (components.month ?? 0) * 31 + (components.day ?? 0)
     }
 }

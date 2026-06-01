@@ -75,6 +75,10 @@ enum ObstacleType: Int, Codable, Equatable {
     case chocolate = 4 // grows each turn; clear with adjacent match
     case stone = 5    // immovable blocker (never removed)
     case cage = 6     // caged tile (needs key item)
+    case chest1 = 7   // treasure chest, one hit left
+    case chest2 = 8   // reinforced treasure chest, two hits left
+    case key = 9      // collectible key tile
+    case lock = 10    // locked blocker opened by keys
 }
 
 struct GameConstants {
