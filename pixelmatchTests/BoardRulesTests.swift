@@ -3,6 +3,131 @@ import XCTest
 
 final class BoardRulesTests: XCTestCase {
 
+    func testThreeMatchCreatesNoSpecial() {
+        let board = makeBoard(rows: 3, cols: 3)
+        board.grid[1][0] = tile(1, 0, .red)
+        board.grid[1][1] = tile(1, 1, .red)
+        board.grid[1][2] = tile(1, 2, .red)
+
+        let matches = board.detectMatches()
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].createsSpecial, .none)
+        XCTAssertNil(matches[0].specialPosition)
+    }
+
+    func testFourInRowCreatesHorizontalStripedAtPreferredPosition() {
+        let board = makeBoard(rows: 4, cols: 4)
+        for col in 0..<4 {
+            board.grid[1][col] = tile(1, col, .blue)
+        }
+
+        let matches = board.detectMatches(preferredSpecialPositions: [(1, 3)])
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].createsSpecial, .stripedH)
+        XCTAssertEqual(matches[0].specialPosition?.row, 1)
+        XCTAssertEqual(matches[0].specialPosition?.col, 3)
+    }
+
+    func testFourInColumnCreatesVerticalStriped() {
+        let board = makeBoard(rows: 4, cols: 4)
+        for row in 0..<4 {
+            board.grid[row][2] = tile(row, 2, .green)
+        }
+
+        let matches = board.detectMatches()
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].createsSpecial, .stripedV)
+    }
+
+    func testStraightFiveCreatesColorBomb() {
+        let board = makeBoard(rows: 5, cols: 5)
+        for col in 0..<5 {
+            board.grid[2][col] = tile(2, col, .yellow)
+        }
+
+        let matches = board.detectMatches()
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].createsSpecial, .colorBomb)
+        XCTAssertEqual(matches[0].specialPosition?.row, 2)
+        XCTAssertEqual(matches[0].specialPosition?.col, 2)
+    }
+
+    func testBentFiveCreatesWrappedAtCorner() {
+        let board = makeBoard(rows: 5, cols: 5)
+        for pos in [(1, 1), (1, 2), (1, 3), (2, 1), (3, 1)] {
+            board.grid[pos.0][pos.1] = tile(pos.0, pos.1, .purple)
+        }
+
+        let matches = board.detectMatches()
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].positions.count, 5)
+        XCTAssertEqual(matches[0].createsSpecial, .wrapped)
+        XCTAssertEqual(matches[0].specialPosition?.row, 1)
+        XCTAssertEqual(matches[0].specialPosition?.col, 1)
+    }
+
+    func testStraightFiveOutranksWrappedCross() {
+        let board = makeBoard(rows: 5, cols: 5)
+        for col in 0..<5 {
+            board.grid[2][col] = tile(2, col, .orange)
+        }
+        board.grid[1][2] = tile(1, 2, .orange)
+        board.grid[3][2] = tile(3, 2, .orange)
+
+        let matches = board.detectMatches()
+
+        XCTAssertEqual(matches.count, 1)
+        XCTAssertEqual(matches[0].positions.count, 7)
+        XCTAssertEqual(matches[0].createsSpecial, .colorBomb)
+        XCTAssertEqual(matches[0].specialPosition?.row, 2)
+        XCTAssertEqual(matches[0].specialPosition?.col, 2)
+    }
+
+    func testSeparateSimultaneousMatchesCreateMultipleSpecials() {
+        let board = makeBoard(rows: 5, cols: 5)
+        for col in 0..<4 {
+            board.grid[0][col] = tile(0, col, .red)
+        }
+        for row in 1..<5 {
+            board.grid[row][4] = tile(row, 4, .blue)
+        }
+
+        let matches = board.detectMatches(preferredSpecialPositions: [(0, 2), (3, 4)])
+
+        XCTAssertEqual(matches.count, 2)
+        XCTAssertTrue(matches.contains { $0.createsSpecial == .stripedH })
+        XCTAssertTrue(matches.contains { $0.createsSpecial == .stripedV })
+        XCTAssertTrue(matches.contains { $0.specialPosition?.row == 0 && $0.specialPosition?.col == 2 })
+        XCTAssertTrue(matches.contains { $0.specialPosition?.row == 3 && $0.specialPosition?.col == 4 })
+    }
+
+    func testRemoveTilesPreservesMultipleSpecialCreations() {
+        let board = makeBoard(rows: 5, cols: 5)
+        for col in 0..<4 {
+            board.grid[0][col] = tile(0, col, .red)
+        }
+        for row in 1..<5 {
+            board.grid[row][4] = tile(row, 4, .blue)
+        }
+        let matches = board.detectMatches(preferredSpecialPositions: [(0, 2), (3, 4)])
+        let positions = matches.flatMap { $0.positions }
+        let creations = matches.compactMap { match -> (pos: (row: Int, col: Int), special: TileSpecial)? in
+            guard let pos = match.specialPosition, match.createsSpecial != .none else { return nil }
+            return (pos, match.createsSpecial)
+        }
+
+        let result = board.removeTiles(at: positions, specialCreations: creations)
+
+        XCTAssertEqual(result.removedPositions.count, 6)
+        XCTAssertEqual(board.grid[0][2]?.special, .stripedH)
+        XCTAssertEqual(board.grid[3][4]?.special, .stripedV)
+    }
+
     func testStripedTilesParticipateInColorMatches() {
         let board = makeBoard(rows: 3, cols: 3)
         board.grid[1][0] = tile(1, 0, .red)

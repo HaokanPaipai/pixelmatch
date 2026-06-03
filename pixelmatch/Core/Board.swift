@@ -10,6 +10,14 @@ struct TileMatch {
     var gemColor: GemColor
 }
 
+private struct MatchRun {
+    var positions: [(row: Int, col: Int)]
+    var isHorizontal: Bool
+    var gemColor: GemColor
+
+    var length: Int { positions.count }
+}
+
 struct TileFall {
     var tile: Tile
     var fromRow: Int
@@ -140,8 +148,13 @@ final class Board {
 
     // MARK: - Match Detection
 
-    func detectMatches() -> [TileMatch] {
-        var matches: [TileMatch] = []
+    func detectMatches(preferredSpecialPositions: [(row: Int, col: Int)] = []) -> [TileMatch] {
+        let runs = collectMatchRuns()
+        return resolveMatches(from: runs, preferredSpecialPositions: preferredSpecialPositions)
+    }
+
+    private func collectMatchRuns() -> [MatchRun] {
+        var runs: [MatchRun] = []
 
         // Horizontal
         for r in 0..<rows {
@@ -159,11 +172,9 @@ final class Board {
                       next.gemColor == anchor.gemColor { len += 1 }
                 if len >= 3 {
                     let positions = (0..<len).map { (row: r, col: c + $0) }
-                    let sp = specialKind(len: len, isH: true)
-                    let spPos = sp != .none ? positions[len / 2] : nil
-                    matches.append(TileMatch(positions: positions, isHorizontal: true,
-                                             createsSpecial: sp, specialPosition: spPos,
-                                             gemColor: anchor.gemColor))
+                    runs.append(MatchRun(positions: positions,
+                                         isHorizontal: true,
+                                         gemColor: anchor.gemColor))
                     c += len
                 } else { c += 1 }
             }
@@ -185,55 +196,126 @@ final class Board {
                       next.gemColor == anchor.gemColor { len += 1 }
                 if len >= 3 {
                     let positions = (0..<len).map { (row: r + $0, col: c) }
-                    let sp = specialKind(len: len, isH: false)
-                    let spPos = sp != .none ? positions[len / 2] : nil
-                    matches.append(TileMatch(positions: positions, isHorizontal: false,
-                                             createsSpecial: sp, specialPosition: spPos,
-                                             gemColor: anchor.gemColor))
+                    runs.append(MatchRun(positions: positions,
+                                         isHorizontal: false,
+                                         gemColor: anchor.gemColor))
                     r += len
                 } else { r += 1 }
             }
         }
 
-        return mergeIntoWrapped(matches)
+        return runs
     }
 
-    private func specialKind(len: Int, isH: Bool) -> TileSpecial {
-        if len >= 5  { return .colorBomb }
-        if len == 4  { return isH ? .stripedH : .stripedV }
+    private func resolveMatches(from runs: [MatchRun],
+                                preferredSpecialPositions: [(row: Int, col: Int)]) -> [TileMatch] {
+        guard !runs.isEmpty else { return [] }
+
+        var components: [[MatchRun]] = []
+        for run in runs {
+            var merged = [run]
+            var mergedKeys = Set(run.positions.map(positionKey))
+            var remaining: [[MatchRun]] = []
+
+            for component in components {
+                let componentKeys = Set(component.flatMap { $0.positions }.map(positionKey))
+                if !mergedKeys.isDisjoint(with: componentKeys) {
+                    merged.append(contentsOf: component)
+                    mergedKeys.formUnion(componentKeys)
+                } else {
+                    remaining.append(component)
+                }
+            }
+
+            remaining.append(merged)
+            components = remaining
+        }
+
+        return components.map { component in
+            let allPositions = uniquePositions(component.flatMap { $0.positions })
+            let color = component[0].gemColor
+            let special = specialForComponent(component)
+            let specialPosition = special == .none
+                ? nil
+                : specialPosition(for: special,
+                                  in: component,
+                                  allPositions: allPositions,
+                                  preferredSpecialPositions: preferredSpecialPositions)
+
+            return TileMatch(positions: allPositions,
+                             isHorizontal: primaryRun(in: component).isHorizontal,
+                             createsSpecial: special,
+                             specialPosition: specialPosition,
+                             gemColor: color)
+        }
+    }
+
+    private func specialForComponent(_ component: [MatchRun]) -> TileSpecial {
+        if component.contains(where: { $0.length >= 5 }) {
+            return .colorBomb
+        }
+        if wrappedIntersections(in: component).isEmpty == false {
+            return .wrapped
+        }
+        if let run = component.first(where: { $0.length == 4 }) {
+            return run.isHorizontal ? .stripedH : .stripedV
+        }
         return .none
     }
 
-    private func mergeIntoWrapped(_ matches: [TileMatch]) -> [TileMatch] {
-        guard matches.count >= 2 else { return matches }
-        var result = matches
-        var remove = IndexSet()
+    private func specialPosition(for special: TileSpecial,
+                                 in component: [MatchRun],
+                                 allPositions: [(row: Int, col: Int)],
+                                 preferredSpecialPositions: [(row: Int, col: Int)]) -> (row: Int, col: Int)? {
+        let positionKeys = Set(allPositions.map(positionKey))
+        if let preferred = preferredSpecialPositions.first(where: { positionKeys.contains(positionKey($0)) }) {
+            return preferred
+        }
 
-        for i in 0..<matches.count {
-            guard !remove.contains(i) else { continue }
-            for j in (i + 1)..<matches.count {
-                guard !remove.contains(j) else { continue }
-                guard matches[i].isHorizontal != matches[j].isHorizontal else { continue }
+        switch special {
+        case .wrapped:
+            return wrappedIntersections(in: component).first
+        case .colorBomb:
+            return centerPosition(of: component.filter { $0.length >= 5 }.max { $0.length < $1.length })
+        case .stripedH, .stripedV:
+            return centerPosition(of: component.first { $0.length == 4 })
+        case .none:
+            return nil
+        }
+    }
 
-                let setI = Set(matches[i].positions.map { "\($0.row)_\($0.col)" })
-                let setJ = Set(matches[j].positions.map { "\($0.row)_\($0.col)" })
-                guard let inter = setI.intersection(setJ).first else { continue }
+    private func primaryRun(in component: [MatchRun]) -> MatchRun {
+        component.max { lhs, rhs in
+            if lhs.length == rhs.length {
+                return lhs.isHorizontal == false && rhs.isHorizontal == true
+            }
+            return lhs.length < rhs.length
+        } ?? component[0]
+    }
 
-                let parts = inter.split(separator: "_")
-                let interPos = (row: Int(parts[0])!, col: Int(parts[1])!)
+    private func wrappedIntersections(in component: [MatchRun]) -> [(row: Int, col: Int)] {
+        var intersections: [(row: Int, col: Int)] = []
+        let horizontal = component.filter { $0.isHorizontal }
+        let vertical = component.filter { !$0.isHorizontal }
 
-                let all = Array(setI.union(setJ)).compactMap { s -> (row: Int, col: Int)? in
-                    let p = s.split(separator: "_")
-                    guard p.count == 2 else { return nil }
-                    return (row: Int(p[0])!, col: Int(p[1])!)
+        for h in horizontal {
+            let hKeys = Set(h.positions.map(positionKey))
+            for v in vertical {
+                let vKeys = Set(v.positions.map(positionKey))
+                for key in hKeys.intersection(vKeys).sorted() {
+                    if let pos = position(fromKey: key) {
+                        intersections.append(pos)
+                    }
                 }
-                result[i] = TileMatch(positions: all, isHorizontal: matches[i].isHorizontal,
-                                      createsSpecial: .wrapped, specialPosition: interPos,
-                                      gemColor: matches[i].gemColor)
-                remove.insert(j)
             }
         }
-        return result.enumerated().filter { !remove.contains($0.offset) }.map { $0.element }
+
+        return uniquePositions(intersections)
+    }
+
+    private func centerPosition(of run: MatchRun?) -> (row: Int, col: Int)? {
+        guard let run = run, !run.positions.isEmpty else { return nil }
+        return run.positions[run.positions.count / 2]
     }
 
     // MARK: - Remove Tiles
@@ -254,6 +336,7 @@ final class Board {
     func removeTiles(at positions: [(row: Int, col: Int)],
                      specialPos: (row: Int, col: Int)? = nil,
                      newSpecial: TileSpecial = .none,
+                     specialCreations: [(pos: (row: Int, col: Int), special: TileSpecial)] = [],
                      cascadeLevel: Int = 0) -> RemoveResult {
         var removed: [(row: Int, col: Int)] = []
         var jellyReduced: [(row: Int, col: Int)] = []
@@ -266,19 +349,21 @@ final class Board {
         var locksOpened: [(row: Int, col: Int)] = []
         var score = 0
         let multiplier = 1 + cascadeLevel
+        var creations = specialCreations.filter { $0.special != .none }
+        if let specialPos = specialPos, newSpecial != .none {
+            creations.insert((specialPos, newSpecial), at: 0)
+        }
 
         for pos in uniquePositions(positions) {
             guard valid(pos), let tile = grid[pos.row][pos.col], !tile.isHole else { continue }
 
-            if let sp = specialPos,
-               sp.row == pos.row && sp.col == pos.col,
-               newSpecial != .none,
+            if let creation = creations.first(where: { $0.pos.row == pos.row && $0.pos.col == pos.col }),
                tile.obstacle != .cage,
                tile.obstacle != .chest1,
                tile.obstacle != .chest2,
                tile.obstacle != .key,
                tile.obstacle != .lock {
-                tile.special = newSpecial
+                tile.special = creation.special
                 score += GameConstants.scorePerSpecial
                 continue
             }
@@ -619,12 +704,24 @@ final class Board {
         var seen = Set<String>()
         var result: [(row: Int, col: Int)] = []
         for pos in positions {
-            let key = "\(pos.row)_\(pos.col)"
+            let key = positionKey(pos)
             guard !seen.contains(key) else { continue }
             seen.insert(key)
             result.append(pos)
         }
         return result
+    }
+
+    private func positionKey(_ pos: (row: Int, col: Int)) -> String {
+        "\(pos.row)_\(pos.col)"
+    }
+
+    private func position(fromKey key: String) -> (row: Int, col: Int)? {
+        let parts = key.split(separator: "_")
+        guard parts.count == 2,
+              let row = Int(parts[0]),
+              let col = Int(parts[1]) else { return nil }
+        return (row, col)
     }
 
     // MARK: - Gravity & Refill

@@ -424,6 +424,11 @@ final class GameScene: SKScene {
         guard board.isAdjacent(a, b) else { return }
         guard let ta = board.tile(at: a), let tb = board.tile(at: b) else { return }
         guard !ta.isHole && !tb.isHole else { return }
+        guard ta.isMovable && tb.isMovable else {
+            HapticsManager.shared.invalidSwap()
+            boardNode.animateInvalidSwap(from: a, to: b) { }
+            return
+        }
 
         if let combo = board.specialComboEffect(first: ta.special,
                                                 firstColor: ta.gemColor,
@@ -468,7 +473,7 @@ final class GameScene: SKScene {
             boardNode.animateSwap(from: a, to: b) { [weak self] in
                 guard let self = self else { return }
                 self.cascadeCount = 0
-                self.processMatches()
+                self.processMatches(preferredSpecialPositions: [b, a])
             }
             spendMove()
         } else {
@@ -481,8 +486,8 @@ final class GameScene: SKScene {
 
     // 核心三消流水线：检测匹配、计分、移除棋子、应用重力、顶部补充，
     // 并持续处理连锁直到棋盘稳定。
-    private func processMatches() {
-        let matches = board.detectMatches()
+    private func processMatches(preferredSpecialPositions: [(row: Int, col: Int)] = []) {
+        let matches = board.detectMatches(preferredSpecialPositions: preferredSpecialPositions)
         guard !matches.isEmpty else {
             // No matches - check for deadlock
             state = .idle
@@ -535,17 +540,11 @@ final class GameScene: SKScene {
         }
 
         // Remove tiles (creating specials where needed)
-        let firstSpecial = specialCreations.first
-        let firstSpecialPos = firstSpecial?.pos
-        let firstSpecialKind = firstSpecial?.special ?? .none
-
         boardNode.animateRemovals(allPositions,
-                                   specialPos: firstSpecialPos,
-                                   newSpecial: firstSpecialKind) { [weak self] in
+                                   specialCreations: specialCreations) { [weak self] in
             guard let self = self else { return }
             let result = self.board.removeTiles(at: allPositions,
-                                                specialPos: firstSpecialPos,
-                                                newSpecial: firstSpecialKind)
+                                                specialCreations: specialCreations)
             self.recordRemoveResult(result)
 
             self.updateObjectiveProgress(positions: allPositions)
@@ -1315,7 +1314,7 @@ final class GameScene: SKScene {
                                   b: (row: Int, col: Int)) -> HintCandidate {
         let specialBonus = hintSpecialSwapBonus(a: a, b: b)
         board.doSwap(a, b)
-        let matches = board.detectMatches()
+        let matches = board.detectMatches(preferredSpecialPositions: [b, a])
         let positions = uniqueHintPositions(matches.flatMap { $0.positions })
         let score = hintScore(matches: matches, positions: positions) + specialBonus
         board.doSwap(a, b)

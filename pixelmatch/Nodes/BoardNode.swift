@@ -200,16 +200,21 @@ final class BoardNode: SKNode {
     func animateRemovals(_ positions: [(row: Int, col: Int)],
                          specialPos: (row: Int, col: Int)? = nil,
                          newSpecial: TileSpecial = .none,
+                         specialCreations: [(pos: (row: Int, col: Int), special: TileSpecial)] = [],
                          completion: @escaping () -> Void) {
         var maxDelay = 0.0
         var particleScene: SKScene? { scene }
+        var creations = specialCreations.filter { $0.special != .none }
+        if let specialPos = specialPos, newSpecial != .none {
+            creations.insert((specialPos, newSpecial), at: 0)
+        }
 
         for pos in positions {
             guard let node = tileNodes[pos.row][pos.col] else { continue }
 
-            if let sp = specialPos, sp.row == pos.row && sp.col == pos.col, newSpecial != .none {
+            if let creation = creations.first(where: { $0.pos.row == pos.row && $0.pos.col == pos.col }) {
                 // Transform into special tile
-                node.tile.special = newSpecial
+                node.tile.special = creation.special
                 node.refresh()
                 node.pulse(scale: 1.4)
                 AudioManager.shared.play(.specialCreated)

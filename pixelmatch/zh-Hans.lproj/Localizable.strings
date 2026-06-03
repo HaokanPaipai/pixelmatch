@@ -1,8 +1,8 @@
-"app.name.upper" = "像素消消乐";
+"app.name.upper" = "Pixel Match：像素修复";
 "loading.message" = "像素加载中...";
 
-"home.logo.pixel" = "像素";
-"home.logo.match" = "消消";
+"home.logo.pixel" = "PIXEL MATCH";
+"home.logo.match" = "像素修复";
 "home.tagline" = "终极像素消除谜题";
 "home.level" = "第 %d 关";
 "home.play" = "▶ 开始";
