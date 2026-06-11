@@ -34,6 +34,7 @@
 "shop.large_pack" = "Pacchetto Grande";
 "shop.free_ad" = "Gratis → Guarda un annuncio";
 "shop.boosters" = "──── POTENZIAMENTI ────";
+"shop.not_enough_coins" = "Monete insufficienti!";
 
 "common.close" = "CHIUDI";
 "common.on" = "ON";

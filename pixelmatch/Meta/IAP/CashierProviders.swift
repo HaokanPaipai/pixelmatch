@@ -61,7 +61,11 @@ final class PixelMatchCashierUserProvider: CashierUserProvider {
         guard !defaults.bool(forKey: key) else { return }
         defaults.set(true, forKey: key)
 
-        product.apply()
+        // 经 withIAPGrant 包裹：发放产生的钱包 mutation 用确定性 id
+        // （iap_<txn>_<currency>），服务端按 mutation_id 幂等，补单/重放不双发。
+        WalletSyncManager.shared.withIAPGrant(transactionID: transactionID) {
+            product.apply()
+        }
     }
 
     func refreshUserInfo() { /* 单机无远端用户模型，无需刷新 */ }

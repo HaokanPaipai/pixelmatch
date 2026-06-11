@@ -41,6 +41,7 @@
 "shop.large_pack" = "Large Pack";
 "shop.free_ad" = "Free → Watch Ad";
 "shop.boosters" = "──── BOOSTERS ────";
+"shop.not_enough_coins" = "Not enough coins!";
 
 "common.close" = "CLOSE";
 "common.on" = "ON";

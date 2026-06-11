@@ -34,7 +34,11 @@ final class IAPHTTPClient {
 
     /// 确保已建立匿名会话（拿到 user_id + 写入 Cookie）。已有会话直接回调。
     func ensureSession(completion: @escaping (Bool) -> Void) {
-        if IAPDeviceIdentity.hasSession { completion(true); return }
+        if IAPDeviceIdentity.hasSession {
+            WalletSyncManager.shared.start()
+            completion(true)
+            return
+        }
         post(path: "auth/device-session",
              parameters: ["device_id": IAPDeviceIdentity.deviceId]) { envelope, ok in
             guard ok,
@@ -47,6 +51,18 @@ final class IAPHTTPClient {
                 IAPDeviceIdentity.userId = "\(uid)"
             } else if let uid = user["user_id"] as? String {
                 IAPDeviceIdentity.userId = uid
+            }
+            // 静默恢复单次解锁：device_id 在 Keychain 持久化 → 重装后同一匿名用户，
+            // 响应的 purchase 快照（purchases 表）会带回 removeads（契约 iap-overview.md）。
+            if let purchase = user["purchase"] as? [String: Any],
+               let pid = purchase["product_id"] as? String,
+               pid == IAPProduct.noAds.rawValue,
+               ((purchase["cancellation_date_ms"] as? String) ?? "").isEmpty {
+                PlayerData.shared.setNoAds()
+            }
+            if IAPDeviceIdentity.hasSession {
+                // 会话就绪后启动云端钱包同步（重装场景在此完成余额播种）。
+                WalletSyncManager.shared.start()
             }
             completion(IAPDeviceIdentity.hasSession)
         }

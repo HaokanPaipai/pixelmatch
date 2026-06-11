@@ -34,6 +34,7 @@
 "shop.large_pack" = "Großes Paket";
 "shop.free_ad" = "Gratis → Werbung";
 "shop.boosters" = "──── BOOSTER ────";
+"shop.not_enough_coins" = "Nicht genug Münzen!";
 
 "common.close" = "SCHLIESSEN";
 "common.on" = "AN";

@@ -34,6 +34,7 @@
 "shop.large_pack" = "Büyük Paket";
 "shop.free_ad" = "Ücretsiz → Reklam izle";
 "shop.boosters" = "──── GÜÇLENDİRİCİLER ────";
+"shop.not_enough_coins" = "Yeterli jeton yok!";
 
 "common.close" = "KAPAT";
 "common.on" = "AÇIK";

@@ -41,6 +41,7 @@
 "shop.large_pack" = "大禮包";
 "shop.free_ad" = "免費 → 看廣告";
 "shop.boosters" = "──── 道具 ────";
+"shop.not_enough_coins" = "金幣不足!";
 
 "common.close" = "關閉";
 "common.on" = "開";

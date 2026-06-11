@@ -20,21 +20,21 @@ import HKIAPKit
 
 enum IAPProduct: String, CaseIterable {
     // Coin packs
-    case coins500    = "com.pixelmatch.coins.500"
-    case coins1500   = "com.pixelmatch.coins.1500"
-    case coins5000   = "com.pixelmatch.coins.5000"
+    case coins500    = "com.goodloook.pixelmatch.coins.500"
+    case coins1500   = "com.goodloook.pixelmatch.coins.1500"
+    case coins5000   = "com.goodloook.pixelmatch.coins.5000"
 
     // Diamond packs
-    case diamonds20  = "com.pixelmatch.diamonds.20"
-    case diamonds80  = "com.pixelmatch.diamonds.80"
-    case diamonds300 = "com.pixelmatch.diamonds.300"
+    case diamonds20  = "com.goodloook.pixelmatch.diamonds.20"
+    case diamonds80  = "com.goodloook.pixelmatch.diamonds.80"
+    case diamonds300 = "com.goodloook.pixelmatch.diamonds.300"
 
     // Booster packs
-    case starterPack = "com.pixelmatch.pack.starter"
-    case megaPack    = "com.pixelmatch.pack.mega"
+    case starterPack = "com.goodloook.pixelmatch.pack.starter"
+    case megaPack    = "com.goodloook.pixelmatch.pack.mega"
 
     // No-ads (单次解锁：永久移除广告)
-    case noAds       = "com.pixelmatch.noads"
+    case noAds       = "com.goodloook.pixelmatch.removeads"
 
     var displayName: String {
         switch self {
@@ -215,10 +215,16 @@ final class IAPManager {
                 completion(false, L10n.tr("iap.error.order", fallback: "Could not start the purchase. Try again."))
                 return
             }
-            self?.cashier.purchase(skProduct, orderData: orderData, atomically: false) { _, success, type in
+            // 必须传 productType：老入口默认按订阅处理，消耗品会错走订阅验票链
+            // 而不是 transaction/creditConsumable 入账链（10=消耗品 11=单次解锁，
+            // 来自后端 product_config.product_type，见 Backend V35 迁移）。
+            self?.cashier.purchase(skProduct, productType: model.productType, orderData: orderData, atomically: false) { _, success, type in
                 switch type {
                 case .success where success:
-                    productID.apply()
+                    // 消耗品权益由 HKIAPKit 回调 applyConsumablePurchase 发放
+                    // （transactionID 幂等），这里不再 apply 防双发；
+                    // noAds 走订阅链 applyVerifiedPurchase，本地再兜底一次（setNoAds 幂等）。
+                    if productID == .noAds { productID.apply() }
                     completion(true, nil)
                 case .paymentCancelled:
                     completion(false, nil)

@@ -924,6 +924,8 @@ final class ShopDialog: DialogNode {
     private var didDrag = false
     /// IAP 行的购买按钮，按 product 索引；异步拉到的本地化价格在 refreshPrices() 里刷新。
     private var iapPriceButtons: [IAPProduct: PixelButton] = [:]
+    /// Booster 行的"已拥有 ×N"标签，购买成功后即时刷新。
+    private var boosterCountLabels: [BoosterType: SKLabelNode] = [:]
 
     init(sceneSize: CGSize, safeAreaInsets: UIEdgeInsets) {
         let width = min(sceneSize.width - safeAreaInsets.left - safeAreaInsets.right - 32, 320)
@@ -1184,8 +1186,18 @@ final class ShopDialog: DialogNode {
         lbl.fontColor = .white
         lbl.verticalAlignmentMode = .center
         lbl.horizontalAlignmentMode = .left
-        lbl.position = CGPoint(x: -dialogSize.width / 2 + 70, y: y)
+        lbl.position = CGPoint(x: -dialogSize.width / 2 + 70, y: y + 9)
         scrollNode.addChild(lbl)
+
+        let countLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        countLbl.text = "×\(ownedCount(of: type))"
+        countLbl.fontSize = 11
+        countLbl.fontColor = UIColor(hex: "#7799CC")
+        countLbl.verticalAlignmentMode = .center
+        countLbl.horizontalAlignmentMode = .left
+        countLbl.position = CGPoint(x: -dialogSize.width / 2 + 70, y: y - 11)
+        scrollNode.addChild(countLbl)
+        boosterCountLabels[type] = countLbl
 
         let buyBtn = PixelButton(title: "\(type.cost) 🪙",
                                   icon: .coin,
@@ -1193,7 +1205,8 @@ final class ShopDialog: DialogNode {
                                   style: .primary,
                                   color: UIColor(hex: "#FFCC00"),
                                   fontSize: 13)
-        buyBtn.onTap = {
+        buyBtn.onTap = { [weak self] in
+            guard let self = self else { return }
             if PlayerData.shared.spendCoins(type.cost) {
                 switch type {
                 case .hammer: PlayerData.shared.hammerCount += 1
@@ -1202,10 +1215,24 @@ final class ShopDialog: DialogNode {
                 case .colorBomb: PlayerData.shared.colorBombCount += 1
                 }
                 AudioManager.shared.play(.coinCollect)
+                self.boosterCountLabels[type]?.text = "×\(self.ownedCount(of: type))"
+                self.onCurrencyChanged?()
+            } else {
+                PixelMatchCashierUIProvider().showToast(
+                    message: L10n.tr("shop.not_enough_coins", fallback: "Not enough coins!"))
             }
         }
         buyBtn.position = CGPoint(x: dialogSize.width / 2 - 70, y: y)
         scrollNode.addChild(buyBtn)
+    }
+
+    private func ownedCount(of type: BoosterType) -> Int {
+        switch type {
+        case .hammer: return PlayerData.shared.hammerCount
+        case .shuffle: return PlayerData.shared.shuffleCount
+        case .extraMoves: return PlayerData.shared.extraMovesCount
+        case .colorBomb: return PlayerData.shared.colorBombCount
+        }
     }
 
     private func clampScrollY(_ y: CGFloat) -> CGFloat {

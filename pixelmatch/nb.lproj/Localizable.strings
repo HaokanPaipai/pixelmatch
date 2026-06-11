@@ -34,6 +34,7 @@
 "shop.large_pack" = "Stor pakke";
 "shop.free_ad" = "Gratis → Se en annonse";
 "shop.boosters" = "──── BOOSTERE ────";
+"shop.not_enough_coins" = "Ikke nok mynter!";
 
 "common.close" = "LUKK";
 "common.on" = "PÅ";

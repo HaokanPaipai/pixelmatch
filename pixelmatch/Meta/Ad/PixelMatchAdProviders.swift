@@ -92,12 +92,28 @@ final class PixelMatchAdConfigProvider: AdConfigProvider {
         case .rewarded:     name = "RewardVideoData"
         case .interstitial: name = "InterstitialData"
         }
-        guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let obj  = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "json") else {
+            #if DEBUG
+            assertionFailure("[PixelMatchAdConfig] 找不到 \(name).json。检查是否加入 Copy Bundle Resources。")
+            #endif
             return nil
         }
-        return obj
+        do {
+            let data = try Data(contentsOf: url)
+            // 注意：JSONSerialization 严格，不容忍尾逗号等非标准写法，解析失败会抛错而非静默忽略。
+            guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                #if DEBUG
+                assertionFailure("[PixelMatchAdConfig] \(name).json 顶层不是对象。")
+                #endif
+                return nil
+            }
+            return obj
+        } catch {
+            #if DEBUG
+            assertionFailure("[PixelMatchAdConfig] 解析 \(name).json 失败: \(error)。多半是 JSON 语法错误（如尾逗号）。")
+            #endif
+            return nil
+        }
     }
 }
 
@@ -193,7 +209,8 @@ final class PixelMatchAdUIProvider: AdUIProvider {
     }
 
     func cnSplashPlaceholderImage() -> UIImage? {
-        UIImage(named: "LaunchImage")
+        // 复用启动屏 logo 资源（"LaunchImage" 资源并不存在，此前恒返 nil）。
+        UIImage(named: "LaunchLogo")
     }
 
     func showToast(_ message: String) {

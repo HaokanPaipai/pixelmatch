@@ -34,6 +34,7 @@
 "shop.large_pack" = "大パック";
 "shop.free_ad" = "無料 → 広告を見る";
 "shop.boosters" = "──── ブースター ────";
+"shop.not_enough_coins" = "コインが足りません!";
 
 "common.close" = "閉じる";
 "common.on" = "ON";

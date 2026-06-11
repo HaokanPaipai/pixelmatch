@@ -84,12 +84,25 @@ final class PlayerData {
 
     // MARK: - Currency
 
+    /// 云端钱包播种/对账时置 true：setter 不再产生同步 mutation（见 WalletSyncManager）。
+    private var suppressWalletSync = false
+
+    /// 货币 setter 统一钩子：把变化量送进云端钱包同步队列。
+    private func noteWalletChange(_ currency: WalletCurrency, delta: Int) {
+        guard !suppressWalletSync, delta != 0 else { return }
+        WalletSyncManager.shared.noteChange(currency, delta: delta)
+    }
+
     var coins: Int {
         get {
             let v = defaults.integer(forKey: Key.coins)
             return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? EconomyConfig.shared.startingCoins : v
         }
-        set { defaults.set(newValue, forKey: Key.coins) }
+        set {
+            let old = coins
+            defaults.set(newValue, forKey: Key.coins)
+            noteWalletChange(.coins, delta: newValue - old)
+        }
     }
 
     var diamonds: Int {
@@ -97,7 +110,42 @@ final class PlayerData {
             let v = defaults.integer(forKey: Key.diamonds)
             return v == 0 && !defaults.bool(forKey: Key.firstLaunch) ? EconomyConfig.shared.startingDiamonds : v
         }
-        set { defaults.set(newValue, forKey: Key.diamonds) }
+        set {
+            let old = diamonds
+            defaults.set(newValue, forKey: Key.diamonds)
+            noteWalletChange(.diamonds, delta: newValue - old)
+        }
+    }
+
+    /// 云端权威余额覆盖本地（重装播种 / sync 对账后调用），不触发同步钩子。
+    func applyServerBalances(_ balances: [WalletCurrency: Int]) {
+        suppressWalletSync = true
+        defer { suppressWalletSync = false }
+        // 有云端余额即视为老玩家：关闭"首启虚拟初始余额"，避免 server=0 时
+        // getter 又虚报初始币、completeFirstLaunch 重复发初始资源
+        defaults.set(true, forKey: Key.firstLaunch)
+        for (currency, value) in balances {
+            switch currency {
+            case .coins: coins = value
+            case .diamonds: diamonds = value
+            case .hammer: hammerCount = value
+            case .shuffle: shuffleCount = value
+            case .extraMoves: extraMovesCount = value
+            case .colorBomb: colorBombCount = value
+            }
+        }
+    }
+
+    /// 钱包同步辅助：读取某币种当前余额。
+    func walletBalance(of currency: WalletCurrency) -> Int {
+        switch currency {
+        case .coins: return coins
+        case .diamonds: return diamonds
+        case .hammer: return hammerCount
+        case .shuffle: return shuffleCount
+        case .extraMoves: return extraMovesCount
+        case .colorBomb: return colorBombCount
+        }
     }
 
     func spendCoins(_ amount: Int) -> Bool {
@@ -171,22 +219,38 @@ final class PlayerData {
 
     var hammerCount: Int {
         get { defaults.integer(forKey: Key.boosterHammer) }
-        set { defaults.set(newValue, forKey: Key.boosterHammer) }
+        set {
+            let old = hammerCount
+            defaults.set(newValue, forKey: Key.boosterHammer)
+            noteWalletChange(.hammer, delta: newValue - old)
+        }
     }
 
     var shuffleCount: Int {
         get { defaults.integer(forKey: Key.boosterShuffle) }
-        set { defaults.set(newValue, forKey: Key.boosterShuffle) }
+        set {
+            let old = shuffleCount
+            defaults.set(newValue, forKey: Key.boosterShuffle)
+            noteWalletChange(.shuffle, delta: newValue - old)
+        }
     }
 
     var extraMovesCount: Int {
         get { defaults.integer(forKey: Key.boosterExtraMoves) }
-        set { defaults.set(newValue, forKey: Key.boosterExtraMoves) }
+        set {
+            let old = extraMovesCount
+            defaults.set(newValue, forKey: Key.boosterExtraMoves)
+            noteWalletChange(.extraMoves, delta: newValue - old)
+        }
     }
 
     var colorBombCount: Int {
         get { defaults.integer(forKey: Key.boosterColorBomb) }
-        set { defaults.set(newValue, forKey: Key.boosterColorBomb) }
+        set {
+            let old = colorBombCount
+            defaults.set(newValue, forKey: Key.boosterColorBomb)
+            noteWalletChange(.colorBomb, delta: newValue - old)
+        }
     }
 
     func useBooster(_ type: BoosterType) -> Bool {

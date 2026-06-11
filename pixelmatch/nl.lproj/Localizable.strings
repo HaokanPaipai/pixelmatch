@@ -34,6 +34,7 @@
 "shop.large_pack" = "Groot pakket";
 "shop.free_ad" = "Gratis → Bekijk een advertentie";
 "shop.boosters" = "──── BOOSTERS ────";
+"shop.not_enough_coins" = "Niet genoeg munten!";
 
 "common.close" = "SLUITEN";
 "common.on" = "AAN";

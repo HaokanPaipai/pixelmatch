@@ -34,6 +34,7 @@
 "shop.large_pack" = "Gói Lớn";
 "shop.free_ad" = "Miễn phí → Xem quảng cáo";
 "shop.boosters" = "──── VẬT PHẨM HỖ TRỢ ────";
+"shop.not_enough_coins" = "Không đủ xu!";
 
 "common.close" = "ĐÓNG";
 "common.on" = "BẬT";

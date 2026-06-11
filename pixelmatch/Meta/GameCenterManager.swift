@@ -10,21 +10,21 @@ final class GameCenterManager: NSObject {
 
     // Leaderboard IDs — set these in App Store Connect
     enum Leaderboard: String {
-        case totalScore    = "com.pixelmatch.leaderboard.totalscore"
-        case highestLevel  = "com.pixelmatch.leaderboard.highestlevel"
-        case totalStars    = "com.pixelmatch.leaderboard.totalstars"
+        case totalScore    = "com.goodloook.pixelmatch.leaderboard.totalscore"
+        case highestLevel  = "com.goodloook.pixelmatch.leaderboard.highestlevel"
+        case totalStars    = "com.goodloook.pixelmatch.leaderboard.totalstars"
     }
 
     // Achievement IDs
     enum Achievement: String {
-        case firstMatch    = "com.pixelmatch.achievement.firstmatch"
-        case level10       = "com.pixelmatch.achievement.level10"
-        case level50       = "com.pixelmatch.achievement.level50"
-        case level100      = "com.pixelmatch.achievement.level100"
-        case collector     = "com.pixelmatch.achievement.collector"     // 1000 gems collected
-        case comboCrazy    = "com.pixelmatch.achievement.combocrazy"   // 5× combo
-        case specialMaster = "com.pixelmatch.achievement.specialmaster" // 50 specials created
-        case perfectScore  = "com.pixelmatch.achievement.perfectscore"  // 3 stars on 10 levels
+        case firstMatch    = "com.goodloook.pixelmatch.achievement.firstmatch"
+        case level10       = "com.goodloook.pixelmatch.achievement.level10"
+        case level50       = "com.goodloook.pixelmatch.achievement.level50"
+        case level100      = "com.goodloook.pixelmatch.achievement.level100"
+        case collector     = "com.goodloook.pixelmatch.achievement.collector"     // 1000 gems collected
+        case comboCrazy    = "com.goodloook.pixelmatch.achievement.combocrazy"   // 5× combo
+        case specialMaster = "com.goodloook.pixelmatch.achievement.specialmaster" // 50 specials created
+        case perfectScore  = "com.goodloook.pixelmatch.achievement.perfectscore"  // 3 stars on 10 levels
     }
 
     func authenticate() {

@@ -34,6 +34,7 @@
 "shop.large_pack" = "Pacote Grande";
 "shop.free_ad" = "Grátis → Assista a um anúncio";
 "shop.boosters" = "──── TURBINADORES ────";
+"shop.not_enough_coins" = "Moedas insuficientes!";
 
 "common.close" = "FECHAR";
 "common.on" = "LIG";

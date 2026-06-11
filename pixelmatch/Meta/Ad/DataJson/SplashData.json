@@ -1,28 +1,27 @@
 {
-    "_comment": "PixelMatch 国内开屏配置。上线前必须把 adspotId/appId 替换成真实账号位。",
-    "rules": [
+    "rules":[
         {
             "tag": "A",
             "sort": [1, 2],
-            "percent": 70
+            "percent": 30
         },
         {
             "tag": "B",
             "sort": [2, 1],
-            "percent": 30
+            "percent": 70
         }
     ],
     "suppliers": [
         {
-            "tag": "csj",
-            "adspotId": "TODO_CSJ_SPLASH_SLOT",
-            "appId": "TODO_CSJ_APP_ID",
+            "tag": "ylh",
+            "adspotId": "6381756011595737",
+            "appId": "1217854480",
             "index": 1
         },
         {
-            "tag": "baidu",
-            "adspotId": "TODO_BD_SPLASH_SLOT",
-            "appId": "TODO_BD_APP_ID",
+            "tag": "csj",
+            "adspotId": "896470721",
+            "appId": "5830774",
             "index": 2
         }
     ]

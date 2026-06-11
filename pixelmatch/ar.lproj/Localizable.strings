@@ -34,6 +34,7 @@
 "shop.large_pack" = "حزمة كبيرة";
 "shop.free_ad" = "مجانا → إعلان";
 "shop.boosters" = "──── المعززات ────";
+"shop.not_enough_coins" = "العملات غير كافية!";
 
 "common.close" = "إغلاق";
 "common.on" = "تشغيل";

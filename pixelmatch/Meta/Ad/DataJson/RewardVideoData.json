@@ -1,6 +1,5 @@
 {
-    "_comment": "PixelMatch 国内激励视频配置。上线前必须把 adspotId/appId 替换成真实账号位。",
-    "rules": [
+    "rules":[
         {
             "tag": "A",
             "sort": [1, 2],
@@ -14,15 +13,15 @@
     ],
     "suppliers": [
         {
-            "tag": "csj",
-            "adspotId": "TODO_CSJ_REWARDED_SLOT",
-            "appId": "TODO_CSJ_APP_ID",
+            "tag": "ylh",
+            "adspotId": "4391254012608218",
+            "appId": "1217854480",
             "index": 1
         },
         {
-            "tag": "baidu",
-            "adspotId": "TODO_BD_REWARDED_SLOT",
-            "appId": "TODO_BD_APP_ID",
+            "tag": "csj",
+            "adspotId": "982424588",
+            "appId": "5830774",
             "index": 2
         }
     ]

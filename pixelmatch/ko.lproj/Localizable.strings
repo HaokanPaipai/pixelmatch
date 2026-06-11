@@ -34,6 +34,7 @@
 "shop.large_pack" = "대형 팩";
 "shop.free_ad" = "무료 → 광고 보기";
 "shop.boosters" = "──── 부스터 ────";
+"shop.not_enough_coins" = "코인이 부족합니다!";
 
 "common.close" = "닫기";
 "common.on" = "켜기";
