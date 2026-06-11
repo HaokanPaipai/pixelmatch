@@ -42,7 +42,8 @@ struct SpecialComboEffect {
 
 // MARK: - Board
 
-final class Board {
+// nonisolated：同 Tile，Core 纯逻辑类不挂 MainActor（避免隔离 deinit back-deploy 崩溃）。
+nonisolated final class Board {
     let rows: Int
     let cols: Int
     var grid: [[Tile?]]
@@ -469,14 +470,17 @@ final class Board {
                               at pos: (row: Int, col: Int),
                               targetColor: GemColor? = nil) -> [(row: Int, col: Int)] {
         switch special {
+        // 石头与锁都不可被特效命中：石头永久不可消除，锁只能由钥匙打开。
         case .stripedH:
             return (0..<cols).compactMap { c in
-                guard let t = grid[pos.row][c], !t.isHole, t.obstacle != .stone else { return nil }
+                guard let t = grid[pos.row][c], !t.isHole,
+                      t.obstacle != .stone, t.obstacle != .lock else { return nil }
                 return (row: pos.row, col: c)
             }
         case .stripedV:
             return (0..<rows).compactMap { r in
-                guard let t = grid[r][pos.col], !t.isHole, t.obstacle != .stone else { return nil }
+                guard let t = grid[r][pos.col], !t.isHole,
+                      t.obstacle != .stone, t.obstacle != .lock else { return nil }
                 return (row: r, col: pos.col)
             }
         case .wrapped:
@@ -485,7 +489,8 @@ final class Board {
                 for dc in -2...2 {
                     if abs(dr) == 2 && abs(dc) == 2 { continue }
                     let nr = pos.row + dr, nc = pos.col + dc
-                    guard valid((nr, nc)), let t = grid[nr][nc], !t.isHole, t.obstacle != .stone else { continue }
+                    guard valid((nr, nc)), let t = grid[nr][nc], !t.isHole,
+                          t.obstacle != .stone, t.obstacle != .lock else { continue }
                     result.append((nr, nc))
                 }
             }

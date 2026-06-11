@@ -1,6 +1,9 @@
 import Foundation
 
-final class Tile {
+// nonisolated：Core 纯逻辑层不挂 MainActor。工程默认隔离为 MainActor 时，
+// 隔离类的合成 deinit 会走 deinitOnExecutor back-deploy，在非主线程（如单测）
+// 释放对象时触发 malloc double-free 崩溃（实测 iOS 18.6 模拟器必现）。
+nonisolated final class Tile {
     var row: Int
     var col: Int
     var gemColor: GemColor

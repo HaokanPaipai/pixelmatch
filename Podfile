@@ -7,6 +7,9 @@
 #
 # pod install 后必须打开 `pixelmatch.xcworkspace`，不再用 `.xcodeproj`。
 
+# 与 goodlook 一致走 git 版 specs 源（本机已有克隆），CDN trunk 在当前网络不可达。
+source 'https://github.com/CocoaPods/Specs.git'
+
 platform :ios, '15.6'
 install! 'cocoapods', :deterministic_uuids => false
 
@@ -21,6 +24,12 @@ target 'pixelmatch' do
   # ---- 海外 ----
   pod 'Google-Mobile-Ads-SDK', '11.10.0'
   pod 'GoogleUserMessagingPlatform'
+
+  # ---- 观测（崩溃 + 分析）----
+  # 必须锁 11.x：Firebase 12 的 GoogleAppMeasurement 与 GMA 11.10 ABI 不兼容，
+  # 实测在模拟器触发 malloc double-free 崩溃（宿主 App 启动 ~30s 后）。GMA 升 12 时再同步升。
+  pod 'FirebaseCrashlytics', '~> 11.15'
+  pod 'FirebaseAnalytics',   '~> 11.15'
 
   # ---- 国内网盟（HKAdvertising 聚合 subspec，一次性带齐 CSJ/GDT/KS/BD 4 家适配层 + SDK 依赖）----
   # HKAdvertising/CN（abb8cb1+ 引入）= CSJ + GDT + KS + BD 全套，替代原先单列 4 个 subspec。

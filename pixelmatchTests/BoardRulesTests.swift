@@ -293,7 +293,7 @@ final class BoardRulesTests: XCTestCase {
 
         let result = board.removeTiles(at: [(1, 1)])
 
-        XCTAssertEqual(board.grid[1][2]?.obstacle, .none)
+        XCTAssertEqual(board.grid[1][2]?.obstacle, ObstacleType.none)
         XCTAssertEqual(result.chocolateCleared.count, 1)
         XCTAssertTrue(result.removedPositions.contains { $0.row == 1 && $0.col == 2 })
     }
@@ -359,7 +359,7 @@ final class BoardRulesTests: XCTestCase {
         XCTAssertNil(board.grid[1][0])
         XCTAssertNotNil(board.grid[1][1])
         XCTAssertNil(board.grid[1][2])
-        XCTAssertEqual(board.grid[1][1]?.obstacle, .none)
+        XCTAssertEqual(board.grid[1][1]?.obstacle, ObstacleType.none)
         XCTAssertEqual(result.cageCleared.count, 1)
     }
 
@@ -393,7 +393,7 @@ final class BoardRulesTests: XCTestCase {
 
         XCTAssertEqual(firstHit.chestDamaged.count, 1)
         XCTAssertTrue(firstHit.chestOpened.isEmpty)
-        XCTAssertEqual(board.grid[1][1]?.obstacle, .none)
+        XCTAssertEqual(board.grid[1][1]?.obstacle, ObstacleType.none)
         XCTAssertEqual(secondHit.chestDamaged.count, 1)
         XCTAssertEqual(secondHit.chestOpened.count, 1)
         XCTAssertNotNil(board.grid[1][1])
@@ -422,6 +422,11 @@ final class BoardRulesTests: XCTestCase {
         board.grid[1][2] = tile(1, 2, .red)
         board.grid[2][1] = nil
         board.grid[3][1] = nil
+        // 两侧列底部垫实，避免旁列方块合法下落干扰"宝箱列阻挡重力"的断言
+        board.grid[2][0] = tile(2, 0, .green)
+        board.grid[3][0] = tile(3, 0, .yellow)
+        board.grid[2][2] = tile(2, 2, .purple)
+        board.grid[3][2] = tile(3, 2, .green)
 
         XCTAssertFalse(board.grid[1][1]?.isMovable == true)
         XCTAssertTrue(board.detectMatches().isEmpty)
@@ -449,7 +454,7 @@ final class BoardRulesTests: XCTestCase {
 
         XCTAssertEqual(result.keysCollected.count, 1)
         XCTAssertEqual(result.locksOpened.count, 1)
-        XCTAssertEqual(board.grid[1][2]?.obstacle, .none)
+        XCTAssertEqual(board.grid[1][2]?.obstacle, ObstacleType.none)
         XCTAssertEqual(board.grid[3][3]?.obstacle, .lock)
         XCTAssertNil(board.grid[1][1])
     }

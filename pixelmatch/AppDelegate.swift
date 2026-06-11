@@ -3,6 +3,7 @@ import UserNotifications
 import GameKit
 import HKAdKit
 import AppTrackingTransparency
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -11,6 +12,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Firebase 必须最先初始化（在首个埋点 appLaunch 之前），否则首启事件丢失。
+        // GoogleService-Info.plist 缺失时跳过（本地无配置也能跑），放入真实文件后自动生效。
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let options = FirebaseOptions(contentsOfFile: path) {
+            FirebaseApp.configure(options: options)
+        } else {
+            print("[Firebase] GoogleService-Info.plist 缺失，崩溃/分析上报未启用")
+        }
+
         let rootViewController = GameViewController()
         let appWindow = UIWindow(frame: UIScreen.main.bounds)
         appWindow.rootViewController = rootViewController

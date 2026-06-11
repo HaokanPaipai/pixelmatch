@@ -1051,6 +1051,8 @@ final class GameScene: SKScene {
                                                    "coin_multiplier": "\(coinMultiplier)",
                                                    "used_booster": "\(usedBoosterThisLevel)",
                                                    "coins": "\(coins)"])
+        AnalyticsManager.shared.updateProgressUserProperties(highestLevel: PlayerData.shared.maxUnlockedLevel,
+                                                             totalStars: PlayerData.shared.totalStars)
 
         // Game Center
         GameCenterManager.shared.submitScore(PlayerData.shared.totalScore, to: .totalScore)

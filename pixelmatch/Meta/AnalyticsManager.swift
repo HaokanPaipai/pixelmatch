@@ -1,4 +1,6 @@
 import Foundation
+import FirebaseCore
+import FirebaseAnalytics
 
 enum AnalyticsEventName: String {
     case appLaunch = "app_launch"
@@ -41,7 +43,14 @@ final class AnalyticsManager {
 
     private init() {}
 
+    /// 事件统一出口：底层转发 Firebase Analytics（事件名已符合其命名规则：小写下划线、≤40 字符）。
+    /// 注意：Firebase Analytics 在中国大陆丢失率较高，国内数据只看趋势不当真值。
     func track(_ name: AnalyticsEventName, properties: [String: String] = [:]) {
+        if FirebaseApp.app() != nil {
+            Analytics.logEvent(name.rawValue, parameters: properties.isEmpty ? nil : properties)
+        }
+        #if DEBUG
+        // 本地留存仅作调试回看（Debug 包），Release 不落盘
         var events = storedEvents
         events.append(AnalyticsEvent(name: name.rawValue,
                                      timestamp: Date().timeIntervalSince1970,
@@ -50,6 +59,14 @@ final class AnalyticsManager {
             events.removeFirst(events.count - maxStoredEvents)
         }
         save(events)
+        #endif
+    }
+
+    /// 用户属性：用于 Firebase 留存分群（在关卡胜利结算路径调用）
+    func updateProgressUserProperties(highestLevel: Int, totalStars: Int) {
+        guard FirebaseApp.app() != nil else { return }
+        Analytics.setUserProperty(String(highestLevel), forName: "highest_level")
+        Analytics.setUserProperty(String(totalStars), forName: "total_stars")
     }
 
     var storedEvents: [AnalyticsEvent] {
