@@ -8,6 +8,7 @@
 
 import UIKit
 import HKAdKit
+import GoogleMobileAds
 
 @MainActor
 enum PixelMatchAdBootstrap {
@@ -18,6 +19,11 @@ enum PixelMatchAdBootstrap {
     static func bootstrap() {
         guard !didBootstrap else { return }
         didBootstrap = true
+
+        // 崩溃上报统一走 Firebase Crashlytics：禁用 GMA 自带的信号处理器，
+        // 否则它会抢注 SIGABRT/SIGSEGV 等 handler，截走崩溃报告（启动日志会警告）。
+        // 必须在任何 GADMobileAds.start 之前调用。
+        GADMobileAds.sharedInstance().disableSDKCrashReporting()
 
         AdManager.shared.setup(
             user: PixelMatchAdUserProvider(),
