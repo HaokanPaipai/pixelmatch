@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Varje mästare var en gång nybörjare!";
 "encourage.fail.2" = "Den banan var svår — du fixar det!";
 "encourage.fail.3" = "Så nära! Prova ett annat första drag.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Norrskensbukten";
+"world.12" = "Kugghjulsverkstaden";
+"world.13" = "Mystiska Lunden";
+"world.14" = "Stjärnhamnen";
+"world.15" = "Obsidiantoppen";
+"weekly.title" = "VECKOUTMANING";
+"weekly.time_left" = "%@ kvar";
+"weekly.claim" = "HÄMTA";
+"weekly.done" = "KLART!";
+"pass.title" = "SÄSONGSPASS";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "LÅS UPP PREMIUM";
+"pass.season_ends" = "Säsongen slutar: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d p";
+"pass.purchased" = "PREMIUM AKTIVT";
+"pass.claim" = "HÄMTA";
+"pass.locked" = "LÅST";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Säsongspass";

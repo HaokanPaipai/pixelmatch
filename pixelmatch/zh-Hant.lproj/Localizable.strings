@@ -267,3 +267,26 @@
 "encourage.fail.1" = "高手都是從失敗練出來的!";
 "encourage.fail.2" = "這關確實難 — 你可以的!";
 "encourage.fail.3" = "就差一步! 試試換個開局思路。";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "極光灣";
+"world.12" = "齒輪工坊";
+"world.13" = "秘法林地";
+"world.14" = "星辰港";
+"world.15" = "黑曜峰";
+"weekly.title" = "每週挑戰";
+"weekly.time_left" = "剩餘 %@";
+"weekly.claim" = "領取";
+"weekly.done" = "已完成!";
+"pass.title" = "賽季通行證";
+"pass.free_track" = "免費";
+"pass.premium_track" = "高級";
+"pass.unlock_cta" = "解鎖高級通行證";
+"pass.season_ends" = "賽季結束: %@";
+"pass.level" = "%d 級";
+"pass.points" = "%d 點";
+"pass.purchased" = "高級已啟用";
+"pass.claim" = "領取";
+"pass.locked" = "未解鎖";
+"pass.claimed" = "✓";
+"iap.season_pass" = "賽季通行證";

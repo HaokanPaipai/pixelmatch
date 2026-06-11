@@ -91,6 +91,11 @@ let GameWorlds: [World] = [
     World(id: 8, name: "Deep Space",     themeColorHex: "#FF3B30", bgColorHex: "#0a0a1a", levelRange: 141...160),
     World(id: 9, name: "Pixel Peak",     themeColorHex: "#FF2D55", bgColorHex: "#2a0a1a", levelRange: 161...180),
     World(id: 10, name: "Cosmos Core",   themeColorHex: "#FFFFFF", bgColorHex: "#050510", levelRange: 181...200),
+    World(id: 11, name: "Aurora Bay",    themeColorHex: "#5AC8FA", bgColorHex: "#06222e", levelRange: 201...220),
+    World(id: 12, name: "Gear Works",    themeColorHex: "#D9A23C", bgColorHex: "#241a08", levelRange: 221...240),
+    World(id: 13, name: "Mystic Grove",  themeColorHex: "#7CE07C", bgColorHex: "#0e2412", levelRange: 241...260),
+    World(id: 14, name: "Star Harbor",   themeColorHex: "#B58CFF", bgColorHex: "#150a2e", levelRange: 261...280),
+    World(id: 15, name: "Obsidian Peak", themeColorHex: "#FF6B5A", bgColorHex: "#1c0a08", levelRange: 281...300),
 ]
 
 // MARK: - Level

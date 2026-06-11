@@ -36,6 +36,9 @@ enum IAPProduct: String, CaseIterable {
     // No-ads (单次解锁：永久移除广告)
     case noAds       = "com.goodloook.pixelmatch.removeads"
 
+    // 赛季通行证（消耗品：每季重购，本地记录有效季，跨季失效）
+    case seasonPass  = "com.goodloook.pixelmatch.seasonpass"
+
     var displayName: String {
         switch self {
         case .coins500:    return L10n.tr("iap.coins500", fallback: "500 Coins")
@@ -47,6 +50,7 @@ enum IAPProduct: String, CaseIterable {
         case .starterPack: return L10n.tr("iap.starter_pack", fallback: "Starter Pack")
         case .megaPack:    return L10n.tr("iap.mega_pack", fallback: "Mega Pack")
         case .noAds:       return L10n.tr("iap.remove_ads", fallback: "Remove Ads")
+        case .seasonPass:  return L10n.tr("iap.season_pass", fallback: "Season Pass")
         }
     }
 
@@ -62,6 +66,7 @@ enum IAPProduct: String, CaseIterable {
         case .starterPack: return "$1.99"
         case .megaPack:    return "$6.99"
         case .noAds:       return "$2.99"
+        case .seasonPass:  return "$4.99"
         }
     }
 
@@ -77,12 +82,13 @@ enum IAPProduct: String, CaseIterable {
         case .starterPack: return "+300 🪙  +10 💎  +3 🔨"
         case .megaPack:    return "+1,000 🪙  +50 💎  +boosters"
         case .noAds:       return L10n.tr("iap.remove_ads.desc", fallback: "Remove all ads forever")
+        case .seasonPass:  return L10n.tr("pass.premium_track", fallback: "PREMIUM") + " ×28d"
         }
     }
 
     /// 商店真钱档位的展示顺序。Booster（金币购买）仍走 ShopDialog 原有区块。
     static var shopCatalog: [IAPProduct] {
-        [.starterPack, .diamonds20, .diamonds80, .diamonds300,
+        [.starterPack, .seasonPass, .diamonds20, .diamonds80, .diamonds300,
          .coins500, .coins1500, .coins5000, .megaPack, .noAds]
     }
 
@@ -109,6 +115,9 @@ enum IAPProduct: String, CaseIterable {
             PlayerData.shared.extraMovesCount += 5
         case .noAds:
             PlayerData.shared.setNoAds()
+        case .seasonPass:
+            // 幂等：同季重复发放无副作用（activate 只写当季标记）
+            SeasonPassManager.shared.activatePremiumForCurrentSeason()
         }
     }
 }

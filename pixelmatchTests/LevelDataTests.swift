@@ -4,11 +4,11 @@ import UIKit
 
 final class LevelDataTests: XCTestCase {
 
-    func testLevelIdsAreContinuousThroughTwoHundredLevels() {
+    func testLevelIdsAreContinuousThroughThreeHundredLevels() {
         let ids = LevelData.all.map { $0.id }
 
-        XCTAssertEqual(ids.count, 200)
-        XCTAssertEqual(ids, Array(1...200))
+        XCTAssertEqual(ids.count, 300)
+        XCTAssertEqual(ids, Array(1...300))
     }
 
     func testEachWorldHasTwentyLevels() {
@@ -252,6 +252,54 @@ final class LevelDataTests: XCTestCase {
 
         XCTAssertTrue(worldNine.allSatisfy { !$0.portalLinks.isEmpty })
         XCTAssertNotNil(LevelData.level(161)?.lesson)
+    }
+
+    // MARK: - Worlds 11-15（201-300）
+
+    func testBossLevelsAreTunedHarderThanNeighbors() {
+        // 每世界第 10/20 关为手工 boss：目标分应高于前两关均值，步数不应明显富余
+        for bossId in stride(from: 210, through: 300, by: 10) {
+            guard let boss = LevelData.level(bossId),
+                  let prev1 = LevelData.level(bossId - 1),
+                  let prev2 = LevelData.level(bossId - 2) else {
+                XCTFail("Missing levels around boss \(bossId)")
+                continue
+            }
+            let neighborAvgTarget = (prev1.starThresholds.one + prev2.starThresholds.one) / 2
+            XCTAssertGreaterThan(boss.starThresholds.one, neighborAvgTarget,
+                                 "Boss \(bossId) should demand a higher score than neighbors")
+            XCTAssertGreaterThanOrEqual(boss.objectives.count, 2,
+                                        "Boss \(bossId) should have compound objectives")
+        }
+    }
+
+    func testWaveDifficultyOscillatesInWorldsElevenToFifteen() {
+        // 波浪难度：每个世界内（排除 boss）目标分序列必须存在回落点，不能单调递增
+        for worldId in 11...15 {
+            let regulars = LevelData.all
+                .filter { $0.worldId == worldId && $0.id % 10 != 0 }
+                .sorted { $0.id < $1.id }
+            let targets = regulars.map { $0.starThresholds.one }
+            let hasDip = zip(targets, targets.dropFirst()).contains { $0 > $1 }
+            XCTAssertTrue(hasDip, "World \(worldId) difficulty should oscillate, not climb linearly")
+        }
+    }
+
+    func testWorldsElevenToFifteenMixMechanicsAndVaryLayouts() {
+        for worldId in 11...15 {
+            let worldLevels = LevelData.all.filter { $0.worldId == worldId }
+            XCTAssertEqual(worldLevels.count, 20)
+
+            // 机制混用：每世界至少出现 3 种障碍类型
+            let obstacleTypes = Set(worldLevels.flatMap { $0.obstacles.map { $0.type } })
+            XCTAssertGreaterThanOrEqual(obstacleTypes.count, 3,
+                                        "World \(worldId) should mix at least 3 obstacle kinds")
+
+            // 布局多样性：每世界至少 4 关使用非标准 9×9 满板布局（异形尺寸或带洞）
+            let altCount = worldLevels.filter { $0.rows != 9 || $0.cols != 9 || !$0.holes.isEmpty }.count
+            XCTAssertGreaterThanOrEqual(altCount, 4,
+                                        "World \(worldId) should vary board layouts")
+        }
     }
 
     private func isValid(_ position: (row: Int, col: Int), in level: Level) -> Bool {

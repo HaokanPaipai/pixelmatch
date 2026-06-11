@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Cao thủ nào cũng từng là người mới!";
 "encourage.fail.2" = "Màn này khó thật — bạn làm được mà!";
 "encourage.fail.3" = "Suýt nữa rồi! Thử nước đi đầu khác xem.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Vịnh Cực Quang";
+"world.12" = "Xưởng Bánh Răng";
+"world.13" = "Rừng Huyền Bí";
+"world.14" = "Bến Cảng Sao";
+"world.15" = "Đỉnh Hắc Diện";
+"weekly.title" = "THỬ THÁCH TUẦN";
+"weekly.time_left" = "Còn %@";
+"weekly.claim" = "NHẬN";
+"weekly.done" = "HOÀN THÀNH!";
+"pass.title" = "VÉ MÙA";
+"pass.free_track" = "MIỄN PHÍ";
+"pass.premium_track" = "CAO CẤP";
+"pass.unlock_cta" = "MỞ KHÓA CAO CẤP";
+"pass.season_ends" = "Mùa kết thúc: %@";
+"pass.level" = "CẤP %d";
+"pass.points" = "%d điểm";
+"pass.purchased" = "CAO CẤP ĐÃ KÍCH HOẠT";
+"pass.claim" = "NHẬN";
+"pass.locked" = "KHÓA";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Vé mùa";

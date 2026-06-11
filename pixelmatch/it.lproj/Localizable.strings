@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Ogni maestro è stato un principiante!";
 "encourage.fail.2" = "Era un livello difficile — ce la puoi fare!";
 "encourage.fail.3" = "Così vicino! Prova una prima mossa diversa.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Baia dell'Aurora";
+"world.12" = "Officina degli Ingranaggi";
+"world.13" = "Bosco Mistico";
+"world.14" = "Porto Stellare";
+"world.15" = "Picco d'Ossidiana";
+"weekly.title" = "SFIDA SETTIMANALE";
+"weekly.time_left" = "%@ rimasto";
+"weekly.claim" = "RISCUOTI";
+"weekly.done" = "COMPLETATO!";
+"pass.title" = "PASS STAGIONALE";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "SBLOCCA PREMIUM";
+"pass.season_ends" = "Fine stagione: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d pt";
+"pass.purchased" = "PREMIUM ATTIVO";
+"pass.claim" = "RISCUOTI";
+"pass.locked" = "BLOCCATO";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Pass stagionale";

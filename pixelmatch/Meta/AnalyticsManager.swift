@@ -26,6 +26,12 @@ enum AnalyticsEventName: String {
     case adDismissed = "ad_dismissed"
     case adClicked = "ad_clicked"
     case adRewardEarned = "ad_reward_earned"
+    // 赛季通行证
+    case passPointsEarned = "pass_points_earned"
+    case passRewardClaimed = "pass_reward_claimed"
+    case passPurchase = "pass_purchase"
+    // 每周挑战
+    case weeklyChallengeCompleted = "weekly_challenge_completed"
 }
 
 struct AnalyticsEvent: Codable {

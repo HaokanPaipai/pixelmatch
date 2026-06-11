@@ -202,3 +202,26 @@
 "encourage.fail.1" = "모든 고수도 처음엔 초보였어요!";
 "encourage.fail.2" = "어려운 판이었어요 — 할 수 있어요!";
 "encourage.fail.3" = "아깝다! 첫 수를 바꿔보세요.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "오로라 만";
+"world.12" = "기어 공방";
+"world.13" = "신비의 숲";
+"world.14" = "별의 항구";
+"world.15" = "흑요석 봉우리";
+"weekly.title" = "주간 챌린지";
+"weekly.time_left" = "%@ 남음";
+"weekly.claim" = "받기";
+"weekly.done" = "완료!";
+"pass.title" = "시즌 패스";
+"pass.free_track" = "무료";
+"pass.premium_track" = "프리미엄";
+"pass.unlock_cta" = "프리미엄 잠금 해제";
+"pass.season_ends" = "시즌 종료: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d점";
+"pass.purchased" = "프리미엄 활성화";
+"pass.claim" = "받기";
+"pass.locked" = "잠김";
+"pass.claimed" = "✓";
+"iap.season_pass" = "시즌 패스";

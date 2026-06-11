@@ -360,7 +360,331 @@ struct LevelData {
         // ── Worlds 6–10 (101–200) ─────────────────────────────────────────────
         levels += higherWorlds(startId: 101)
 
+        // ── Worlds 11–15 (201–300)：波浪难度 + 手工 boss + 异形棋盘 ────────────
+        levels += worldsElevenToFifteen(startId: 201)
+
         return levels
+    }
+
+    // MARK: - Worlds 11-15（201-300）
+
+    /// 波浪难度：5 关一周期「松-松-平-紧-峰」，避免线性变难的疲劳感。
+    /// 返回 (步数修正, 目标分百分比修正)。
+    private static func waveAdjust(_ i: Int) -> (moves: Int, targetPct: Int) {
+        let wave: [(Int, Int)] = [(2, -10), (1, -5), (0, 0), (-1, 8), (-2, 15)]
+        let w = wave[i % wave.count]
+        return (moves: w.0, targetPct: w.1)
+    }
+
+    /// 异形棋盘轮换：每世界 4 关用非 9×9 布局打破单调（i ∈ {2,7,12,17}）。
+    private static func altLayout(_ i: Int) -> (rows: Int, cols: Int, holes: [(row: Int, col: Int)])? {
+        switch i {
+        case 2:  return (rows: 7, cols: 9, holes: [])
+        case 7:  return (rows: 9, cols: 7, holes: [])
+        case 12: return (rows: 8, cols: 8, holes: cornerHoles4(rows: 8, cols: 8))
+        case 17: return (rows: 8, cols: 8, holes: centerHoles2x2(rows: 8, cols: 8))
+        default: return nil
+        }
+    }
+
+    private static func centerHoles2x2(rows: Int, cols: Int) -> [(row: Int, col: Int)] {
+        let r = rows / 2 - 1, c = cols / 2 - 1
+        return pos([(r, c), (r, c + 1), (r + 1, c), (r + 1, c + 1)])
+    }
+
+    /// 图案模板按 9×9 设计，异形棋盘上先裁掉越界位置
+    private static func clamped(_ positions: [(row: Int, col: Int)],
+                                rows: Int, cols: Int) -> [(row: Int, col: Int)] {
+        positions.filter { $0.row >= 0 && $0.row < rows && $0.col >= 0 && $0.col < cols }
+    }
+
+    private static func worldsElevenToFifteen(startId: Int) -> [Level] {
+        var l: [Level] = []
+        var id = startId
+        for w in 11...15 {
+            for i in 0..<20 {
+                // 每世界第 10/20 关为手工调参 boss
+                if (i + 1) % 10 == 0 {
+                    l.append(bossLevel(id: id, world: w))
+                    id += 1
+                    continue
+                }
+
+                let diff = i + 1
+                let wave = waveAdjust(i)
+                // 延续 World 6-10 的分值公式，保证 200→201 关难度连续
+                let baseScore = (w - 5) * 15000 + diff * 5000
+                let target = baseScore * (100 + wave.targetPct) / 100
+                let baseMoves = max(15, 26 - diff / 2) + wave.moves
+                let layout = altLayout(i)
+                let rows = layout?.rows ?? 9
+                let cols = layout?.cols ?? 9
+                let holes = layout?.holes ?? (i > 13 ? cornerHoles4(rows: 9, cols: 9) : [])
+
+                l.append(levelForWorld(w, id: id, i: i, rows: rows, cols: cols,
+                                       moves: baseMoves, target: target, holes: holes))
+                id += 1
+            }
+        }
+        return l
+    }
+
+    /// 世界主题机制：11 冰+传送门，12 笼子+钥匙锁，13 果冻+巧克力+宝箱，
+    /// 14 传送门+宝箱+冰，15 终局大混合（石头+笼子+巧克力）。
+    private static func levelForWorld(_ w: Int, id: Int, i: Int, rows: Int, cols: Int,
+                                      moves: Int, target: Int,
+                                      holes: [(row: Int, col: Int)]) -> Level {
+        let diff = i + 1
+        let is9x9 = rows == 9 && cols == 9
+        // 传送门模板按 9×9 设计，异形棋盘不挂传送门
+        let portals = (is9x9 && w == 11 && i >= 4) || (is9x9 && w == 14)
+            ? portalPattern(index: i, count: i >= 10 ? 2 : 1) : []
+        let blocked = portalCells(portals) + holes
+
+        switch w {
+        case 11: // Aurora Bay：冰原 + 传送门
+            if i % 3 == 0 {
+                let ices = excluding(clamped(growingIcePattern(index: i, count: min(diff + 8, 24)),
+                                             rows: rows, cols: cols), blocked: blocked)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.breakIce(count: ices.count), .score(target: target)],
+                             obstacles: obstacles(ices, .ice),
+                             target: target, holes: holes, portalLinks: portals)
+            } else if i % 3 == 1 {
+                let jellys = excluding(clamped(diamondJelly(rows: rows, cols: cols), rows: rows, cols: cols),
+                                       blocked: blocked)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.clearAllJelly, .collect(color: .blue, count: 26 + diff)],
+                             obstacles: obstacles(jellys, diff >= 10 ? .jelly2 : .jelly1),
+                             target: target, holes: holes, portalLinks: portals)
+            } else {
+                let ices = excluding(clamped(diagonalIce(rows: rows, cols: cols), rows: rows, cols: cols),
+                                     blocked: blocked)
+                let stones = excluding(clamped(frozenStonePattern(index: i).prefix(3).map { $0 },
+                                               rows: rows, cols: cols), blocked: blocked + ices)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.breakIce(count: ices.count), .score(target: target)],
+                             obstacles: obstacles(ices, .ice) + obstacles(stones, .stone),
+                             target: target, holes: holes, portalLinks: portals)
+            }
+
+        case 12: // Gear Works：笼子 + 钥匙锁 + 石头
+            if i % 3 == 0 {
+                let cages = excluding(clamped(cagePattern(index: i, count: min(6 + diff / 2, 14)),
+                                              rows: rows, cols: cols), blocked: holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.score(target: target), .collect(color: .yellow, count: 24 + diff)],
+                             obstacles: obstacles(cages, .cage),
+                             target: target, holes: holes)
+            } else if i % 3 == 1, is9x9 {
+                let layout = keyLockPattern(index: i, count: min(3 + diff / 4, 6))
+                let keys = excluding(layout.keys, blocked: holes)
+                let locks = excluding(layout.locks, blocked: keys + holes)
+                let cages = excluding(clamped(cagePattern(index: i + 2, count: 5), rows: rows, cols: cols),
+                                      blocked: keys + locks + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.collectKeys(count: keys.count), .score(target: target)],
+                             obstacles: obstacles(keys, .key) + obstacles(locks, .lock)
+                                 + obstacles(cages, .cage),
+                             target: target, holes: holes)
+            } else {
+                let stones = excluding(clamped(lavaStonePattern(index: i), rows: rows, cols: cols),
+                                       blocked: holes)
+                let jellys = excluding(randomJelly(rows: rows, cols: cols, count: min(diff * 2 + 6, 26)),
+                                       blocked: stones + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.clearAllJelly, .score(target: target)],
+                             obstacles: obstacles(stones, .stone) + obstacles(jellys, .jelly1),
+                             target: target, holes: holes)
+            }
+
+        case 13: // Mystic Grove：双层果冻 + 巧克力 + 宝箱
+            if i % 3 == 0 {
+                let chocolates = excluding(clamped(pos([(0,0),(0,cols-1),(rows-1,0),(rows-1,cols-1),
+                                                        (rows/2,cols/2)]), rows: rows, cols: cols),
+                                           blocked: holes)
+                let jellys = excluding(clamped(centerJelly(rows: rows, cols: cols, size: 3),
+                                               rows: rows, cols: cols), blocked: chocolates + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.eliminateChocolate, .clearAllJelly],
+                             obstacles: obstacles(chocolates, .chocolate)
+                                 + obstacles(jellys, diff >= 8 ? .jelly2 : .jelly1),
+                             target: target, holes: holes)
+            } else if i % 3 == 1 {
+                let chests = excluding(clamped(chestPattern(index: i, count: min(5 + diff / 3, 12)),
+                                               rows: rows, cols: cols), blocked: holes)
+                let jellys = excluding(randomJelly(rows: rows, cols: cols, count: min(diff * 2 + 4, 24)),
+                                       blocked: chests + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.openChests(count: chests.count), .clearAllJelly],
+                             obstacles: obstacles(chests, diff >= 9 ? .chest2 : .chest1)
+                                 + obstacles(jellys, .jelly1),
+                             target: target, holes: holes)
+            } else {
+                let jellys = excluding(clamped(checkerJelly(rows: rows, cols: cols), rows: rows, cols: cols),
+                                       blocked: holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.clearAllJelly, .score(target: target)],
+                             obstacles: obstacles(jellys, diff >= 12 ? .jelly2 : .jelly1),
+                             target: target, holes: holes)
+            }
+
+        case 14: // Star Harbor：传送门 + 宝箱 + 冰
+            if i % 3 == 0 {
+                let chests = excluding(clamped(chestPattern(index: i, count: min(5 + diff / 3, 10)),
+                                               rows: rows, cols: cols), blocked: blocked)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.openChests(count: chests.count), .score(target: target)],
+                             obstacles: obstacles(chests, diff >= 8 ? .chest2 : .chest1),
+                             target: target, holes: holes, portalLinks: portals)
+            } else if i % 3 == 1 {
+                let ices = excluding(clamped(outerIce(rows: rows, cols: cols), rows: rows, cols: cols),
+                                     blocked: blocked)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.breakIce(count: ices.count), .collect(color: .purple, count: 26 + diff)],
+                             obstacles: obstacles(ices, .ice),
+                             target: target, holes: holes, portalLinks: portals)
+            } else {
+                let jellys = excluding(clamped(centerCross(rows: rows, cols: cols), rows: rows, cols: cols),
+                                       blocked: blocked)
+                let ices = excluding(randomIce(rows: rows, cols: cols, count: min(diff + 6, 16)),
+                                     blocked: jellys + blocked)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.clearAllJelly, .breakIce(count: ices.count)],
+                             obstacles: obstacles(jellys, .jelly1) + obstacles(ices, .ice),
+                             target: target, holes: holes, portalLinks: portals)
+            }
+
+        default: // 15 Obsidian Peak：终局大混合
+            if i % 3 == 0 {
+                let stones = excluding(clamped(lavaStonePattern(index: i), rows: rows, cols: cols),
+                                       blocked: holes)
+                let cages = excluding(clamped(cagePattern(index: i, count: min(6 + diff / 2, 12)),
+                                              rows: rows, cols: cols), blocked: stones + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.score(target: target), .collect(color: .red, count: 28 + diff)],
+                             obstacles: obstacles(stones, .stone) + obstacles(cages, .cage),
+                             target: target, holes: holes)
+            } else if i % 3 == 1 {
+                let chocolates = excluding(clamped(pos([(1,1),(1,cols-2),(rows-2,1),(rows-2,cols-2),
+                                                        (rows/2,cols/2),(0,cols/2),(rows-1,cols/2)]),
+                                                   rows: rows, cols: cols), blocked: holes)
+                let jellys = excluding(clamped(diamondJelly(rows: rows, cols: cols), rows: rows, cols: cols),
+                                       blocked: chocolates + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.eliminateChocolate, .clearAllJelly],
+                             obstacles: obstacles(chocolates, .chocolate)
+                                 + obstacles(jellys, diff >= 10 ? .jelly2 : .jelly1),
+                             target: target, holes: holes)
+            } else {
+                let chests = excluding(clamped(chestPattern(index: i, count: min(4 + diff / 3, 10)),
+                                               rows: rows, cols: cols), blocked: holes)
+                let ices = excluding(clamped(growingIcePattern(index: i, count: min(diff + 8, 20)),
+                                             rows: rows, cols: cols), blocked: chests + holes)
+                return mixed(id, world: w, rows: rows, cols: cols, moves: moves, colors: 6,
+                             objectives: [.openChests(count: chests.count), .breakIce(count: ices.count)],
+                             obstacles: obstacles(chests, .chest2) + obstacles(ices, .ice),
+                             target: target, holes: holes)
+            }
+        }
+    }
+
+    /// boss 目标分：与常规关同一条公式再乘 1.25，确保严格高于相邻关且全程连续。
+    private static func bossTarget(world w: Int, diff: Int) -> Int {
+        ((w - 5) * 15000 + diff * 5000) * 5 / 4
+    }
+
+    /// 手工 boss 关（每世界第 10/20 关）：复合目标 + 跨机制混搭，步数紧、目标高，
+    /// 是付费续命的设计卡点。数值经 starThresholds 同链路计算保持星级一致性。
+    private static func bossLevel(id: Int, world: Int) -> Level {
+        // 中段 boss diff=10，终局 boss diff=20
+        let bossDiff = (id % 20 == 0) ? 20 : 10
+        let t = bossTarget(world: world, diff: bossDiff)
+
+        switch id {
+        case 210: // W11 中段：冰封钻石阵 + 双传送门
+            let portals = portalPattern(index: 9, count: 2)
+            let jellys = excluding(diamondJelly(rows: 9, cols: 9), blocked: portalCells(portals))
+            let ices = excluding(growingIcePattern(index: 9, count: 20),
+                                 blocked: portalCells(portals) + jellys)
+            return mixed(id, world: 11, rows: 9, cols: 9, moves: 24, colors: 6,
+                         objectives: [.breakIce(count: ices.count), .clearAllJelly],
+                         obstacles: obstacles(jellys, .jelly1) + obstacles(ices, .ice),
+                         target: t, portalLinks: portals)
+        case 220: // W11 终局：全边框冰 + 中心冰核 + 石头
+            let ices = unique(outerIce(rows: 9, cols: 9) + centerJelly(rows: 9, cols: 9, size: 3))
+                .filter { !($0.row == 4 && $0.col == 4) }
+            return mixed(id, world: 11, rows: 9, cols: 9, moves: 26, colors: 6,
+                         objectives: [.breakIce(count: ices.count), .score(target: t)],
+                         obstacles: obstacles(ices, .ice) + obstacles(pos([(4,4)]), .stone),
+                         target: t)
+        case 230: // W12 中段：钥匙锁 + 笼网
+            let layout = keyLockPattern(index: 2, count: 5)
+            let cages = excluding(cagePattern(index: 4, count: 8), blocked: layout.keys + layout.locks)
+            return mixed(id, world: 12, rows: 9, cols: 9, moves: 25, colors: 6,
+                         objectives: [.collectKeys(count: layout.keys.count), .score(target: t)],
+                         obstacles: obstacles(layout.keys, .key) + obstacles(layout.locks, .lock)
+                             + obstacles(cages, .cage),
+                         target: t)
+        case 240: // W12 终局：石头十字 + 满场笼子
+            let stones = pos([(4,2),(4,4),(4,6),(2,4),(6,4)])
+            return mixed(id, world: 12, rows: 9, cols: 9, moves: 27, colors: 6,
+                         objectives: [.score(target: t), .collect(color: .yellow, count: 46)],
+                         obstacles: obstacles(stones, .stone)
+                             + obstacles(excluding(cagePattern(index: 7, count: 12), blocked: stones), .cage),
+                         target: t)
+        case 250: // W13 中段：巧克力扩散 + 双层果冻盘
+            let chocolates = pos([(0,0),(0,8),(8,0),(8,8),(4,4)])
+            return mixed(id, world: 13, rows: 9, cols: 9, moves: 26, colors: 6,
+                         objectives: [.eliminateChocolate, .clearAllJelly],
+                         obstacles: obstacles(chocolates, .chocolate)
+                             + obstacles(excluding(checkerJelly(rows: 9, cols: 9), blocked: chocolates), .jelly2),
+                         target: t)
+        case 260: // W13 终局：巧克力走廊 + 强化宝箱
+            let chocolates = pos([(2,0),(2,8),(6,0),(6,8),(0,4),(8,4)])
+            let chests = excluding(chestPattern(index: 5, count: 8), blocked: chocolates)
+            return mixed(id, world: 13, rows: 9, cols: 9, moves: 28, colors: 6,
+                         objectives: [.openChests(count: chests.count), .eliminateChocolate],
+                         obstacles: obstacles(chocolates, .chocolate) + obstacles(chests, .chest2),
+                         target: t)
+        case 270: // W14 中段：双传送门 + 外环冰 + 宝箱
+            let portals = portalPattern(index: 3, count: 2)
+            let ices = excluding(outerIce(rows: 9, cols: 9), blocked: portalCells(portals))
+            let chests = excluding(chestPattern(index: 8, count: 6),
+                                   blocked: portalCells(portals) + ices)
+            return mixed(id, world: 14, rows: 9, cols: 9, moves: 25, colors: 6,
+                         objectives: [.openChests(count: chests.count), .breakIce(count: ices.count)],
+                         obstacles: obstacles(ices, .ice) + obstacles(chests, .chest2),
+                         target: t, portalLinks: portals)
+        case 280: // W14 终局：角洞异形 + 全目标三连
+            let holes = cornerHoles4(rows: 9, cols: 9)
+            let jellys = excluding(diamondJelly(rows: 9, cols: 9), blocked: holes)
+            let ices = excluding(diagonalIce(rows: 9, cols: 9), blocked: holes + jellys)
+            return mixed(id, world: 14, rows: 9, cols: 9, moves: 28, colors: 6,
+                         objectives: [.clearAllJelly, .breakIce(count: ices.count), .score(target: t)],
+                         obstacles: obstacles(jellys, .jelly2) + obstacles(ices, .ice),
+                         target: t, holes: holes)
+        case 290: // W15 中段：石头堡垒 + 巧克力 + 笼子
+            let stones = pos([(3,3),(3,5),(5,3),(5,5)])
+            let chocolates = pos([(0,4),(4,0),(4,8),(8,4)])
+            return mixed(id, world: 15, rows: 9, cols: 9, moves: 27, colors: 6,
+                         objectives: [.eliminateChocolate, .score(target: t)],
+                         obstacles: obstacles(stones, .stone) + obstacles(chocolates, .chocolate)
+                             + obstacles(excluding(cagePattern(index: 9, count: 10),
+                                                   blocked: stones + chocolates), .cage),
+                         target: t)
+        default: // 300 全游戏终局：五机制同台
+            let stones = pos([(4,4)])
+            let chocolates = pos([(0,0),(0,8),(8,0),(8,8)])
+            let chests = excluding(chestPattern(index: 9, count: 6), blocked: stones + chocolates)
+            let jellys = excluding(checkerJelly(rows: 9, cols: 9),
+                                   blocked: stones + chocolates + chests)
+            return mixed(id, world: 15, rows: 9, cols: 9, moves: 30, colors: 6,
+                         objectives: [.openChests(count: chests.count), .eliminateChocolate, .score(target: t)],
+                         obstacles: obstacles(stones, .stone) + obstacles(chocolates, .chocolate)
+                             + obstacles(chests, .chest2) + obstacles(jellys, .jelly1),
+                         target: t)
+        }
     }
 
     // MARK: - World builders

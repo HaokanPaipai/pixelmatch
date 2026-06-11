@@ -202,3 +202,26 @@
 "encourage.fail.1" = "!كل خبير كان مبتدئًا يومًا ما";
 "encourage.fail.2" = "!كانت لوحة صعبة — يمكنك النجاح";
 "encourage.fail.3" = ".قريب جدًا! جرّب حركة أولى مختلفة";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "خليج الشفق";
+"world.12" = "ورشة التروس";
+"world.13" = "الغابة الغامضة";
+"world.14" = "ميناء النجوم";
+"world.15" = "قمة السبج";
+"weekly.title" = "تحدي الأسبوع";
+"weekly.time_left" = "متبقٍ %@";
+"weekly.claim" = "استلام";
+"weekly.done" = "!اكتمل";
+"pass.title" = "بطاقة الموسم";
+"pass.free_track" = "مجاني";
+"pass.premium_track" = "مميز";
+"pass.unlock_cta" = "فتح المميز";
+"pass.season_ends" = "نهاية الموسم: %@";
+"pass.level" = "مستوى %d";
+"pass.points" = "%d نقطة";
+"pass.purchased" = "المميز مفعّل";
+"pass.claim" = "استلام";
+"pass.locked" = "مقفل";
+"pass.claimed" = "✓";
+"iap.season_pass" = "بطاقة الموسم";

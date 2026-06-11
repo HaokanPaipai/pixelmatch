@@ -202,3 +202,26 @@
 "encourage.fail.1" = "達人も最初は初心者だった!";
 "encourage.fail.2" = "難しいステージだった — 次はいける!";
 "encourage.fail.3" = "惜しい! 最初の一手を変えてみよう。";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "オーロラ湾";
+"world.12" = "歯車工房";
+"world.13" = "神秘の森";
+"world.14" = "星の港";
+"world.15" = "黒曜峰";
+"weekly.title" = "ウィークリーチャレンジ";
+"weekly.time_left" = "残り %@";
+"weekly.claim" = "受け取る";
+"weekly.done" = "達成!";
+"pass.title" = "シーズンパス";
+"pass.free_track" = "無料";
+"pass.premium_track" = "プレミアム";
+"pass.unlock_cta" = "プレミアムを解除";
+"pass.season_ends" = "シーズン終了: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d pt";
+"pass.purchased" = "プレミアム有効";
+"pass.claim" = "受け取る";
+"pass.locked" = "ロック中";
+"pass.claimed" = "✓";
+"iap.season_pass" = "シーズンパス";

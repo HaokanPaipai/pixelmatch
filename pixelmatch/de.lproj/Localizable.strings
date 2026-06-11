@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Jeder Meister hat mal klein angefangen!";
 "encourage.fail.2" = "Das Level war hart — du schaffst das!";
 "encourage.fail.3" = "So nah dran! Probiere einen anderen ersten Zug.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Polarlichtbucht";
+"world.12" = "Zahnradwerk";
+"world.13" = "Mystischer Hain";
+"world.14" = "Sternenhafen";
+"world.15" = "Obsidiangipfel";
+"weekly.title" = "WOCHEN-CHALLENGE";
+"weekly.time_left" = "Noch %@";
+"weekly.claim" = "ABHOLEN";
+"weekly.done" = "GESCHAFFT!";
+"pass.title" = "SAISONPASS";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "PREMIUM FREISCHALTEN";
+"pass.season_ends" = "Saisonende: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d Pkt.";
+"pass.purchased" = "PREMIUM AKTIV";
+"pass.claim" = "ABHOLEN";
+"pass.locked" = "GESPERRT";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Saisonpass";

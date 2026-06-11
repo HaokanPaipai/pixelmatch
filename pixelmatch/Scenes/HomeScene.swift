@@ -347,6 +347,92 @@ final class HomeScene: SKScene {
         chestBtn.zPosition = 10
         chestBtn.onTap = { [weak self] in self?.showChest() }
         addChild(chestBtn)
+
+        // 赛季通行证 + 每周挑战（一行两钮，挂在任务行下方）
+        let passRowY = questY - 52
+        let pass = SeasonPassManager.shared
+        let passTitle = pass.claimableCount > 0
+            ? L10n.tr("pass.title", fallback: "SEASON PASS") + " (\(pass.claimableCount))"
+            : L10n.tr("pass.title", fallback: "SEASON PASS")
+        let passBtn = PixelButton(title: "🎫 " + passTitle,
+                                  icon: .gift,
+                                  size: CGSize(width: 150, height: 44),
+                                  style: .secondary,
+                                  color: UIColor(hex: "#FFD700"),
+                                  fontSize: 12)
+        passBtn.position = CGPoint(x: -82, y: passRowY)
+        passBtn.zPosition = 10
+        passBtn.onTap = { [weak self] in self?.showSeasonPass() }
+        addChild(passBtn)
+        if pass.claimableCount > 0 {
+            passBtn.run(.repeatForever(.sequence([
+                .scale(to: 1.04, duration: 0.5),
+                .scale(to: 1.0, duration: 0.5)
+            ])))
+        }
+
+        let weekly = LiveEventManager.shared
+        let weeklyTitle = weekly.isWeeklyComplete && !weekly.isWeeklyClaimed
+            ? L10n.tr("weekly.done", fallback: "COMPLETED!")
+            : "\(weekly.weeklyProgress)/\(weekly.weeklyChallenge().target)"
+        let weeklyBtn = PixelButton(title: "🏆 " + weeklyTitle,
+                                    icon: .leaderboard,
+                                    size: CGSize(width: 150, height: 44),
+                                    style: .secondary,
+                                    color: UIColor(hex: "#5AC8FA"),
+                                    fontSize: 12)
+        weeklyBtn.position = CGPoint(x: 82, y: passRowY)
+        weeklyBtn.zPosition = 10
+        weeklyBtn.onTap = { [weak self] in self?.showWeeklyChallenge() }
+        addChild(weeklyBtn)
+    }
+
+    // MARK: - Season Pass & Weekly Challenge
+
+    private func showSeasonPass() {
+        AudioManager.shared.play(.buttonTap)
+        let dialog = SeasonPassDialog(sceneSize: size)
+        dialog.zPosition = 100
+        addChild(dialog)
+        dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+        dialog.onUnlockPremium = { [weak self, weak dialog] in
+            guard let self = self else { return }
+            IAPManager.shared.purchase(.seasonPass) { [weak self] success, message in
+                DispatchQueue.main.async {
+                    if success {
+                        dialog?.dismiss()
+                        self?.showSeasonPass()   // 重开刷新付费轨状态
+                    } else if let message = message {
+                        self?.showFloatingText(message, color: UIColor(hex: "#FF3B30"))
+                    }
+                }
+            }
+        }
+    }
+
+    private func showWeeklyChallenge() {
+        AudioManager.shared.play(.buttonTap)
+        let weekly = LiveEventManager.shared
+        let challenge = weekly.weeklyChallenge()
+
+        if weekly.isWeeklyComplete && !weekly.isWeeklyClaimed {
+            if let reward = weekly.claimWeeklyReward() {
+                HapticsManager.shared.win()
+                AudioManager.shared.play(.coinCollect)
+                showRewardPopup(title: "🏆 " + L10n.tr("weekly.done", fallback: "COMPLETED!"),
+                                coins: reward.coins,
+                                diamonds: reward.diamonds)
+            }
+            return
+        }
+
+        // 未完成：浮层展示挑战详情与剩余时间
+        let status = weekly.isWeeklyClaimed
+            ? L10n.tr("weekly.done", fallback: "COMPLETED!")
+            : "\(challenge.kind.title): \(weekly.weeklyProgress)/\(challenge.target)"
+        let timeLeft = L10n.fmt("weekly.time_left", weekly.weeklyTimeLeftString, fallback: "%@ left")
+        showFloatingText("🏆 \(L10n.tr("weekly.title", fallback: "WEEKLY CHALLENGE"))\n\(status) · \(timeLeft)",
+                         color: UIColor(hex: "#5AC8FA"))
     }
 
     private func setupBottomBar() {

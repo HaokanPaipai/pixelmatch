@@ -1094,6 +1094,12 @@ final class GameScene: SKScene {
         PlayerData.shared.addCoins(coins)
         PlayerData.shared.totalMatches += 1
         LiveOpsManager.shared.recordLevelWin(usedBooster: usedBoosterThisLevel)
+        // 赛季通行证积分：boss 关（每世界第 10/20 关）加成，星星另计
+        let isBossLevel = level.id % 10 == 0
+        SeasonPassManager.shared.addPoints(
+            (isBossLevel ? SeasonPassManager.pointsPerBossWin : SeasonPassManager.pointsPerLevelWin)
+                + stars * SeasonPassManager.pointsPerStar,
+            source: isBossLevel ? "boss_win" : "level_win")
         AnalyticsManager.shared.track(.levelWin,
                                       properties: ["level": "\(level.id)",
                                                    "score": "\(currentScore)",

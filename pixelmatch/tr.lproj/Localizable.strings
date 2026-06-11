@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Her usta bir zamanlar acemiydi!";
 "encourage.fail.2" = "Zor bir bölümdü — yapabilirsin!";
 "encourage.fail.3" = "Çok yaklaştın! Farklı bir ilk hamle dene.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Şafak Koyu";
+"world.12" = "Dişli Atölyesi";
+"world.13" = "Gizemli Koru";
+"world.14" = "Yıldız Limanı";
+"world.15" = "Obsidyen Zirvesi";
+"weekly.title" = "HAFTALIK MEYDAN OKUMA";
+"weekly.time_left" = "%@ kaldı";
+"weekly.claim" = "AL";
+"weekly.done" = "TAMAMLANDI!";
+"pass.title" = "SEZON BİLETİ";
+"pass.free_track" = "ÜCRETSİZ";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "PREMIUM AÇ";
+"pass.season_ends" = "Sezon bitişi: %@";
+"pass.level" = "SV %d";
+"pass.points" = "%d puan";
+"pass.purchased" = "PREMIUM AKTİF";
+"pass.claim" = "AL";
+"pass.locked" = "KİLİTLİ";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Sezon Bileti";

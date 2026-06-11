@@ -140,6 +140,7 @@ final class LiveOpsManager {
         let reward = RewardBundle(coins: EconomyConfig.shared.questRewardCoins,
                                   diamonds: EconomyConfig.shared.questRewardDiamonds)
         apply(reward)
+        SeasonPassManager.shared.addPoints(SeasonPassManager.pointsPerQuestClaim, source: "quest")
         AnalyticsManager.shared.track(.questClaimed,
                                       properties: ["quest": id,
                                                    "coins": "\(reward.coins)",
@@ -168,6 +169,8 @@ final class LiveOpsManager {
 
     private func increment(_ kind: DailyQuestKind, by amount: Int) {
         refreshDailyQuestsIfNeeded()
+        // 周挑战进度统一在此转发（原始量，不吃日常任务的活动加成）
+        LiveEventManager.shared.recordWeeklyProgress(kind: kind, amount: amount)
         let adjustedAmount = amount * LiveEventManager.shared.progressMultiplier(for: kind)
         var quests = loadQuests()
         for index in quests.indices where quests[index].kind == kind && !quests[index].claimed {

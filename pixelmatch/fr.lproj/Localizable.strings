@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Tout maître a un jour été débutant !";
 "encourage.fail.2" = "Ce niveau était dur — vous allez y arriver !";
 "encourage.fail.3" = "Si proche ! Essayez un autre premier coup.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Baie des Aurores";
+"world.12" = "Atelier des Rouages";
+"world.13" = "Bosquet Mystique";
+"world.14" = "Port des Étoiles";
+"world.15" = "Pic d'Obsidienne";
+"weekly.title" = "DÉFI HEBDO";
+"weekly.time_left" = "%@ restant";
+"weekly.claim" = "RÉCUPÉRER";
+"weekly.done" = "TERMINÉ !";
+"pass.title" = "PASS DE SAISON";
+"pass.free_track" = "GRATUIT";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "DÉBLOQUER PREMIUM";
+"pass.season_ends" = "Fin de saison : %@";
+"pass.level" = "NIV %d";
+"pass.points" = "%d pts";
+"pass.purchased" = "PREMIUM ACTIF";
+"pass.claim" = "RÉCUPÉRER";
+"pass.locked" = "VERROUILLÉ";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Pass de saison";

@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Elke meester was ooit een beginner!";
 "encourage.fail.2" = "Dat bord was lastig — jij kunt dit!";
 "encourage.fail.3" = "Zo dichtbij! Probeer een andere eerste zet.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Auroraborgbaai";
+"world.12" = "Tandwielwerkplaats";
+"world.13" = "Mystiek Bos";
+"world.14" = "Sterrenhaven";
+"world.15" = "Obsidiaanpiek";
+"weekly.title" = "WEEKUITDAGING";
+"weekly.time_left" = "%@ over";
+"weekly.claim" = "CLAIMEN";
+"weekly.done" = "VOLTOOID!";
+"pass.title" = "SEIZOENSPAS";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "PREMIUM ONTGRENDELEN";
+"pass.season_ends" = "Seizoen eindigt: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d ptn";
+"pass.purchased" = "PREMIUM ACTIEF";
+"pass.claim" = "CLAIMEN";
+"pass.locked" = "VERGRENDELD";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Seizoenspas";

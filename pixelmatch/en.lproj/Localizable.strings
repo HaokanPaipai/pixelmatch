@@ -267,3 +267,26 @@
 "encourage.fail.1" = "Every master was once a beginner!";
 "encourage.fail.2" = "That board was tough — you got this!";
 "encourage.fail.3" = "So near! Try a different first move.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Aurora Bay";
+"world.12" = "Gear Works";
+"world.13" = "Mystic Grove";
+"world.14" = "Star Harbor";
+"world.15" = "Obsidian Peak";
+"weekly.title" = "WEEKLY CHALLENGE";
+"weekly.time_left" = "%@ left";
+"weekly.claim" = "CLAIM";
+"weekly.done" = "COMPLETED!";
+"pass.title" = "SEASON PASS";
+"pass.free_track" = "FREE";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "UNLOCK PREMIUM";
+"pass.season_ends" = "Season ends: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d pts";
+"pass.purchased" = "PREMIUM ACTIVE";
+"pass.claim" = "CLAIM";
+"pass.locked" = "LOCKED";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Season Pass";

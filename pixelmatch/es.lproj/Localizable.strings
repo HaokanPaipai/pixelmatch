@@ -202,3 +202,26 @@
 "encourage.fail.1" = "¡Todo maestro fue antes principiante!";
 "encourage.fail.2" = "Ese tablero era difícil — ¡tú puedes!";
 "encourage.fail.3" = "¡Tan cerca! Prueba otro primer movimiento.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Bahía Aurora";
+"world.12" = "Taller de Engranajes";
+"world.13" = "Arboleda Mística";
+"world.14" = "Puerto Estelar";
+"world.15" = "Pico de Obsidiana";
+"weekly.title" = "RETO SEMANAL";
+"weekly.time_left" = "Queda %@";
+"weekly.claim" = "RECLAMAR";
+"weekly.done" = "¡COMPLETADO!";
+"pass.title" = "PASE DE TEMPORADA";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "DESBLOQUEAR PREMIUM";
+"pass.season_ends" = "Fin de temporada: %@";
+"pass.level" = "NV %d";
+"pass.points" = "%d pts";
+"pass.purchased" = "PREMIUM ACTIVO";
+"pass.claim" = "RECLAMAR";
+"pass.locked" = "BLOQUEADO";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Pase de temporada";

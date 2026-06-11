@@ -202,3 +202,26 @@
 "encourage.fail.1" = "Hver mester var en gang nybegynner!";
 "encourage.fail.2" = "Det brettet var vanskelig — du klarer det!";
 "encourage.fail.3" = "Så nærme! Prøv et annet første trekk.";
+
+/* Phase 2: 新世界 / 周挑战 / 赛季通行证 */
+"world.11" = "Nordlysbukta";
+"world.12" = "Tannhjulverkstedet";
+"world.13" = "Mystisk Lund";
+"world.14" = "Stjernehavnen";
+"world.15" = "Obsidiantoppen";
+"weekly.title" = "UKESUTFORDRING";
+"weekly.time_left" = "%@ igjen";
+"weekly.claim" = "HENT";
+"weekly.done" = "FULLFØRT!";
+"pass.title" = "SESONGPASS";
+"pass.free_track" = "GRATIS";
+"pass.premium_track" = "PREMIUM";
+"pass.unlock_cta" = "LÅS OPP PREMIUM";
+"pass.season_ends" = "Sesongen slutter: %@";
+"pass.level" = "LV %d";
+"pass.points" = "%d p";
+"pass.purchased" = "PREMIUM AKTIV";
+"pass.claim" = "HENT";
+"pass.locked" = "LÅST";
+"pass.claimed" = "✓";
+"iap.season_pass" = "Sesongpass";
