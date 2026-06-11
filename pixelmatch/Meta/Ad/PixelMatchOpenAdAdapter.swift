@@ -34,6 +34,7 @@ final class PixelMatchOpenAdAdapter: NSObject, OpenAdAdapting {
     private var hkAdSplash: HKAdSplash?
 
     var isAdAvailable: Bool {
+
         guard isOverseas else { return false } // HKAdSplash 为 load+show 一体，无缓存语义
         guard appOpenAd != nil, let t = loadTime else { return false }
         return Date().timeIntervalSince(t) < timeoutInterval

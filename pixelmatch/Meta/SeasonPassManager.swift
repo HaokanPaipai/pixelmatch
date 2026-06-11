@@ -71,7 +71,7 @@ final class SeasonPassManager {
     }
 
     var level: Int {
-        min(SeasonPassManager.maxLevel, points / SeasonPassManager.pointsPerLevel)
+        max(0, min(SeasonPassManager.maxLevel, points / SeasonPassManager.pointsPerLevel))
     }
 
     func addPoints(_ amount: Int, source: String) {
@@ -135,8 +135,10 @@ final class SeasonPassManager {
 
     var claimableCount: Int {
         syncSeason()
+        let unlockedLevel = level
+        guard unlockedLevel >= 1 else { return 0 }
         var count = 0
-        for lv in 1...level {
+        for lv in 1...unlockedLevel {
             if !isClaimed(level: lv, premium: false) { count += 1 }
             if isPremium && !isClaimed(level: lv, premium: true) { count += 1 }
         }
