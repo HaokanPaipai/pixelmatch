@@ -308,7 +308,7 @@ final class HomeScene: SKScene {
                                        fontSize: 18)
             dailyBtn.position = CGPoint(x: 0, y: playY - 78)
             dailyBtn.zPosition = 10
-            dailyBtn.onTap = { [weak self] in self?.claimDailyReward() }
+            dailyBtn.onTap = { [weak self, weak dailyBtn] in self?.claimDailyReward(button: dailyBtn) }
             addChild(dailyBtn)
 
             dailyBtn.run(.repeatForever(.sequence([
@@ -539,8 +539,21 @@ final class HomeScene: SKScene {
         }
     }
 
-    private func claimDailyReward() {
-        let reward = PlayerData.shared.claimDailyReward()
+    private func claimDailyReward(button: PixelButton? = nil) {
+        guard let reward = PlayerData.shared.claimDailyReward() else {
+            button?.setEnabled(false)
+            button?.removeFromParent()
+            return
+        }
+
+        button?.onTap = nil
+        button?.setEnabled(false)
+        button?.removeAllActions()
+        button?.run(.sequence([
+            .fadeOut(withDuration: 0.18),
+            .removeFromParent()
+        ]))
+
         showRewardPopup(title: L10n.tr("home.daily_reward", fallback: "🎁 DAILY REWARD!"),
                         coins: reward.coins,
                         diamonds: reward.diamonds,

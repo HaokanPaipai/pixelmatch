@@ -22,6 +22,9 @@ final class MapScene: SKScene {
     private var visibleH: CGFloat { size.height - headerH - safeAreaInsets.bottom }
     private var visibleTopY: CGFloat { visibleCenterY + visibleH / 2 }
     private var visibleBottomY: CGFloat { visibleCenterY - visibleH / 2 }
+    private var hasActiveDialog: Bool {
+        children.contains { $0 is DialogNode }
+    }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -277,10 +280,13 @@ final class MapScene: SKScene {
     // MARK: - Level Detail
 
     private func showLevelDetail(_ level: Level) {
+        guard !hasActiveDialog else { return }
         guard PlayerData.shared.isLevelUnlocked(level.id) else {
             shake()
             return
         }
+
+        cancelMapTouchTracking()
 
         let dialog = LevelDetailDialog(level: level, sceneSize: size)
         dialog.zPosition = 50
@@ -369,6 +375,11 @@ final class MapScene: SKScene {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        guard !hasActiveDialog else {
+            cancelMapTouchTracking()
+            return
+        }
+
         let loc = touch.location(in: self)
         isTrackingScroll = loc.y <= visibleTopY && loc.y >= visibleBottomY
         touchStart = loc
@@ -379,6 +390,10 @@ final class MapScene: SKScene {
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !hasActiveDialog else {
+            cancelMapTouchTracking()
+            return
+        }
         guard isTrackingScroll, let touch = touches.first, let start = touchStart else { return }
         let current = touch.location(in: self)
         let dy = current.y - lastTouchY
@@ -403,6 +418,7 @@ final class MapScene: SKScene {
             isTrackingScroll = false
         }
 
+        guard !hasActiveDialog else { return }
         guard isTrackingScroll, !hasScrolled, let touch = touches.first else { return }
         if let levelButton = levelButton(at: touch.location(in: self)) {
             levelButton.triggerTap()
@@ -410,8 +426,7 @@ final class MapScene: SKScene {
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchStart = nil
-        isTrackingScroll = false
+        cancelMapTouchTracking()
     }
 
     /// Children check this before treating their own touch as a tap.
@@ -419,6 +434,7 @@ final class MapScene: SKScene {
 
     override func update(_ currentTime: TimeInterval) {
         guard scrollNode != nil else { return }
+        guard !hasActiveDialog else { scrollVelocity = 0; return }
         guard abs(scrollVelocity) > 0.5 else { scrollVelocity = 0; return }
         let newY = scrollNode.position.y + scrollVelocity
         let clamped = clampScrollY(newY)
@@ -434,6 +450,13 @@ final class MapScene: SKScene {
         let minY = visibleTopY
         let maxY = max(minY, visibleBottomY + contentHeight)
         return max(minY, min(maxY, y))
+    }
+
+    private func cancelMapTouchTracking() {
+        touchStart = nil
+        hasScrolled = false
+        isTrackingScroll = false
+        scrollVelocity = 0
     }
 
     private func levelButton(at scenePoint: CGPoint) -> LevelButtonNode? {

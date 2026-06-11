@@ -2,6 +2,32 @@ import SpriteKit
 
 // MARK: - Base Dialog
 
+private final class ModalTouchCatcherNode: SKNode {
+    private let hitSize: CGSize
+
+    init(size: CGSize) {
+        self.hitSize = size
+        super.init()
+        isUserInteractionEnabled = true
+
+        let overlay = SKShapeNode(rectOf: size)
+        overlay.fillColor = UIColor.black.withAlphaComponent(0.65)
+        overlay.strokeColor = .clear
+        addChild(overlay)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func contains(_ p: CGPoint) -> Bool {
+        abs(p.x) <= hitSize.width / 2 && abs(p.y) <= hitSize.height / 2
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {}
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {}
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {}
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {}
+}
+
 class DialogNode: SKNode {
 
     let panel: SKShapeNode
@@ -13,9 +39,7 @@ class DialogNode: SKNode {
         self.sceneSize = sceneSize
 
         // Overlay
-        let overlay = SKShapeNode(rectOf: sceneSize)
-        overlay.fillColor = UIColor.black.withAlphaComponent(0.65)
-        overlay.strokeColor = .clear
+        let overlay = ModalTouchCatcherNode(size: sceneSize)
         overlay.zPosition = -1
         panel = SKShapeNode(rectOf: size, cornerRadius: 16)
         panel.fillColor = UIColor(hex: "#0D1B2A")

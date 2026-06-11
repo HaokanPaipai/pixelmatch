@@ -287,7 +287,9 @@ final class PlayerData {
         return !Calendar.current.isDateInToday(last)
     }
 
-    func claimDailyReward() -> (coins: Int, diamonds: Int) {
+    func claimDailyReward() -> (coins: Int, diamonds: Int)? {
+        guard canClaimDailyReward else { return nil }
+
         let streak = min(dailyStreak + 1, EconomyConfig.shared.dailyStreakCap)
         dailyStreak = streak
         lastDailyRewardDate = Date()

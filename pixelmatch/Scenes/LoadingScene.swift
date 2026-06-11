@@ -102,7 +102,8 @@ final class LoadingScene: SKScene {
 
         // Version
         let versionLbl = SKLabelNode(fontNamed: "Courier")
-        versionLbl.text = "v1.0.0"
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        versionLbl.text = "v" + version
         versionLbl.fontSize = 11
         versionLbl.fontColor = UIColor(hex: "#334466")
         versionLbl.verticalAlignmentMode = .center
