@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Se annonse";
 "ad.watch.message" = "Simulerer annonse (5 sekunder)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SÅ NÆRME!";
+"dialog.so_close.message" = "Du nådde %d%% — ett forsøk til!";
+"result.fail.progress" = "Du klarte %d%%";
+"encourage.fail.1" = "Hver mester var en gang nybegynner!";
+"encourage.fail.2" = "Det brettet var vanskelig — du klarer det!";
+"encourage.fail.3" = "Så nærme! Prøv et annet første trekk.";

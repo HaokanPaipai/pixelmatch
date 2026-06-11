@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "広告を見る";
 "ad.watch.message" = "広告表示をシミュレーション中 (5秒)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "あと少し!";
+"dialog.so_close.message" = "%d%% まで到達 — もう一回挑戦!";
+"result.fail.progress" = "達成度 %d%%";
+"encourage.fail.1" = "達人も最初は初心者だった!";
+"encourage.fail.2" = "難しいステージだった — 次はいける!";
+"encourage.fail.3" = "惜しい! 最初の一手を変えてみよう。";

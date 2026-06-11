@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Assistir a anúncio";
 "ad.watch.message" = "Simulando anúncio (5 segundos)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "QUASE LÁ!";
+"dialog.so_close.message" = "Você chegou a %d%% — mais uma tentativa!";
+"result.fail.progress" = "Você completou %d%%";
+"encourage.fail.1" = "Todo mestre já foi iniciante!";
+"encourage.fail.2" = "Essa fase era difícil — você consegue!";
+"encourage.fail.3" = "Tão perto! Tente outro primeiro movimento.";

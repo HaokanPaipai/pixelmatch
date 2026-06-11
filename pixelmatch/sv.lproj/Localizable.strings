@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Se annons";
 "ad.watch.message" = "Simulerar annons (5 sekunder)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SÅ NÄRA!";
+"dialog.so_close.message" = "Du nådde %d%% — ett försök till!";
+"result.fail.progress" = "Du klarade %d%%";
+"encourage.fail.1" = "Varje mästare var en gång nybörjare!";
+"encourage.fail.2" = "Den banan var svår — du fixar det!";
+"encourage.fail.3" = "Så nära! Prova ett annat första drag.";

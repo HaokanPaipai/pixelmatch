@@ -117,15 +117,18 @@ final class AudioManager {
 
     // MARK: - Sound Synthesis (8-bit pixel style)
 
-    func play(_ sound: SoundEffect) {
+    /// pitchStep：音高阶梯（每级 +2 半音，封顶 +8 级），用于 match 大小 / 连锁层级的听感递进。
+    /// 连续消除音调越来越高是三消"爽感"的核心听觉反馈（Candy Crush 同款手法）。
+    func play(_ sound: SoundEffect, pitchStep: Int = 0) {
         guard PlayerData.shared.soundEnabled else { return }
+        let step = max(0, min(pitchStep, 8))
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.synthesize(sound)
+            self?.synthesize(sound, pitchStep: step)
         }
     }
 
-    private func synthesize(_ sound: SoundEffect) {
-        let buffer = makeBuffer(for: sound)
+    private func synthesize(_ sound: SoundEffect, pitchStep: Int = 0) {
+        let buffer = makeBuffer(for: sound, pitchStep: pitchStep)
         guard let buf = buffer else { return }
 
         if !isEngineRunning {
@@ -137,11 +140,17 @@ final class AudioManager {
         if !playerNode.isPlaying { playerNode.play() }
     }
 
-    private func makeBuffer(for sound: SoundEffect) -> AVAudioPCMBuffer? {
+    private func makeBuffer(for sound: SoundEffect, pitchStep: Int = 0) -> AVAudioPCMBuffer? {
         let sampleRate: Double = 44100
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
 
-        let params = sound.params
+        var params = sound.params
+        if pitchStep > 0 {
+            // 每级 +2 半音：ratio = 2^(step*2/12)
+            let ratio = pow(2.0, Double(pitchStep) * 2.0 / 12.0)
+            params.startFreq *= ratio
+            params.endFreq *= ratio
+        }
         let frameCount = AVAudioFrameCount(sampleRate * params.duration)
         guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else { return nil }
         buffer.frameLength = frameCount

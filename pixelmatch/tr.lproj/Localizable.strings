@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Reklam izle";
 "ad.watch.message" = "Reklam simüle ediliyor (5 saniye)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "ÇOK YAKLAŞTIN!";
+"dialog.so_close.message" = "%%%de ulaştın — bir deneme daha!";
+"result.fail.progress" = "%%%d tamamladın";
+"encourage.fail.1" = "Her usta bir zamanlar acemiydi!";
+"encourage.fail.2" = "Zor bir bölümdü — yapabilirsin!";
+"encourage.fail.3" = "Çok yaklaştın! Farklı bir ilk hamle dene.";

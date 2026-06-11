@@ -112,31 +112,46 @@ final class OutOfMovesDialog: DialogNode {
     var onWatchAd: (() -> Void)?   // 看激励视频 +5 步（非 VIP 才挂载到 HKAdKit "extraMoves" placement）
     var onQuit: (() -> Void)?
 
-    init(sceneSize: CGSize, movesCount: Int = 5, diamondCost: Int = 10, hintText: String? = nil) {
+    /// completionRatio：本局目标完成度（0...1），≥0.8 触发"近胜"变体（SO CLOSE 标题
+    /// + 进度条 + 续命按钮脉冲）。近胜时刻续命转化率最高。
+    init(sceneSize: CGSize, movesCount: Int = 5, diamondCost: Int = 10,
+         hintText: String? = nil, completionRatio: Double = 0) {
         // 高度按"是否展示看广告按钮"动态：VIP 维持 340，非 VIP 拉到 400 留 +5 步入口。
         let hasHint = !(hintText?.isEmpty ?? true)
-        let height: CGFloat = PlayerData.shared.noAds ? (hasHint ? 370 : 340) : (hasHint ? 430 : 400)
+        let isNearWin = completionRatio >= 0.8
+        var height: CGFloat = PlayerData.shared.noAds ? (hasHint ? 370 : 340) : (hasHint ? 430 : 400)
+        if isNearWin { height += 30 }   // 近胜进度条占一行
         super.init(size: CGSize(width: 300, height: height), sceneSize: sceneSize)
-        buildUI(moves: movesCount, cost: diamondCost, hintText: hintText)
+        buildUI(moves: movesCount, cost: diamondCost, hintText: hintText,
+                completionRatio: completionRatio)
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
-    private func buildUI(moves: Int, cost: Int, hintText: String?) {
+    private func buildUI(moves: Int, cost: Int, hintText: String?, completionRatio: Double) {
         let hasHint = !(hintText?.isEmpty ?? true)
+        let isNearWin = completionRatio >= 0.8
         let panelHalf = panelSize.height / 2
         let titleY = panelHalf - 65
         let msgY = titleY - 55
-        let hintY = msgY - 28
-        let diamondY = hasHint ? hintY - 43 : msgY - 45
+        let progressY = msgY - 30
+        let hintY = (isNearWin ? progressY : msgY) - 28
+        let diamondY = hasHint ? hintY - 43 : (isNearWin ? progressY : msgY) - 45
         let haveY = diamondY - 40
         let quitY = -panelHalf + 38
         let adY = quitY + 55
         let continueY = PlayerData.shared.noAds ? quitY + 60 : adY + 58
 
-        addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"),
-                      y: titleY,
-                      color: UIColor(hex: "#FF3B30"))
+        if isNearWin {
+            addPixelTitle(L10n.tr("dialog.so_close.title", fallback: "SO CLOSE!"),
+                          y: titleY,
+                          color: UIColor(hex: "#FFCC00"))
+            addProgressBar(ratio: completionRatio, y: progressY)
+        } else {
+            addPixelTitle(L10n.tr("dialog.out_of_moves.title", fallback: "OUT OF MOVES!"),
+                          y: titleY,
+                          color: UIColor(hex: "#FF3B30"))
+        }
 
         let msgLbl = SKLabelNode(fontNamed: "Courier")
         msgLbl.text = L10n.fmt("dialog.out_of_moves.message", moves, fallback: "Continue with +%d moves?")
@@ -192,6 +207,13 @@ final class OutOfMovesDialog: DialogNode {
         continueBtn.position = CGPoint(x: 0, y: continueY)
         continueBtn.onTap = { [weak self] in self?.onContinue?() }
         addChild(continueBtn)
+        // 近胜时续命按钮轻微脉冲，引导玩家"就差一步"完成转化
+        if isNearWin && !VisualComfort.isReducedMotionEnabled {
+            continueBtn.run(.repeatForever(.sequence([
+                .scale(to: 1.05, duration: 0.45),
+                .scale(to: 1.0, duration: 0.45)
+            ])))
+        }
 
         // 看广告 +5 步：HKAdKit "extraMoves" placement 的承载按钮。仅非 VIP 显示。
         if !PlayerData.shared.noAds {
@@ -213,6 +235,46 @@ final class OutOfMovesDialog: DialogNode {
         quitBtn.position = CGPoint(x: 0, y: quitY)
         quitBtn.onTap = { [weak self] in self?.onQuit?() }
         addChild(quitBtn)
+    }
+
+    /// 像素风进度条：展示本局完成度百分比（近胜变体专用）
+    private func addProgressBar(ratio: Double, y: CGFloat) {
+        let barWidth: CGFloat = 200
+        let barHeight: CGFloat = 14
+
+        let track = SKShapeNode(rectOf: CGSize(width: barWidth, height: barHeight), cornerRadius: 3)
+        track.fillColor = UIColor(hex: "#07101D")
+        track.strokeColor = UIColor(hex: "#2255AA")
+        track.lineWidth = 1.5
+        track.position = CGPoint(x: 0, y: y)
+        addChild(track)
+
+        // fill 挂在左端锚点容器下，xScale 动画即可从左向右生长
+        let fillWidth = max(6, barWidth * CGFloat(ratio) - 4)
+        let fillAnchor = SKNode()
+        fillAnchor.position = CGPoint(x: -barWidth / 2 + 2, y: y)
+        fillAnchor.zPosition = 1
+        addChild(fillAnchor)
+        let fill = SKShapeNode(rectOf: CGSize(width: fillWidth, height: barHeight - 5), cornerRadius: 2)
+        fill.fillColor = UIColor(hex: "#FFCC00")
+        fill.strokeColor = .clear
+        fill.position = CGPoint(x: fillWidth / 2, y: 0)
+        fillAnchor.addChild(fill)
+
+        let pctLbl = SKLabelNode(fontNamed: "Courier-Bold")
+        pctLbl.text = "\(Int(ratio * 100))%"
+        pctLbl.fontSize = 12
+        pctLbl.fontColor = UIColor(hex: "#FFCC00")
+        pctLbl.verticalAlignmentMode = .center
+        pctLbl.horizontalAlignmentMode = .left
+        pctLbl.position = CGPoint(x: barWidth / 2 + 8, y: y)
+        addChild(pctLbl)
+
+        // 入场：从左向右生长到目标宽度
+        if !VisualComfort.isReducedMotionEnabled {
+            fillAnchor.xScale = 0.05
+            fillAnchor.run(.scaleX(to: 1.0, duration: 0.5))
+        }
     }
 }
 

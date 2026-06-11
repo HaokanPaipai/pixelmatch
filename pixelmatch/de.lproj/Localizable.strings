@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Werbung ansehen";
 "ad.watch.message" = "Werbeansicht wird simuliert (5 Sekunden)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SO KNAPP!";
+"dialog.so_close.message" = "Du warst bei %d%% — noch ein Versuch!";
+"result.fail.progress" = "Fortschritt: %d%%";
+"encourage.fail.1" = "Jeder Meister hat mal klein angefangen!";
+"encourage.fail.2" = "Das Level war hart — du schaffst das!";
+"encourage.fail.3" = "So nah dran! Probiere einen anderen ersten Zug.";

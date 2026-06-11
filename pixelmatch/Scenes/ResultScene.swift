@@ -9,6 +9,8 @@ final class ResultScene: SKScene {
     var score: Int = 0
     var coinsEarned: Int = 0
     var winStreak: Int = 0
+    /// 失败时的目标完成度（0...1），用于失败页展示进度与鼓励语
+    var completionRatio: Double = 0
 
     private var starNodes: [SKNode] = []
     private var safeAreaInsets: UIEdgeInsets = .zero
@@ -43,9 +45,14 @@ final class ResultScene: SKScene {
     }
 
     private func spawnConfetti() {
-        for i in 0..<30 {
+        // 数量随星级递增：纸屑密度本身就是"打得好"的视觉奖励
+        let count = [20, 20, 35, 50][max(0, min(stars, 3))]
+        let reducedMotion = VisualComfort.isReducedMotionEnabled
+
+        for i in 0..<(reducedMotion ? count / 3 : count) {
             let color = GemColor(rawValue: i % 6)!.primary
-            let sq = SKShapeNode(rectOf: CGSize(width: 8, height: 8))
+            let w = CGFloat.random(in: 5...10)
+            let sq = SKShapeNode(rectOf: CGSize(width: w, height: w * CGFloat.random(in: 0.5...1.0)))
             sq.fillColor = color
             sq.strokeColor = .clear
             sq.position = CGPoint(x: CGFloat.random(in: -size.width/2...size.width/2),
@@ -54,15 +61,20 @@ final class ResultScene: SKScene {
             addChild(sq)
 
             let delay = Double.random(in: 0...2)
+            let fallDur = Double.random(in: 3...5)
+            // 水平摇摆模拟纸片飘落
+            let sway = SKAction.repeatForever(.sequence([
+                .moveBy(x: CGFloat.random(in: 14...26), y: 0, duration: 0.45),
+                .moveBy(x: -CGFloat.random(in: 14...26), y: 0, duration: 0.45)
+            ]))
             sq.run(.sequence([
                 .wait(forDuration: delay),
-                .repeatForever(.sequence([
-                    .group([
-                        .moveBy(x: CGFloat.random(in: -30...30), y: -size.height * 1.5, duration: Double.random(in: 3...5)),
-                        .rotate(byAngle: .pi * CGFloat.random(in: 2...6), duration: Double.random(in: 3...5))
-                    ])
+                .repeatForever(.group([
+                    .moveBy(x: 0, y: -size.height * 1.5, duration: fallDur),
+                    .rotate(byAngle: .pi * CGFloat.random(in: 2...6), duration: fallDur)
                 ]))
             ]))
+            if !reducedMotion { sq.run(sway) }
         }
     }
 
@@ -261,11 +273,37 @@ final class ResultScene: SKScene {
                     .wait(forDuration: delay),
                     .scale(to: 1.3, duration: 0.15),
                     .scale(to: 1.0, duration: 0.1)
-                ])) {
-                    AudioManager.shared.play(.starEarn)
+                ])) { [weak self] in
+                    // 星星音效随序号升调 + 落位放射爆点
+                    AudioManager.shared.play(.starEarn, pitchStep: i * 2)
+                    self?.spawnStarBurst(at: container.position)
                 }
             }
             starNodes.append(container)
+        }
+    }
+
+    /// 星星落位时的金色放射爆点
+    private func spawnStarBurst(at position: CGPoint) {
+        guard !VisualComfort.isReducedMotionEnabled else { return }
+        let gold = UIColor(hex: "#FFCC00")
+        for _ in 0..<10 {
+            let sz = CGFloat.random(in: 3...6)
+            let p = SKSpriteNode(texture: PixelArt.shared.particleTexture(color: gold, size: sz),
+                                 size: CGSize(width: sz, height: sz))
+            p.position = position
+            p.zPosition = 12
+            addChild(p)
+            let angle = CGFloat.random(in: 0...(2 * .pi))
+            let dist = CGFloat.random(in: 26...54)
+            p.run(.sequence([
+                .group([
+                    .moveBy(x: cos(angle) * dist, y: sin(angle) * dist, duration: 0.3),
+                    .scale(to: 0.3, duration: 0.3),
+                    .fadeOut(withDuration: 0.3)
+                ]),
+                .removeFromParent()
+            ]))
         }
     }
 
@@ -318,14 +356,73 @@ final class ResultScene: SKScene {
         coinsLbl.zPosition = 11
         addChild(coinsLbl)
 
-        coinsLbl.run(.sequence([
-            .wait(forDuration: 0.8),
-            .group([
-                .scale(to: 1.2, duration: 0.1),
-                .scale(to: 1.0, duration: 0.1)
-            ])
+        if VisualComfort.isReducedMotionEnabled {
+            // 降级：跳过飞行，仅数字滚动
+            runCoinCountUp(on: coinsLbl, from: 0, to: coinsEarned, duration: 0.6, delay: 0.3)
+            AudioManager.shared.play(.coinCollect)
+            return
+        }
+
+        // 金币飞入演出：从分数面板飞向计数行，逐枚音效音高递增 + 计数滚动
+        coinsLbl.text = L10n.fmt("result.coins", 0, fallback: "+%d Coins!")
+        let flyCount = min(12, max(6, coinsEarned / 10))
+        let startPoint = CGPoint(x: 0, y: y + 110)   // 分数面板附近
+        let target = coinIcon.position
+        let interval = 0.06
+
+        for i in 0..<flyCount {
+            let coin = SKSpriteNode(texture: coinTex, size: CGSize(width: 22, height: 22))
+            coin.position = startPoint
+            coin.zPosition = 30
+            coin.alpha = 0
+            addChild(coin)
+
+            // 随机二次贝塞尔路径：先散开再汇入
+            let ctrl = CGPoint(x: CGFloat.random(in: -130...130),
+                               y: y + CGFloat.random(in: 30...90))
+            let path = CGMutablePath()
+            path.move(to: startPoint)
+            path.addQuadCurve(to: target, control: ctrl)
+
+            let delay = 0.5 + Double(i) * interval
+            coin.run(.sequence([
+                .wait(forDuration: delay),
+                .fadeIn(withDuration: 0.05),
+                .follow(path, asOffset: false, orientToPath: false, duration: 0.42),
+                .run { [weak self, weak coinIcon] in
+                    AudioManager.shared.play(.coinCollect, pitchStep: min(i, 8))
+                    coinIcon?.removeAction(forKey: "bounce")
+                    coinIcon?.setScale(1.0)
+                    coinIcon?.run(.sequence([.scale(to: 1.18, duration: 0.06),
+                                             .scale(to: 1.0, duration: 0.08)]), withKey: "bounce")
+                    _ = self
+                },
+                .removeFromParent()
+            ]))
+        }
+
+        // 计数滚动与飞行同步
+        let flightTotal = 0.5 + Double(flyCount) * interval + 0.42
+        runCoinCountUp(on: coinsLbl, from: 0, to: coinsEarned,
+                       duration: flightTotal - 0.5, delay: 0.55)
+    }
+
+    /// 数字滚动累加（SKAction.customAction 插值）
+    private func runCoinCountUp(on label: SKLabelNode, from: Int, to: Int,
+                                duration: TimeInterval, delay: TimeInterval) {
+        let countUp = SKAction.customAction(withDuration: duration) { node, elapsed in
+            guard let lbl = node as? SKLabelNode else { return }
+            let progress = min(1, max(0, Double(elapsed) / duration))
+            let value = from + Int(Double(to - from) * progress)
+            lbl.text = L10n.fmt("result.coins", value, fallback: "+%d Coins!")
+        }
+        label.run(.sequence([
+            .wait(forDuration: delay),
+            countUp,
+            .run { label.text = L10n.fmt("result.coins", to, fallback: "+%d Coins!") },
+            .scale(to: 1.2, duration: 0.1),
+            .scale(to: 1.0, duration: 0.1)
         ]))
-        AudioManager.shared.play(.coinCollect)
     }
 
     private func setupWinButtons(yBase: CGFloat) {
@@ -382,12 +479,30 @@ final class ResultScene: SKScene {
         scoreLbl.zPosition = 10
         addChild(scoreLbl)
 
-        // Try again message
-        let msgLbl = makeLargeLabel(L10n.tr("result.dont_give_up", fallback: "Don't give up!"),
-                                    color: UIColor(hex: "#FFCC00"), size: 18)
+        // 完成度展示（>0 时）：让玩家看到"已经走了多远"而不是只看到失败
+        if completionRatio > 0 {
+            let pctLbl = makeLargeLabel(L10n.fmt("result.fail.progress", Int(completionRatio * 100),
+                                                 fallback: "You finished %d%%"),
+                                        color: UIColor(hex: "#99CCFF"), size: 16)
+            pctLbl.position = CGPoint(x: 0, y: size.height * 0.045)
+            pctLbl.zPosition = 10
+            addChild(pctLbl)
+        }
+
+        // 随机鼓励语轮换，替代固定文案
+        let encourageKeys = ["encourage.fail.1", "encourage.fail.2", "encourage.fail.3"]
+        let fallbacks = ["Every master was once a beginner!",
+                         "That board was tough — you got this!",
+                         "So near! Try a different first move."]
+        let idx = Int.random(in: 0..<encourageKeys.count)
+        let msgLbl = makeLargeLabel(L10n.tr(encourageKeys[idx], fallback: fallbacks[idx]),
+                                    color: UIColor(hex: "#FFCC00"), size: 16)
         msgLbl.position = CGPoint(x: 0, y: -10)
         msgLbl.zPosition = 10
+        msgLbl.preferredMaxLayoutWidth = size.width * 0.86
+        msgLbl.numberOfLines = 2
         addChild(msgLbl)
+        fitLabel(msgLbl, maxWidth: size.width * 0.88)
 
         // Pixel broken-X art
         addBrokenX()

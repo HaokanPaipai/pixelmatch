@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Advertentie bekijken";
 "ad.watch.message" = "Advertentie simuleren (5 seconden)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "ZO DICHTBIJ!";
+"dialog.so_close.message" = "Je zat op %d%% — nog één poging!";
+"result.fail.progress" = "Je haalde %d%%";
+"encourage.fail.1" = "Elke meester was ooit een beginner!";
+"encourage.fail.2" = "Dat bord was lastig — jij kunt dit!";
+"encourage.fail.3" = "Zo dichtbij! Probeer een andere eerste zet.";

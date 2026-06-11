@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "مشاهدة إعلان";
 "ad.watch.message" = "محاكاة مشاهدة الإعلان (5 ثوان)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "!كنت قريبًا جدًا";
+"dialog.so_close.message" = "وصلت إلى %d%% — حاول مرة أخرى!";
+"result.fail.progress" = "أنجزت %d%%";
+"encourage.fail.1" = "!كل خبير كان مبتدئًا يومًا ما";
+"encourage.fail.2" = "!كانت لوحة صعبة — يمكنك النجاح";
+"encourage.fail.3" = ".قريب جدًا! جرّب حركة أولى مختلفة";

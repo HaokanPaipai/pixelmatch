@@ -22,6 +22,34 @@ final class TileNode: SKNode {
 
         if tile.isHole { isHidden = true; return }
         updateObstacleOverlay()
+        startIdleShimmer()
+    }
+
+    /// 待机微动效：随机间隔在宝石高光位闪一颗星光点，让满屏宝石"活"起来。
+    /// 每块宝石 8-20s 才闪一次（错峰随机），同屏动画量极小；reducedMotion 不启用。
+    private func startIdleShimmer() {
+        guard !VisualComfort.isReducedMotionEnabled else { return }
+        let glint = SKSpriteNode(texture: PixelArt.shared.particleTexture(color: .white, size: 5),
+                                 size: CGSize(width: 5, height: 5))
+        glint.alpha = 0
+        // 落在宝石左上高光区，与绘制的 gloss 椭圆呼应
+        glint.position = CGPoint(x: -TileNode.gemSize * 0.22, y: TileNode.gemSize * 0.24)
+        glint.zPosition = 3
+        glint.blendMode = .add
+        gemSprite.addChild(glint)
+
+        let twinkle = SKAction.sequence([
+            .wait(forDuration: Double.random(in: 2...18)),
+            .group([
+                .sequence([.fadeAlpha(to: 0.85, duration: 0.16),
+                           .fadeOut(withDuration: 0.30)]),
+                .sequence([.scale(to: 1.6, duration: 0.16),
+                           .scale(to: 0.8, duration: 0.30)]),
+                .rotate(byAngle: .pi / 2, duration: 0.46)
+            ]),
+            .wait(forDuration: Double.random(in: 8...20))
+        ])
+        glint.run(.repeatForever(twinkle), withKey: "shimmer")
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -217,30 +245,113 @@ final class TileNode: SKNode {
 
     // MARK: - Particle Burst
 
-    func burstParticles(in scene: SKScene, count: Int = 8) {
+    /// 场景级粒子预算：大连锁瞬时可达数百粒，超出后按比例缩量防掉帧。
+    private static let particleBudget = 150
+    private static func liveParticleCount(in scene: SKScene) -> Int {
+        scene.children.reduce(0) { $0 + ($1.name == "burstParticle" ? 1 : 0) }
+    }
+
+    /// intensity：0=3 消（直线小爆），1=4 消（抛物线+闪环），2=5 消/特效（更密+中心闪光）
+    func burstParticles(in scene: SKScene, count: Int = 8, intensity: Int = 0) {
         let color = tile.gemColor.primary
         let reducedMotion = VisualComfort.isReducedMotionEnabled
-        let particleSize: CGFloat = reducedMotion ? 3.5 : 4.5
-        let tex = PixelArt.shared.particleTexture(color: color, size: particleSize)
-        let particleCount = reducedMotion ? max(2, min(count, 3)) : count
+        let origin = scene.convert(position, from: parent ?? scene)
 
-        for i in 0..<particleCount {
+        if reducedMotion {
+            // 降级：维持原有 2-3 个直线粒子
+            emitLinearParticles(in: scene, at: origin, color: color,
+                                count: max(2, min(count, 3)), size: 3.5, duration: 0.20)
+            return
+        }
+
+        // 粒子预算：超限按比例缩量
+        let live = TileNode.liveParticleCount(in: scene)
+        let allowance = max(0, TileNode.particleBudget - live)
+        let particleCount = min(count, max(3, allowance / 4))
+        guard particleCount > 0 else { return }
+
+        for _ in 0..<particleCount {
+            // 尺寸两档 + 角度/速度全随机；抛物线轨迹（初速上抛 + 重力下坠）更有"碎裂感"
+            let particleSize: CGFloat = Bool.random() ? 3.0 : 5.0
+            let tex = PixelArt.shared.particleTexture(color: color, size: particleSize)
             let particle = SKSpriteNode(texture: tex, size: CGSize(width: particleSize, height: particleSize))
-            particle.position = scene.convert(position, from: parent ?? scene)
+            particle.position = origin
             particle.zPosition = 20
+            particle.name = "burstParticle"
             scene.addChild(particle)
 
-            let angle = (CGFloat(i) / CGFloat(particleCount)) * .pi * 2
-            let dist = CGFloat.random(in: reducedMotion ? 10...22 : 20...46)
-            let dx = cos(angle) * dist
-            let dy = sin(angle) * dist
-            let duration = reducedMotion ? 0.20 : 0.32
+            let angle = CGFloat.random(in: 0...(2 * .pi))
+            let speed = CGFloat.random(in: 40...110)
+            let vx = cos(angle) * speed
+            let vy = sin(angle) * speed + 30   // 整体略向上抛
+            let duration: TimeInterval = 0.38
+            let gravity: CGFloat = -260
 
+            let follow = SKAction.customAction(withDuration: duration) { node, t in
+                let dt = CGFloat(t)
+                node.position = CGPoint(x: origin.x + vx * dt,
+                                        y: origin.y + vy * dt + 0.5 * gravity * dt * dt)
+            }
             particle.run(.sequence([
                 .group([
-                    .moveBy(x: dx, y: dy, duration: duration),
-                    .scale(to: reducedMotion ? 0.68 : 0.55, duration: duration),
-                    .sequence([.fadeAlpha(to: reducedMotion ? 0.52 : 0.78, duration: 0.04),
+                    follow,
+                    .scale(to: 0.4, duration: duration),
+                    .sequence([.fadeAlpha(to: 0.9, duration: 0.05),
+                               .fadeOut(withDuration: duration - 0.05)])
+                ]),
+                .removeFromParent()
+            ]))
+        }
+
+        // 强度 1+：白色冲击闪环
+        if intensity >= 1 {
+            let ring = SKShapeNode(circleOfRadius: TileNode.size * 0.4)
+            ring.strokeColor = UIColor.white.withAlphaComponent(0.85)
+            ring.fillColor = .clear
+            ring.lineWidth = 2.5
+            ring.position = origin
+            ring.zPosition = 21
+            ring.setScale(0.3)
+            scene.addChild(ring)
+            ring.run(.sequence([
+                .group([.scale(to: intensity >= 2 ? 2.2 : 1.5, duration: 0.22),
+                        .fadeOut(withDuration: 0.22)]),
+                .removeFromParent()
+            ]))
+        }
+
+        // 强度 2：中心闪光帧
+        if intensity >= 2 {
+            let flash = SKSpriteNode(texture: PixelArt.shared.particleTexture(color: .white, size: 8),
+                                     size: CGSize(width: TileNode.size * 1.1, height: TileNode.size * 1.1))
+            flash.position = origin
+            flash.zPosition = 22
+            flash.alpha = 0
+            scene.addChild(flash)
+            flash.run(.sequence([
+                .fadeAlpha(to: 0.55, duration: 0.05),
+                .fadeOut(withDuration: 0.14),
+                .removeFromParent()
+            ]))
+        }
+    }
+
+    private func emitLinearParticles(in scene: SKScene, at origin: CGPoint, color: UIColor,
+                                     count: Int, size: CGFloat, duration: TimeInterval) {
+        let tex = PixelArt.shared.particleTexture(color: color, size: size)
+        for i in 0..<count {
+            let particle = SKSpriteNode(texture: tex, size: CGSize(width: size, height: size))
+            particle.position = origin
+            particle.zPosition = 20
+            particle.name = "burstParticle"
+            scene.addChild(particle)
+            let angle = (CGFloat(i) / CGFloat(count)) * .pi * 2
+            let dist = CGFloat.random(in: 10...22)
+            particle.run(.sequence([
+                .group([
+                    .moveBy(x: cos(angle) * dist, y: sin(angle) * dist, duration: duration),
+                    .scale(to: 0.68, duration: duration),
+                    .sequence([.fadeAlpha(to: 0.52, duration: 0.04),
                                .fadeOut(withDuration: max(0.12, duration - 0.04))])
                 ]),
                 .removeFromParent()

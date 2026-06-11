@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Xem quảng cáo";
 "ad.watch.message" = "Đang mô phỏng quảng cáo (5 giây)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SUÝT NỮA RỒI!";
+"dialog.so_close.message" = "Bạn đã đạt %d%% — thử lại lần nữa!";
+"result.fail.progress" = "Bạn hoàn thành %d%%";
+"encourage.fail.1" = "Cao thủ nào cũng từng là người mới!";
+"encourage.fail.2" = "Màn này khó thật — bạn làm được mà!";
+"encourage.fail.3" = "Suýt nữa rồi! Thử nước đi đầu khác xem.";

@@ -70,10 +70,16 @@ final class GameScene: SKScene {
     private var touchStartPos: CGPoint?
     private var touchStartBoardPos: (row: Int, col: Int)?
 
+    // 震屏归位锚点（setupBoard 后固定）
+    private var boardNodeHomePosition: CGPoint?
+
     // Collected counts (for collect objectives)
     private var collectedCounts: [GemColor: Int] = [:]
     private var collectedKeys: Int = 0
     private var initialIceCount: Int = 0
+    private var initialJellyCount: Int = 0
+    private var initialChocolateCount: Int = 0
+    private var initialChestCount: Int = 0
     private var shouldResolveChocolateAfterCascade = false
     private var clearedChocolateThisMove = false
     private var usedBoosterThisLevel = false
@@ -179,7 +185,27 @@ final class GameScene: SKScene {
 
         boardNode.position = CGPoint(x: 0, y: layout.centerY)
         boardNode.zPosition = 1
+        boardNodeHomePosition = boardNode.position
         addChild(boardNode)
+    }
+
+    /// 棋盘震屏：不引入 SKCameraNode（会牵动全部绝对定位），只抖棋盘本体。
+    /// 固定 action key + 每次先归位，避免连续触发时位移叠加漂移。
+    private func shakeBoard(intensity: CGFloat, duration: TimeInterval) {
+        guard !VisualComfort.isReducedMotionEnabled, let home = boardNodeHomePosition else { return }
+        boardNode.removeAction(forKey: "shake")
+        boardNode.position = home
+        let steps = 5
+        var actions: [SKAction] = []
+        for i in 0..<steps {
+            let decay = intensity * CGFloat(steps - i) / CGFloat(steps)
+            let dx = CGFloat.random(in: -decay...decay)
+            let dy = CGFloat.random(in: -decay...decay)
+            let stepDur = duration / Double(steps + 1)
+            actions.append(.move(to: CGPoint(x: home.x + dx, y: home.y + dy), duration: stepDur))
+        }
+        actions.append(.move(to: home, duration: duration / Double(steps + 1)))
+        boardNode.run(.sequence(actions), withKey: "shake")
     }
 
     private func setupHUD() {
@@ -187,6 +213,10 @@ final class GameScene: SKScene {
         remainingMoves = level.moves
         collectedCounts = [:]
         initialIceCount = board.iceCount
+        // 记录"剩余型"目标的初始量，供失败时计算完成度（近胜判定）
+        initialJellyCount = board.jellyCount
+        initialChocolateCount = board.chocolateCount
+        initialChestCount = board.chestCount
 
         // Initialize "remaining" objectives with board state
         for i in 0..<objectives.count {
@@ -539,9 +569,27 @@ final class GameScene: SKScene {
             HapticsManager.shared.match()
         }
 
+        // 震屏分级：5 消/彩虹弹 > 4 消/特效生成 > 大连锁；3 消不抖避免疲劳
+        let maxMatchSize = matches.map { $0.positions.count }.max() ?? 0
+        let madeColorBomb = specialCreations.contains { $0.special == .colorBomb }
+        if madeColorBomb || maxMatchSize >= 5 {
+            shakeBoard(intensity: 4, duration: 0.20)
+        } else if !specialCreations.isEmpty || maxMatchSize >= 4 {
+            shakeBoard(intensity: 2, duration: 0.12)
+        }
+        if cascadeCount >= 3 {
+            shakeBoard(intensity: 6, duration: 0.28)
+        }
+
+        // 粒子/音效强度：0=3消 1=4消或出特效 2=5消/彩虹弹
+        let matchIntensity = (madeColorBomb || maxMatchSize >= 5) ? 2
+            : ((!specialCreations.isEmpty || maxMatchSize >= 4) ? 1 : 0)
+
         // Remove tiles (creating specials where needed)
         boardNode.animateRemovals(allPositions,
-                                   specialCreations: specialCreations) { [weak self] in
+                                   specialCreations: specialCreations,
+                                   matchIntensity: matchIntensity,
+                                   cascadeLevel: cascadeCount) { [weak self] in
             guard let self = self else { return }
             let result = self.board.removeTiles(at: allPositions,
                                                 specialCreations: specialCreations)
@@ -644,6 +692,7 @@ final class GameScene: SKScene {
 
         LiveOpsManager.shared.recordSpecialComboActivated()
         HapticsManager.shared.special()
+        shakeBoard(intensity: 6, duration: 0.30)
         boardNode.animateSpecialActivation(at: effect.origin,
                                            affectedPositions: positions,
                                            special: effect.visualSpecial) { [weak self] in
@@ -1020,6 +1069,9 @@ final class GameScene: SKScene {
         hintTimer?.invalidate()
         multiplierTimer?.invalidate()
         hideHints()
+        // 结算前停掉震屏并归位，避免棋盘停在偏移位置
+        boardNode.removeAction(forKey: "shake")
+        if let home = boardNodeHomePosition { boardNode.position = home }
 
         let rewardedMoves = remainingMoves
         let moveBonus = awardRemainingMoveBonus()
@@ -1127,6 +1179,7 @@ final class GameScene: SKScene {
         scene.score = currentScore
         scene.coinsEarned = coinsEarned
         scene.winStreak = won ? PlayerData.shared.winStreak : 0
+        scene.completionRatio = won ? 1 : objectiveCompletionRatio()
         scene.scaleMode = .aspectFill
         view.presentScene(scene, transition: .fade(withDuration: 0.5))
     }
@@ -1175,7 +1228,9 @@ final class GameScene: SKScene {
                                       properties: ["level": "\(level.id)",
                                                    "score": "\(currentScore)",
                                                    "reason": "out_of_moves"])
-        let dialog = OutOfMovesDialog(sceneSize: size, hintText: failureHintText())
+        let dialog = OutOfMovesDialog(sceneSize: size,
+                                      hintText: failureHintText(),
+                                      completionRatio: objectiveCompletionRatio())
         dialog.zPosition = 100
         addChild(dialog)
 
@@ -1218,6 +1273,38 @@ final class GameScene: SKScene {
                 self?.showResultScene(won: false)
             }
         }
+    }
+
+    /// 各目标完成度的最小值（0...1）。≥0.8 视为"近胜"，弹窗换鼓励组并放大续命入口
+    /// （近胜时刻的续命转化率最高，是三消商业化的关键触点）。
+    private func objectiveCompletionRatio() -> Double {
+        guard !objectives.isEmpty else { return 0 }
+        var minRatio = 1.0
+        for objective in objectives {
+            let ratio: Double
+            switch objective.kind {
+            case .score(let target):
+                ratio = target > 0 ? Double(currentScore) / Double(target) : 1
+            case .collect(_, let count):
+                ratio = count > 0 ? Double(objective.progress) / Double(count) : 1
+            case .clearAllJelly:
+                ratio = initialJellyCount > 0
+                    ? 1 - Double(objective.progress) / Double(initialJellyCount) : 1
+            case .breakIce:
+                ratio = initialIceCount > 0
+                    ? 1 - Double(objective.progress) / Double(initialIceCount) : 1
+            case .eliminateChocolate:
+                ratio = initialChocolateCount > 0
+                    ? 1 - Double(objective.progress) / Double(initialChocolateCount) : 1
+            case .openChests:
+                ratio = initialChestCount > 0
+                    ? 1 - Double(objective.progress) / Double(initialChestCount) : 1
+            case .collectKeys(let count):
+                ratio = count > 0 ? Double(collectedKeys) / Double(count) : 1
+            }
+            minRatio = min(minRatio, max(0, min(1, ratio)))
+        }
+        return minRatio
     }
 
     private func failureHintText() -> String? {
@@ -1453,19 +1540,51 @@ final class GameScene: SKScene {
         lbl.horizontalAlignmentMode = .center
         lbl.position = CGPoint(x: 0, y: 30)
         lbl.zPosition = 55
-        lbl.setScale(0.1)
         addChild(lbl)
 
+        if VisualComfort.isReducedMotionEnabled {
+            lbl.setScale(1.0)
+            lbl.alpha = 0
+            lbl.run(.sequence([
+                .fadeIn(withDuration: 0.12),
+                .wait(forDuration: 0.7),
+                .fadeOut(withDuration: 0.25),
+                .removeFromParent()
+            ]))
+            return
+        }
+
+        // 砸入式：从 2.2 倍快速砸到 1.0，比从小放大更有冲击力
+        lbl.setScale(2.2)
+        lbl.alpha = 0
         lbl.run(.sequence([
-            .scale(to: 1.3, duration: 0.15),
-            .scale(to: 1.0, duration: 0.08),
-            .wait(forDuration: 0.6),
             .group([
-                .scale(to: 2.0, duration: 0.3),
-                .fadeOut(withDuration: 0.3)
+                .fadeIn(withDuration: 0.06),
+                .scale(to: 1.0, duration: 0.12)
+            ]),
+            .scale(to: 1.06, duration: 0.05),
+            .scale(to: 1.0, duration: 0.05),
+            .wait(forDuration: 0.55),
+            .group([
+                .scale(to: 1.8, duration: 0.28),
+                .fadeOut(withDuration: 0.28)
             ]),
             .removeFromParent()
         ]))
+
+        // ×4 以上加全屏白闪，强化"大场面"反馈
+        if combo >= 4 {
+            let flash = SKSpriteNode(color: .white, size: size)
+            flash.position = .zero
+            flash.zPosition = 54
+            flash.alpha = 0
+            addChild(flash)
+            flash.run(.sequence([
+                .fadeAlpha(to: 0.12, duration: 0.06),
+                .fadeOut(withDuration: 0.18),
+                .removeFromParent()
+            ]))
+        }
     }
 
     private func showFloatingText(_ text: String, color: UIColor) {

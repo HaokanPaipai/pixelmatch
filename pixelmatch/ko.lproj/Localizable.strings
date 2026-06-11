@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "광고 보기";
 "ad.watch.message" = "광고 시청을 시뮬레이션 중 (5초)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "아쉬워요!";
+"dialog.so_close.message" = "%d%%까지 도달 — 한 번만 더!";
+"result.fail.progress" = "달성도 %d%%";
+"encourage.fail.1" = "모든 고수도 처음엔 초보였어요!";
+"encourage.fail.2" = "어려운 판이었어요 — 할 수 있어요!";
+"encourage.fail.3" = "아깝다! 첫 수를 바꿔보세요.";

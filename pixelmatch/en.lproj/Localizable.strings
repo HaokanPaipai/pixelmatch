@@ -259,3 +259,11 @@
 
 "ad.watch.title" = "Watch Ad";
 "ad.watch.message" = "Simulating ad view (5 seconds)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SO CLOSE!";
+"dialog.so_close.message" = "You reached %d%% — one more try!";
+"result.fail.progress" = "You finished %d%%";
+"encourage.fail.1" = "Every master was once a beginner!";
+"encourage.fail.2" = "That board was tough — you got this!";
+"encourage.fail.3" = "So near! Try a different first move.";

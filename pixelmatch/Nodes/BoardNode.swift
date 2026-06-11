@@ -197,16 +197,27 @@ final class BoardNode: SKNode {
 
     // MARK: - Remove Animation
 
+    /// matchIntensity：0=普通 3 消，1=4 消/生成特效，2=5 消/彩虹弹（粒子与音高随强度递进）
+    /// cascadeLevel：连锁层级，驱动音高阶梯（连锁越深音调越高）
     func animateRemovals(_ positions: [(row: Int, col: Int)],
                          specialPos: (row: Int, col: Int)? = nil,
                          newSpecial: TileSpecial = .none,
                          specialCreations: [(pos: (row: Int, col: Int), special: TileSpecial)] = [],
+                         matchIntensity: Int = 0,
+                         cascadeLevel: Int = 0,
                          completion: @escaping () -> Void) {
         var maxDelay = 0.0
         var particleScene: SKScene? { scene }
         var creations = specialCreations.filter { $0.special != .none }
         if let specialPos = specialPos, newSpecial != .none {
             creations.insert((specialPos, newSpecial), at: 0)
+        }
+
+        let particleCount: Int
+        switch matchIntensity {
+        case 2: particleCount = 16
+        case 1: particleCount = 10
+        default: particleCount = 6
         }
 
         for pos in positions {
@@ -223,14 +234,15 @@ final class BoardNode: SKNode {
 
             // Burst particles
             if let s = scene {
-                node.burstParticles(in: s, count: VisualComfort.isReducedMotionEnabled ? 3 : 5)
+                node.burstParticles(in: s, count: particleCount, intensity: matchIntensity)
             }
 
             node.animateMatch { }
             maxDelay = max(maxDelay, 0.2)
         }
 
-        AudioManager.shared.play(.match)
+        // 音高随连锁与强度递进
+        AudioManager.shared.play(.match, pitchStep: cascadeLevel + matchIntensity)
 
         run(.wait(forDuration: maxDelay + 0.05)) { completion() }
     }

@@ -259,3 +259,11 @@
 
 "ad.watch.title" = "观看广告";
 "ad.watch.message" = "正在模拟广告播放 (5 秒)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "就差一点!";
+"dialog.so_close.message" = "已完成 %d%% — 再来一次必过!";
+"result.fail.progress" = "本局完成度 %d%%";
+"encourage.fail.1" = "高手都是从失败练出来的!";
+"encourage.fail.2" = "这关确实难 — 你可以的!";
+"encourage.fail.3" = "就差一步! 试试换个开局思路。";

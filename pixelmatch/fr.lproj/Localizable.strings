@@ -194,3 +194,11 @@
 
 "ad.watch.title" = "Regarder une pub";
 "ad.watch.message" = "Simulation de pub (5 secondes)...";
+
+/* Phase 1: 近胜与失败鼓励 */
+"dialog.so_close.title" = "SI PRÈS DU BUT !";
+"dialog.so_close.message" = "Vous étiez à %d%% — encore un essai !";
+"result.fail.progress" = "Progression : %d%%";
+"encourage.fail.1" = "Tout maître a un jour été débutant !";
+"encourage.fail.2" = "Ce niveau était dur — vous allez y arriver !";
+"encourage.fail.3" = "Si proche ! Essayez un autre premier coup.";
