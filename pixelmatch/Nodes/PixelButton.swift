@@ -166,7 +166,7 @@ final class PixelButton: SKNode {
         shadow.strokeColor = .clear
         shadow.alpha = style == .icon ? 0.65 : 0.82
         shadow.zPosition = -1
-        node.addChild(shadow)
+//        node.addChild(shadow)
 
         let glossRect = CGRect(x: -size.width / 2 + 7,
                                y: size.height * 0.04,
@@ -178,7 +178,7 @@ final class PixelButton: SKNode {
         gloss.fillColor = UIColor.white.withAlphaComponent(style == .secondary ? 0.07 : 0.13)
         gloss.strokeColor = .clear
         gloss.zPosition = 1
-        node.addChild(gloss)
+//        node.addChild(gloss)
 
         let lowerRim = SKShapeNode(path: UIBezierPath(roundedRect:
             CGRect(x: -size.width / 2 + 5,
@@ -190,7 +190,7 @@ final class PixelButton: SKNode {
         lowerRim.fillColor = color.darker(by: 0.25).withAlphaComponent(style == .secondary ? 0.36 : 0.52)
         lowerRim.strokeColor = .clear
         lowerRim.zPosition = 1
-        node.addChild(lowerRim)
+//        node.addChild(lowerRim)
     }
 
     // MARK: - Touch
