@@ -42,8 +42,13 @@
 "shop.free_ad" = "Free → Watch Ad";
 "shop.boosters" = "──── BOOSTERS ────";
 "shop.not_enough_coins" = "Not enough coins!";
+"shop.booster_cost" = "Cost: %d";
+"shop.your_coins" = "You have: %d";
+"shop.buy_one" = "BUY ×1";
+"shop.get_coins" = "GET COINS";
 
 "common.close" = "CLOSE";
+"common.cancel" = "Cancel";
 "common.on" = "ON";
 "common.off" = "OFF";
 
@@ -154,13 +159,13 @@
 "dialog.out_of_moves.hint.chocolate" = "%d chocolate left";
 "dialog.out_of_moves.hint.chests" = "%d chests left";
 "dialog.out_of_moves.hint.keys" = "%d keys left";
-"dialog.you_have_diamonds" = "You have: %d 💎";
+"dialog.you_have_diamonds" = "You have: %d";
 "dialog.continue" = "CONTINUE!";
 "dialog.get_diamonds" = "GET DIAMONDS";
 "dialog.no_thanks" = "NO THANKS";
 "dialog.no_lives.title" = "NO LIVES!";
 "dialog.next_life" = "Next life in: %@";
-"dialog.refill" = "REFILL (15 💎)";
+"dialog.refill" = "REFILL (15)";
 "dialog.wait_life" = "WAIT FOR FREE LIFE";
 "dialog.power_up" = "POWER UP!";
 "dialog.select_boosters" = "Select boosters before you play:";
@@ -192,7 +197,7 @@
 
 "game.hammer_hint" = "🔨 Tap a tile to remove it!";
 "game.extra_moves" = "+5 MOVES!";
-"game.need_more_booster" = "Need more %@!\nCost: %d 🪙";
+"game.need_more_booster" = "Need more %@!\nCost: %d";
 "game.double_points" = "⚡ DOUBLE POINTS!";
 "game.board_shuffled" = "🔄 Board shuffled!";
 "game.chocolate_spread" = "CHOCOLATE SPREAD!";

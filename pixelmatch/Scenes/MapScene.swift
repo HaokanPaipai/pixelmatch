@@ -345,7 +345,9 @@ final class MapScene: SKScene {
             if LivesManager.shared.refillLives(for: 15) {
                 dialog?.dismiss()
             } else {
-                self?.showFloatingText(L10n.tr("game.not_enough_diamonds", fallback: "Not enough diamonds!"), color: UIColor(hex: "#FF3B30"))
+                // 钻石不足：弹商店定位钻石区。NoLives 弹窗保留在下层，
+                // 买完关掉商店可接着点 REFILL。
+                self?.showShop(focus: .diamonds, source: "no_lives")
             }
         }
         dialog.onRefillWithAd = { [weak self, weak dialog] in
@@ -356,11 +358,20 @@ final class MapScene: SKScene {
                         // PixelMatchAdRewardProvider.grantReward 已经 +1 ❤；关弹窗刷新心数显示。
                         dialog?.dismiss()
                     }
-                    // 失败/未发奖：保留弹窗，玩家可改走"REFILL 15💎"或"WAIT"。
+                    // 失败/未发奖：保留弹窗，玩家可改走"REFILL 15 diamonds"或"WAIT"。
                 }
             }
         }
         dialog.onWaitForFree = { [weak dialog] in dialog?.dismiss() }
+        dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+    }
+
+    /// 钻石不足引导打开商店；叠在 NoLives 弹窗（zPosition 60）之上。
+    private func showShop(focus: ShopDialog.Section, source: String) {
+        let dialog = ShopDialog(sceneSize: size, safeAreaInsets: safeAreaInsets,
+                                focus: focus, source: source)
+        dialog.zPosition = 70
+        addChild(dialog)
         dialog.onClose = { [weak dialog] in dialog?.dismiss() }
     }
 

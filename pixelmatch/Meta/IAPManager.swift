@@ -18,6 +18,14 @@ import HKIAPKit
 
 // MARK: - Product IDs / 本地权益映射
 
+struct IAPRewardPreview {
+    var coins: Int = 0
+    var diamonds: Int = 0
+    var suffix: String? = nil
+
+    var hasCurrency: Bool { coins > 0 || diamonds > 0 }
+}
+
 enum IAPProduct: String, CaseIterable {
     // Coin packs
     case coins500    = "com.goodloook.pixelmatch.coins.500"
@@ -70,19 +78,19 @@ enum IAPProduct: String, CaseIterable {
         }
     }
 
-    /// 商店列表里展示"买到什么"的副文案。
-    var shopRewardText: String {
+    /// 商店列表里展示"买到什么"的结构化预览，由 UI 层统一渲染货币图标。
+    var shopRewardPreview: IAPRewardPreview {
         switch self {
-        case .coins500:    return "+500 🪙"
-        case .coins1500:   return "+1,500 🪙"
-        case .coins5000:   return "+5,000 🪙"
-        case .diamonds20:  return "+20 💎"
-        case .diamonds80:  return "+80 💎"
-        case .diamonds300: return "+300 💎"
-        case .starterPack: return "+300 🪙  +10 💎  +3 🔨"
-        case .megaPack:    return "+1,000 🪙  +50 💎  +boosters"
-        case .noAds:       return L10n.tr("iap.remove_ads.desc", fallback: "Remove all ads forever")
-        case .seasonPass:  return L10n.tr("pass.premium_track", fallback: "PREMIUM") + " ×28d"
+        case .coins500:    return IAPRewardPreview(coins: 500)
+        case .coins1500:   return IAPRewardPreview(coins: 1500)
+        case .coins5000:   return IAPRewardPreview(coins: 5000)
+        case .diamonds20:  return IAPRewardPreview(diamonds: 20)
+        case .diamonds80:  return IAPRewardPreview(diamonds: 80)
+        case .diamonds300: return IAPRewardPreview(diamonds: 300)
+        case .starterPack: return IAPRewardPreview(coins: 300, diamonds: 10, suffix: "+3 Hammer")
+        case .megaPack:    return IAPRewardPreview(coins: 1000, diamonds: 50, suffix: "+boosters")
+        case .noAds:       return IAPRewardPreview(suffix: L10n.tr("iap.remove_ads.desc", fallback: "Remove all ads forever"))
+        case .seasonPass:  return IAPRewardPreview(suffix: L10n.tr("pass.premium_track", fallback: "PREMIUM") + " ×28d")
         }
     }
 

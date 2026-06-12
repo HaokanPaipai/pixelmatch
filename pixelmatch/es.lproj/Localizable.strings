@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ SALIR";
 "dialog.out_of_moves.title" = "¡SIN MOVIMIENTOS!";
 "dialog.out_of_moves.message" = "¿Continuar con +%d movimientos?";
-"dialog.you_have_diamonds" = "Tienes: %d 💎";
+"dialog.you_have_diamonds" = "Tienes: %d";
 "dialog.continue" = "¡CONTINUAR!";
 "dialog.get_diamonds" = "CONSEGUIR DIAMANTES";
 "dialog.no_thanks" = "NO, GRACIAS";
 "dialog.no_lives.title" = "¡SIN VIDAS!";
 "dialog.next_life" = "Próxima vida en: %@";
-"dialog.refill" = "RECARGAR (15 💎)";
+"dialog.refill" = "RECARGAR (15)";
 "dialog.wait_life" = "ESPERAR VIDA GRATIS";
 "dialog.power_up" = "¡POTENCIA!";
 "dialog.select_boosters" = "Elige potenciadores antes de jugar:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 ¡Toca una ficha para quitarla!";
 "game.extra_moves" = "¡+5 MOVIMIENTOS!";
-"game.need_more_booster" = "¡Necesitas más %@!\nCoste: %d 🪙";
+"game.need_more_booster" = "¡Necesitas más %@!\nCoste: %d";
 "game.double_points" = "⚡ ¡PUNTOS DOBLES!";
 "game.board_shuffled" = "🔄 ¡Tablero mezclado!";
 "game.not_enough_diamonds" = "¡Diamantes insuficientes!";

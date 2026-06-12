@@ -290,6 +290,196 @@ final class PixelButton: SKNode {
     }
 }
 
+enum CurrencyKind {
+    case coins
+    case diamonds
+
+    var icon: PixelArtIcon {
+        switch self {
+        case .coins: return .coin
+        case .diamonds: return .diamond
+        }
+    }
+
+    var color: UIColor {
+        switch self {
+        case .coins: return UIColor(hex: "#FFCC00")
+        case .diamonds: return UIColor(hex: "#AF52DE")
+        }
+    }
+}
+
+struct CurrencyAmountItem {
+    let kind: CurrencyKind
+    let amount: Int
+
+    init(_ kind: CurrencyKind, _ amount: Int) {
+        self.kind = kind
+        self.amount = amount
+    }
+}
+
+enum CurrencyText {
+    static func surroundingAmount(in text: String, amount: Int) -> (leading: String, trailing: String) {
+        let amountText = "\(amount)"
+        guard let range = text.range(of: amountText) else {
+            return (text, "")
+        }
+        let leading = String(text[..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        let trailing = String(text[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return (leading, trailing)
+    }
+}
+
+final class CurrencyAmountNode: SKNode {
+    enum Alignment {
+        case leading
+        case center
+    }
+
+    private static let formatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        return f
+    }()
+
+    private let alignment: Alignment
+    private let gap: CGFloat
+    private let iconNode: SKSpriteNode
+    private let amountLabel: SKLabelNode
+    private let leadingLabel: SKLabelNode?
+    private let trailingLabel: SKLabelNode?
+
+    private(set) var contentWidth: CGFloat = 0
+
+    init(kind: CurrencyKind,
+         amount: Int,
+         amountPrefix: String = "",
+         leadingText: String? = nil,
+         trailingText: String? = nil,
+         fontSize: CGFloat = 16,
+         iconSize: CGFloat? = nil,
+         fontColor: UIColor? = nil,
+         alignment: Alignment = .center,
+         gap: CGFloat = 5) {
+        self.alignment = alignment
+        self.gap = gap
+
+        let resolvedIconSize = iconSize ?? max(16, fontSize * 1.25)
+        iconNode = SKSpriteNode(texture: PixelArt.shared.softIconTexture(kind.icon, size: resolvedIconSize * 1.35),
+                                size: CGSize(width: resolvedIconSize, height: resolvedIconSize))
+
+        let textColor = fontColor ?? kind.color
+        amountLabel = CurrencyAmountNode.makeLabel(
+            "\(amountPrefix)\(CurrencyAmountNode.format(amount))",
+            fontSize: fontSize,
+            color: textColor
+        )
+
+        if let leadingText, !leadingText.isEmpty {
+            leadingLabel = CurrencyAmountNode.makeLabel(leadingText, fontSize: fontSize, color: textColor)
+        } else {
+            leadingLabel = nil
+        }
+
+        if let trailingText, !trailingText.isEmpty {
+            trailingLabel = CurrencyAmountNode.makeLabel(trailingText, fontSize: fontSize, color: textColor)
+        } else {
+            trailingLabel = nil
+        }
+
+        super.init()
+        if let leadingLabel { addChild(leadingLabel) }
+        addChild(iconNode)
+        addChild(amountLabel)
+        if let trailingLabel { addChild(trailingLabel) }
+        layoutContent()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private static func makeLabel(_ text: String, fontSize: CGFloat, color: UIColor) -> SKLabelNode {
+        let label = SKLabelNode(fontNamed: "Courier-Bold")
+        label.text = text
+        label.fontSize = fontSize
+        label.fontColor = color
+        label.verticalAlignmentMode = .center
+        label.horizontalAlignmentMode = .left
+        return label
+    }
+
+    private static func format(_ amount: Int) -> String {
+        formatter.string(from: NSNumber(value: amount)) ?? "\(amount)"
+    }
+
+    private func layoutContent() {
+        let optionalNodes: [SKNode?] = [
+            leadingLabel,
+            iconNode,
+            amountLabel,
+            trailingLabel
+        ]
+        let nodes = optionalNodes.compactMap { $0 }
+        var widths: [CGFloat] = []
+        for node in nodes {
+            if let sprite = node as? SKSpriteNode {
+                widths.append(sprite.size.width)
+            } else {
+                widths.append(max(1, node.frame.width))
+            }
+        }
+
+        contentWidth = widths.reduce(0, +) + gap * CGFloat(max(0, nodes.count - 1))
+        var x = alignment == .center ? -contentWidth / 2 : 0
+
+        for (index, node) in nodes.enumerated() {
+            let width = widths[index]
+            if node is SKLabelNode {
+                node.position = CGPoint(x: x, y: 0)
+            } else {
+                node.position = CGPoint(x: x + width / 2, y: 0)
+            }
+            x += width + gap
+        }
+    }
+}
+
+final class CurrencyAmountsNode: SKNode {
+    private(set) var contentWidth: CGFloat = 0
+
+    init(items: [CurrencyAmountItem],
+         amountPrefix: String = "",
+         fontSize: CGFloat = 16,
+         iconSize: CGFloat? = nil,
+         spacing: CGFloat = 14,
+         alignment: CurrencyAmountNode.Alignment = .center) {
+        super.init()
+
+        let amountNodes = items
+            .filter { $0.amount > 0 }
+            .map {
+                CurrencyAmountNode(kind: $0.kind,
+                                   amount: $0.amount,
+                                   amountPrefix: amountPrefix,
+                                   fontSize: fontSize,
+                                   iconSize: iconSize,
+                                   alignment: .leading)
+            }
+
+        contentWidth = amountNodes.reduce(0) { $0 + $1.contentWidth }
+            + spacing * CGFloat(max(0, amountNodes.count - 1))
+        var x = alignment == .center ? -contentWidth / 2 : 0
+
+        for node in amountNodes {
+            node.position = CGPoint(x: x, y: 0)
+            addChild(node)
+            x += node.contentWidth + spacing
+        }
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+}
+
 // MARK: - HUD Coin/Diamond Counter
 
 final class CurrencyNode: SKNode {

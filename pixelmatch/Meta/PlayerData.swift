@@ -253,6 +253,15 @@ final class PlayerData {
         }
     }
 
+    func addBooster(_ type: BoosterType, count: Int = 1) {
+        switch type {
+        case .hammer: hammerCount += count
+        case .shuffle: shuffleCount += count
+        case .extraMoves: extraMovesCount += count
+        case .colorBomb: colorBombCount += count
+        }
+    }
+
     func useBooster(_ type: BoosterType) -> Bool {
         switch type {
         case .hammer:

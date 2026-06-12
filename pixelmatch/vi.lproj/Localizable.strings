@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ THOÁT";
 "dialog.out_of_moves.title" = "HẾT LƯỢT!";
 "dialog.out_of_moves.message" = "Tiếp tục với +%d lượt?";
-"dialog.you_have_diamonds" = "Bạn có: %d 💎";
+"dialog.you_have_diamonds" = "Bạn có: %d";
 "dialog.continue" = "TIẾP TỤC!";
 "dialog.get_diamonds" = "NHẬN KIM CƯƠNG";
 "dialog.no_thanks" = "KHÔNG, CẢM ƠN";
 "dialog.no_lives.title" = "HẾT MẠNG!";
 "dialog.next_life" = "Mạng kế tiếp sau: %@";
-"dialog.refill" = "NẠP ĐẦY (15 💎)";
+"dialog.refill" = "NẠP ĐẦY (15)";
 "dialog.wait_life" = "CHỜ MẠNG MIỄN PHÍ";
 "dialog.power_up" = "TĂNG SỨC MẠNH!";
 "dialog.select_boosters" = "Chọn vật phẩm hỗ trợ trước khi chơi:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Chạm vào một ô để xóa nó!";
 "game.extra_moves" = "+5 LƯỢT!";
-"game.need_more_booster" = "Cần thêm %@!\nGiá: %d 🪙";
+"game.need_more_booster" = "Cần thêm %@!\nGiá: %d";
 "game.double_points" = "⚡ ĐIỂM NHÂN ĐÔI!";
 "game.board_shuffled" = "🔄 Đã xáo trộn bàn cờ!";
 "game.not_enough_diamonds" = "Không đủ kim cương!";

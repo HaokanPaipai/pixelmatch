@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ STOPPEN";
 "dialog.out_of_moves.title" = "GEEN ZETTEN MEER!";
 "dialog.out_of_moves.message" = "Doorgaan met +%d zetten?";
-"dialog.you_have_diamonds" = "Je hebt: %d 💎";
+"dialog.you_have_diamonds" = "Je hebt: %d";
 "dialog.continue" = "DOORGAAN!";
 "dialog.get_diamonds" = "DIAMANTEN HALEN";
 "dialog.no_thanks" = "NEE, BEDANKT";
 "dialog.no_lives.title" = "GEEN LEVENS!";
 "dialog.next_life" = "Volgend leven over: %@";
-"dialog.refill" = "BIJVULLEN (15 💎)";
+"dialog.refill" = "BIJVULLEN (15)";
 "dialog.wait_life" = "WACHT OP GRATIS LEVEN";
 "dialog.power_up" = "POWER-UP!";
 "dialog.select_boosters" = "Kies boosters voordat je speelt:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Tik op een vakje om het te verwijderen!";
 "game.extra_moves" = "+5 ZETTEN!";
-"game.need_more_booster" = "Meer %@ nodig!\nKosten: %d 🪙";
+"game.need_more_booster" = "Meer %@ nodig!\nKosten: %d";
 "game.double_points" = "⚡ DUBBELE PUNTEN!";
 "game.board_shuffled" = "🔄 Bord geschud!";
 "game.not_enough_diamonds" = "Niet genoeg diamanten!";

@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ ÇIK";
 "dialog.out_of_moves.title" = "HAMLE KALMADI!";
 "dialog.out_of_moves.message" = "+%d hamleyle devam edilsin mi?";
-"dialog.you_have_diamonds" = "Sahip olduğun: %d 💎";
+"dialog.you_have_diamonds" = "Sahip olduğun: %d";
 "dialog.continue" = "DEVAM ET!";
 "dialog.get_diamonds" = "ELMAS AL";
 "dialog.no_thanks" = "HAYIR, TEŞEKKÜRLER";
 "dialog.no_lives.title" = "CAN YOK!";
 "dialog.next_life" = "Sonraki can: %@";
-"dialog.refill" = "DOLDUR (15 💎)";
+"dialog.refill" = "DOLDUR (15)";
 "dialog.wait_life" = "ÜCRETSİZ CANI BEKLE";
 "dialog.power_up" = "GÜÇLEN!";
 "dialog.select_boosters" = "Oynamadan önce güçlendiricileri seç:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Kaldırmak için bir kareye dokun!";
 "game.extra_moves" = "+5 HAMLE!";
-"game.need_more_booster" = "Daha fazla %@ gerek!\nMaliyet: %d 🪙";
+"game.need_more_booster" = "Daha fazla %@ gerek!\nMaliyet: %d";
 "game.double_points" = "⚡ ÇİFT PUAN!";
 "game.board_shuffled" = "🔄 Tahta karıştırıldı!";
 "game.not_enough_diamonds" = "Yeterli elmas yok!";

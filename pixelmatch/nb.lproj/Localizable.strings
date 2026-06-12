@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ AVSLUTT";
 "dialog.out_of_moves.title" = "TOM FOR TREKK!";
 "dialog.out_of_moves.message" = "Fortsette med +%d trekk?";
-"dialog.you_have_diamonds" = "Du har: %d 💎";
+"dialog.you_have_diamonds" = "Du har: %d";
 "dialog.continue" = "FORTSETT!";
 "dialog.get_diamonds" = "FÅ DIAMANTER";
 "dialog.no_thanks" = "NEI TAKK";
 "dialog.no_lives.title" = "INGEN LIV!";
 "dialog.next_life" = "Neste liv om: %@";
-"dialog.refill" = "FYLL OPP (15 💎)";
+"dialog.refill" = "FYLL OPP (15)";
 "dialog.wait_life" = "VENT PÅ GRATIS LIV";
 "dialog.power_up" = "POWER-UP!";
 "dialog.select_boosters" = "Velg boostere før du spiller:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Trykk på en brikke for å fjerne den!";
 "game.extra_moves" = "+5 TREKK!";
-"game.need_more_booster" = "Trenger mer %@!\nPris: %d 🪙";
+"game.need_more_booster" = "Trenger mer %@!\nPris: %d";
 "game.double_points" = "⚡ DOBLE POENG!";
 "game.board_shuffled" = "🔄 Brettet er stokket!";
 "game.not_enough_diamonds" = "Ikke nok diamanter!";

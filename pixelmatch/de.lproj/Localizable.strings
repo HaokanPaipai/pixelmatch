@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ BEENDEN";
 "dialog.out_of_moves.title" = "KEINE ZÜGE!";
 "dialog.out_of_moves.message" = "Mit +%d Zügen fortfahren?";
-"dialog.you_have_diamonds" = "Du hast: %d 💎";
+"dialog.you_have_diamonds" = "Du hast: %d";
 "dialog.continue" = "WEITER!";
 "dialog.get_diamonds" = "DIAMANTEN";
 "dialog.no_thanks" = "NEIN DANKE";
 "dialog.no_lives.title" = "KEINE LEBEN!";
 "dialog.next_life" = "Nächstes Leben: %@";
-"dialog.refill" = "AUFFÜLLEN (15 💎)";
+"dialog.refill" = "AUFFÜLLEN (15)";
 "dialog.wait_life" = "GRATISLEBEN WARTEN";
 "dialog.power_up" = "POWER-UP!";
 "dialog.select_boosters" = "Booster vor dem Start wählen:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Feld antippen!";
 "game.extra_moves" = "+5 ZÜGE!";
-"game.need_more_booster" = "Mehr %@ nötig!\nKosten: %d 🪙";
+"game.need_more_booster" = "Mehr %@ nötig!\nKosten: %d";
 "game.double_points" = "⚡ DOPPELTE PUNKTE!";
 "game.board_shuffled" = "🔄 Brett gemischt!";
 "game.not_enough_diamonds" = "Nicht genug Diamanten!";

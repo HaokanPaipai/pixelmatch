@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ SAIR";
 "dialog.out_of_moves.title" = "SEM JOGADAS!";
 "dialog.out_of_moves.message" = "Continuar com +%d jogadas?";
-"dialog.you_have_diamonds" = "Você tem: %d 💎";
+"dialog.you_have_diamonds" = "Você tem: %d";
 "dialog.continue" = "CONTINUAR!";
 "dialog.get_diamonds" = "OBTER DIAMANTES";
 "dialog.no_thanks" = "NÃO, OBRIGADO";
 "dialog.no_lives.title" = "SEM VIDAS!";
 "dialog.next_life" = "Próxima vida em: %@";
-"dialog.refill" = "REABASTECER (15 💎)";
+"dialog.refill" = "REABASTECER (15)";
 "dialog.wait_life" = "ESPERAR VIDA GRÁTIS";
 "dialog.power_up" = "TURBINE!";
 "dialog.select_boosters" = "Escolha os turbinadores antes de jogar:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Toque numa peça para removê-la!";
 "game.extra_moves" = "+5 JOGADAS!";
-"game.need_more_booster" = "Precisa de mais %@!\nCusto: %d 🪙";
+"game.need_more_booster" = "Precisa de mais %@!\nCusto: %d";
 "game.double_points" = "⚡ PONTOS EM DOBRO!";
 "game.board_shuffled" = "🔄 Tabuleiro embaralhado!";
 "game.not_enough_diamonds" = "Diamantes insuficientes!";

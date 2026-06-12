@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ SAIR";
 "dialog.out_of_moves.title" = "SEM MOVIMENTOS!";
 "dialog.out_of_moves.message" = "Continuar com +%d movimentos?";
-"dialog.you_have_diamonds" = "Tens: %d 💎";
+"dialog.you_have_diamonds" = "Tens: %d";
 "dialog.continue" = "CONTINUAR!";
 "dialog.get_diamonds" = "OBTER DIAMANTES";
 "dialog.no_thanks" = "NÃO, OBRIGADO";
 "dialog.no_lives.title" = "SEM VIDAS!";
 "dialog.next_life" = "Próxima vida em: %@";
-"dialog.refill" = "REABASTECER (15 💎)";
+"dialog.refill" = "REABASTECER (15)";
 "dialog.wait_life" = "ESPERAR POR VIDA GRÁTIS";
 "dialog.power_up" = "REFORÇA!";
 "dialog.select_boosters" = "Escolhe os reforços antes de jogar:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Toca numa peça para a remover!";
 "game.extra_moves" = "+5 MOVIMENTOS!";
-"game.need_more_booster" = "Precisas de mais %@!\nCusto: %d 🪙";
+"game.need_more_booster" = "Precisas de mais %@!\nCusto: %d";
 "game.double_points" = "⚡ PONTOS A DOBRAR!";
 "game.board_shuffled" = "🔄 Tabuleiro baralhado!";
 "game.not_enough_diamonds" = "Diamantes insuficientes!";

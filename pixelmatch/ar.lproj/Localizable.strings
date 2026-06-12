@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ خروج";
 "dialog.out_of_moves.title" = "لا حركات!";
 "dialog.out_of_moves.message" = "المتابعة مع +%d حركات?";
-"dialog.you_have_diamonds" = "لديك: %d 💎";
+"dialog.you_have_diamonds" = "لديك: %d";
 "dialog.continue" = "متابعة!";
 "dialog.get_diamonds" = "احصل على ماس";
 "dialog.no_thanks" = "لا شكرا";
 "dialog.no_lives.title" = "لا قلوب!";
 "dialog.next_life" = "القلب التالي: %@";
-"dialog.refill" = "تعبئة (15 💎)";
+"dialog.refill" = "تعبئة (15)";
 "dialog.wait_life" = "انتظر قلبا مجانيا";
 "dialog.power_up" = "تعزيز!";
 "dialog.select_boosters" = "اختر المعززات قبل اللعب:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 اضغط بلاطة لإزالتها!";
 "game.extra_moves" = "+5 حركات!";
-"game.need_more_booster" = "تحتاج المزيد من %@!\nالتكلفة: %d 🪙";
+"game.need_more_booster" = "تحتاج المزيد من %@!\nالتكلفة: %d";
 "game.double_points" = "⚡ نقاط مضاعفة!";
 "game.board_shuffled" = "🔄 تم خلط اللوحة!";
 "game.not_enough_diamonds" = "الماس غير كاف!";

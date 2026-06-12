@@ -154,13 +154,13 @@
 "dialog.out_of_moves.hint.chocolate" = "还剩 %d 块巧克力";
 "dialog.out_of_moves.hint.chests" = "还剩 %d 个宝箱";
 "dialog.out_of_moves.hint.keys" = "还剩 %d 把钥匙";
-"dialog.you_have_diamonds" = "你有: %d 💎";
+"dialog.you_have_diamonds" = "你有: %d";
 "dialog.continue" = "继续!";
 "dialog.get_diamonds" = "获取钻石";
 "dialog.no_thanks" = "不用了";
 "dialog.no_lives.title" = "没有体力!";
 "dialog.next_life" = "下一颗体力: %@";
-"dialog.refill" = "补满 (15 💎)";
+"dialog.refill" = "补满 (15)";
 "dialog.wait_life" = "等待免费体力";
 "dialog.power_up" = "强化!";
 "dialog.select_boosters" = "开始前选择道具:";
@@ -192,7 +192,7 @@
 
 "game.hammer_hint" = "🔨 点击一个格子移除!";
 "game.extra_moves" = "+5 步!";
-"game.need_more_booster" = "%@不足!\n花费: %d 🪙";
+"game.need_more_booster" = "%@不足!\n花费: %d";
 "game.double_points" = "⚡ 双倍分数!";
 "game.board_shuffled" = "🔄 棋盘已洗牌!";
 "game.chocolate_spread" = "巧克力蔓延!";

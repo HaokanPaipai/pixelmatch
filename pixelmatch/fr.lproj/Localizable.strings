@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ QUITTER";
 "dialog.out_of_moves.title" = "PLUS DE COUPS!";
 "dialog.out_of_moves.message" = "Continuer avec +%d coups?";
-"dialog.you_have_diamonds" = "Vous avez: %d 💎";
+"dialog.you_have_diamonds" = "Vous avez: %d";
 "dialog.continue" = "CONTINUER!";
-"dialog.get_diamonds" = "OBTENIR 💎";
+"dialog.get_diamonds" = "OBTENIR";
 "dialog.no_thanks" = "NON MERCI";
 "dialog.no_lives.title" = "PLUS DE VIES!";
 "dialog.next_life" = "Prochaine vie: %@";
-"dialog.refill" = "REMPLIR (15 💎)";
+"dialog.refill" = "REMPLIR (15)";
 "dialog.wait_life" = "ATTENDRE UNE VIE";
 "dialog.power_up" = "BOOST!";
 "dialog.select_boosters" = "Choisissez vos boosters:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Touchez une case!";
 "game.extra_moves" = "+5 COUPS!";
-"game.need_more_booster" = "Plus de %@!\nCoût: %d 🪙";
+"game.need_more_booster" = "Plus de %@!\nCoût: %d";
 "game.double_points" = "⚡ POINTS x2!";
 "game.board_shuffled" = "🔄 Plateau mélangé!";
 "game.not_enough_diamonds" = "Pas assez de diamants!";

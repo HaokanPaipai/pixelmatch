@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ AFSLUT";
 "dialog.out_of_moves.title" = "INGEN TRÆK TILBAGE!";
 "dialog.out_of_moves.message" = "Fortsæt med +%d træk?";
-"dialog.you_have_diamonds" = "Du har: %d 💎";
+"dialog.you_have_diamonds" = "Du har: %d";
 "dialog.continue" = "FORTSÆT!";
 "dialog.get_diamonds" = "FÅ DIAMANTER";
 "dialog.no_thanks" = "NEJ TAK";
 "dialog.no_lives.title" = "INGEN LIV!";
 "dialog.next_life" = "Næste liv om: %@";
-"dialog.refill" = "GENOPFYLD (15 💎)";
+"dialog.refill" = "GENOPFYLD (15)";
 "dialog.wait_life" = "VENT PÅ GRATIS LIV";
 "dialog.power_up" = "POWER-UP!";
 "dialog.select_boosters" = "Vælg boostere, før du spiller:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Tryk på en brik for at fjerne den!";
 "game.extra_moves" = "+5 TRÆK!";
-"game.need_more_booster" = "Brug for flere %@!\nPris: %d 🪙";
+"game.need_more_booster" = "Brug for flere %@!\nPris: %d";
 "game.double_points" = "⚡ DOBBELTE POINT!";
 "game.board_shuffled" = "🔄 Brættet er blandet!";
 "game.not_enough_diamonds" = "Ikke nok diamanter!";

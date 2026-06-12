@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ 나가기";
 "dialog.out_of_moves.title" = "이동 없음!";
 "dialog.out_of_moves.message" = "+%d 이동으로 계속할까요?";
-"dialog.you_have_diamonds" = "보유: %d 💎";
+"dialog.you_have_diamonds" = "보유: %d";
 "dialog.continue" = "계속!";
 "dialog.get_diamonds" = "다이아 얻기";
 "dialog.no_thanks" = "괜찮아요";
 "dialog.no_lives.title" = "라이프 없음!";
 "dialog.next_life" = "다음 라이프: %@";
-"dialog.refill" = "충전 (15 💎)";
+"dialog.refill" = "충전 (15)";
 "dialog.wait_life" = "무료 라이프 기다리기";
 "dialog.power_up" = "파워 업!";
 "dialog.select_boosters" = "시작 전 부스터 선택:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 타일을 눌러 제거!";
 "game.extra_moves" = "+5 이동!";
-"game.need_more_booster" = "%@ 부족!\n비용: %d 🪙";
+"game.need_more_booster" = "%@ 부족!\n비용: %d";
 "game.double_points" = "⚡ 점수 2배!";
 "game.board_shuffled" = "🔄 보드 셔플됨!";
 "game.not_enough_diamonds" = "다이아가 부족합니다!";

@@ -880,9 +880,57 @@ final class GameScene: SKScene {
         AudioManager.shared.play(.specialCreated)
     }
 
+    // 道具数量为 0：弹轻量购买确认（金币够就地买 1 个并继续道具流程，
+    // 不够则引导商店金币区），替代原先无后续动作的飘字提示。
     private func showBuyBoosterPrompt(_ type: BoosterType) {
-        showFloatingText(L10n.fmt("game.need_more_booster", type.name, type.cost, fallback: "Need more %@!\nCost: %d 🪙"),
-                         color: UIColor(hex: "#FF9500"))
+        state = .paused
+        hintTimer?.invalidate()
+
+        let dialog = BuyBoosterDialog(sceneSize: size, type: type)
+        dialog.zPosition = 100
+        addChild(dialog)
+
+        let resume = { [weak self] in
+            self?.state = .idle
+            self?.startHintTimer()
+        }
+        dialog.onCancel = { [weak dialog] in
+            dialog?.dismiss()
+            resume()
+        }
+        dialog.onBuy = { [weak self, weak dialog] in
+            guard let self = self else { return }
+            dialog?.dismiss()
+            guard PlayerData.shared.spendCoins(type.cost) else {
+                resume()
+                return
+            }
+            PlayerData.shared.addBooster(type)
+            AudioManager.shared.play(.coinCollect)
+            self.hud.updateBoosterCounts()
+            resume()
+            // 买完立刻继续玩家原本想做的事（activateBooster 要求 .idle）。
+            self.activateBooster(type)
+        }
+        dialog.onGetCoins = { [weak self, weak dialog] in
+            dialog?.dismiss()
+            self?.showShop(focus: .coins, source: "booster_\(type)", onDismiss: resume)
+        }
+    }
+
+    // 游戏内打开商店（金币/钻石不足引导）。期间保持 .paused 屏蔽棋盘输入；
+    // onDismiss 由调用方决定关闭后如何恢复（续关引导下 OutOfMoves 弹窗仍在，无需恢复）。
+    private func showShop(focus: ShopDialog.Section, source: String, onDismiss: (() -> Void)? = nil) {
+        let dialog = ShopDialog(sceneSize: size, safeAreaInsets: safeAreaInsets,
+                                focus: focus, source: source)
+        dialog.zPosition = 110
+        addChild(dialog)
+        dialog.onCurrencyChanged = { [weak self] in self?.hud.updateBoosterCounts() }
+        dialog.onClose = { [weak self, weak dialog] in
+            dialog?.dismiss()
+            self?.hud.updateBoosterCounts()
+            onDismiss?()
+        }
     }
 
     private func showBoosterIndicator(_ text: String) {
@@ -1199,7 +1247,12 @@ final class GameScene: SKScene {
         let prevState = state
         state = .paused
         hintTimer?.invalidate()
+        presentPauseDialog(prevState: prevState)
+    }
 
+    // 暂停菜单可能被「设置」临时顶替，关闭设置后要原样弹回，
+    // 否则场景停留在 .paused 且屏幕上没有任何弹窗，玩家无法继续操作。
+    private func presentPauseDialog(prevState: GameState) {
         let dialog = PauseDialogNode(sceneSize: size)
         dialog.zPosition = 100
         addChild(dialog)
@@ -1215,17 +1268,21 @@ final class GameScene: SKScene {
         dialog.onQuit = { [weak self] in
             self?.goToMap()
         }
-        dialog.onSettings = { [weak self] in
-            dialog.dismiss()
-            self?.showSettings()
+        dialog.onSettings = { [weak self, weak dialog] in
+            dialog?.dismiss()
+            self?.showSettings { [weak self] in
+                self?.presentPauseDialog(prevState: prevState)
+            }
         }
     }
 
-    private func showSettings() {
+    private func showSettings(onClose: (() -> Void)? = nil) {
         let dialog = SettingsDialog(sceneSize: size)
         dialog.zPosition = 101
         addChild(dialog)
-        dialog.onClose = { [weak dialog] in dialog?.dismiss() }
+        dialog.onClose = { [weak dialog] in
+            dialog?.dismiss { onClose?() }
+        }
     }
 
     private func showOutOfMoves() {
@@ -1250,7 +1307,9 @@ final class GameScene: SKScene {
                 self.state = .idle
                 self.checkDeadlock()
             } else {
-                self.showFloatingText(L10n.tr("game.not_enough_diamonds", fallback: "Not enough diamonds!"), color: UIColor(hex: "#FF3B30"))
+                // 钻石不足：直接弹商店定位钻石区。OutOfMoves 弹窗保留在下层，
+                // 买完关掉商店可接着点 CONTINUE。
+                self.showShop(focus: .diamonds, source: "out_of_moves")
             }
         }
         // HKAdKit "extraMoves" placement：看激励视频换 +5 步，不消耗钻石。

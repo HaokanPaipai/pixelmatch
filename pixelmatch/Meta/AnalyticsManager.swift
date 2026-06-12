@@ -18,6 +18,7 @@ enum AnalyticsEventName: String {
     case iapPurchaseSuccess = "iap_purchase_success"
     case iapPurchaseFail = "iap_purchase_fail"
     case iapRestore = "iap_restore"
+    case shopOpen = "shop_open"
     // 广告生命周期（由 PixelMatchAdAnalyticsProvider 映射 HKAdKit 的 AdEvent）
     case adLoadStart = "ad_load_start"
     case adLoaded = "ad_loaded"

@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ AVSLUTA";
 "dialog.out_of_moves.title" = "SLUT PÅ DRAG!";
 "dialog.out_of_moves.message" = "Fortsätta med +%d drag?";
-"dialog.you_have_diamonds" = "Du har: %d 💎";
+"dialog.you_have_diamonds" = "Du har: %d";
 "dialog.continue" = "FORTSÄTT!";
 "dialog.get_diamonds" = "SKAFFA DIAMANTER";
 "dialog.no_thanks" = "NEJ TACK";
 "dialog.no_lives.title" = "INGA LIV!";
 "dialog.next_life" = "Nästa liv om: %@";
-"dialog.refill" = "FYLL PÅ (15 💎)";
+"dialog.refill" = "FYLL PÅ (15)";
 "dialog.wait_life" = "VÄNTA PÅ GRATIS LIV";
 "dialog.power_up" = "POWER-UP!";
 "dialog.select_boosters" = "Välj boostrar innan du spelar:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Tryck på en bricka för att ta bort den!";
 "game.extra_moves" = "+5 DRAG!";
-"game.need_more_booster" = "Behöver mer %@!\nKostnad: %d 🪙";
+"game.need_more_booster" = "Behöver mer %@!\nKostnad: %d";
 "game.double_points" = "⚡ DUBBLA POÄNG!";
 "game.board_shuffled" = "🔄 Brädet blandat!";
 "game.not_enough_diamonds" = "Inte tillräckligt med diamanter!";

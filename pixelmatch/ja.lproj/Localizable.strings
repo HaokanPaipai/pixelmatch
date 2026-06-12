@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ 終了";
 "dialog.out_of_moves.title" = "手数切れ!";
 "dialog.out_of_moves.message" = "+%d 手で続けますか?";
-"dialog.you_have_diamonds" = "所持: %d 💎";
+"dialog.you_have_diamonds" = "所持: %d";
 "dialog.continue" = "続ける!";
 "dialog.get_diamonds" = "ダイヤ入手";
 "dialog.no_thanks" = "やめる";
 "dialog.no_lives.title" = "ライフなし!";
 "dialog.next_life" = "次のライフ: %@";
-"dialog.refill" = "回復 (15 💎)";
+"dialog.refill" = "回復 (15)";
 "dialog.wait_life" = "無料ライフを待つ";
 "dialog.power_up" = "パワーアップ!";
 "dialog.select_boosters" = "開始前にブースターを選択:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 タイルをタップして消去!";
 "game.extra_moves" = "+5 手!";
-"game.need_more_booster" = "%@が足りません!\n必要: %d 🪙";
+"game.need_more_booster" = "%@が足りません!\n必要: %d";
 "game.double_points" = "⚡ スコア2倍!";
 "game.board_shuffled" = "🔄 盤面をシャッフル!";
 "game.not_enough_diamonds" = "ダイヤが足りません!";

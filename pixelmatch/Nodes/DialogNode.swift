@@ -198,29 +198,29 @@ final class OutOfMovesDialog: DialogNode {
             addChild(hintLbl)
         }
 
-        // Diamond icon + cost
+        // Diamond cost
         let diamonds = PlayerData.shared.diamonds
         let canAfford = diamonds >= cost
-        let diamondTex = PixelArt.shared.softIconTexture(.diamond, size: 34)
-        let dIcon = SKSpriteNode(texture: diamondTex, size: CGSize(width: 32, height: 32))
-        dIcon.position = CGPoint(x: -25, y: diamondY)
-        addChild(dIcon)
+        let costNode = CurrencyAmountNode(kind: .diamonds,
+                                          amount: cost,
+                                          amountPrefix: "×",
+                                          fontSize: 26,
+                                          iconSize: 32,
+                                          fontColor: canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF3B30"))
+        costNode.position = CGPoint(x: 0, y: diamondY)
+        addChild(costNode)
 
-        let costLbl = SKLabelNode(fontNamed: "Courier-Bold")
-        costLbl.text = "×\(cost)"
-        costLbl.fontSize = 26
-        costLbl.fontColor = canAfford ? UIColor(hex: "#AF52DE") : UIColor(hex: "#FF3B30")
-        costLbl.verticalAlignmentMode = .center
-        costLbl.position = CGPoint(x: 15, y: diamondY)
-        addChild(costLbl)
-
-        let haveLbl = SKLabelNode(fontNamed: "Courier")
-        haveLbl.text = L10n.fmt("dialog.you_have_diamonds", diamonds, fallback: "You have: %d 💎")
-        haveLbl.fontSize = 14
-        haveLbl.fontColor = UIColor(hex: "#7799CC")
-        haveLbl.verticalAlignmentMode = .center
-        haveLbl.position = CGPoint(x: 0, y: haveY)
-        addChild(haveLbl)
+        let haveText = L10n.fmt("dialog.you_have_diamonds", diamonds, fallback: "You have: %d")
+        let haveParts = CurrencyText.surroundingAmount(in: haveText, amount: diamonds)
+        let haveNode = CurrencyAmountNode(kind: .diamonds,
+                                          amount: diamonds,
+                                          leadingText: haveParts.leading,
+                                          trailingText: haveParts.trailing,
+                                          fontSize: 14,
+                                          iconSize: 16,
+                                          fontColor: UIColor(hex: "#7799CC"))
+        haveNode.position = CGPoint(x: 0, y: haveY)
+        addChild(haveNode)
 
         let continueBtn = PixelButton(title: canAfford ? L10n.tr("dialog.continue", fallback: "CONTINUE!") : L10n.tr("dialog.get_diamonds", fallback: "GET DIAMONDS"),
                                       icon: .diamond,
@@ -341,7 +341,7 @@ final class NoLivesDialog: DialogNode {
         addChild(nextLbl)
 
         // Refill button
-        let refillBtn = PixelButton(title: L10n.tr("dialog.refill", fallback: "REFILL (15 💎)"),
+        let refillBtn = PixelButton(title: L10n.tr("dialog.refill", fallback: "REFILL (15)"),
                                     icon: .diamond,
                                     size: CGSize(width: 240, height: 52),
                                     style: .primary,

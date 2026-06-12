@@ -111,13 +111,13 @@
 "dialog.quit" = "✕ ESCI";
 "dialog.out_of_moves.title" = "MOSSE FINITE!";
 "dialog.out_of_moves.message" = "Continuare con +%d mosse?";
-"dialog.you_have_diamonds" = "Hai: %d 💎";
+"dialog.you_have_diamonds" = "Hai: %d";
 "dialog.continue" = "CONTINUA!";
 "dialog.get_diamonds" = "OTTIENI DIAMANTI";
 "dialog.no_thanks" = "NO, GRAZIE";
 "dialog.no_lives.title" = "NIENTE VITE!";
 "dialog.next_life" = "Prossima vita tra: %@";
-"dialog.refill" = "RICARICA (15 💎)";
+"dialog.refill" = "RICARICA (15)";
 "dialog.wait_life" = "ASPETTA UNA VITA GRATIS";
 "dialog.power_up" = "POTENZIA!";
 "dialog.select_boosters" = "Scegli i potenziamenti prima di giocare:";
@@ -134,7 +134,7 @@
 
 "game.hammer_hint" = "🔨 Tocca una tessera per rimuoverla!";
 "game.extra_moves" = "+5 MOSSE!";
-"game.need_more_booster" = "Servono più %@!\nCosto: %d 🪙";
+"game.need_more_booster" = "Servono più %@!\nCosto: %d";
 "game.double_points" = "⚡ PUNTI DOPPI!";
 "game.board_shuffled" = "🔄 Tabellone mescolato!";
 "game.not_enough_diamonds" = "Diamanti insufficienti!";
